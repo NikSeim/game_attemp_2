@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Pixel World Explorer</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <div id="score">
+        <img src="image/tokendisgn.jpg" alt="Tokens" id="token-image">
+        <span id="token-count">0</span>
+    </div>
+    
+    <div id="game-container">
+        <div id="game-world"></div>
+        <div id="controls">
+            <div id="step-container">
+                <img src="image/step.jpg" id="step-indicator" alt="Шаги">
+                <span id="step-counter">150/150</span>
+            </div>
+            <button id="new-game">New Game</button>
+        </div>
+    </div>
+
+    <!-- Вкладка "Друзья" -->
+    <div id="friends-content">
+        <h1>Invite friends<br>& get Bonus!</h1>
+        <div class="invite-container">
+            <div class="invite-box">
+                <img src="image/gift.jpg" alt="Gift" class="gift-image">
+                <div class="invite-text">
+                    <p class="invite-title">Invite friends</p>
+                    <p class="invite-bonus">💰 <span class="bonus-amount">+5,000</span> For you and your Friends</p>
+                </div>
+            </div>
+            <div class="invite-box">
+                <img src="image/gift.jpg" alt="Gift" class="gift-image">
+                <div class="invite-text">
+                    <p class="invite-title">Invite friends with Telegram Premium</p>
+                    <p class="invite-bonus">💰 <span class="bonus-amount">+25,000</span> For you and your Friends</p>
+                </div>
+            </div>
+        </div>
+        <div class="extra-buttons">
+            <button class="long-button">Invite friends</button>
+            <button class="square-button">
+                <img src="image/copy.jpg" alt="Copy" class="copy-image">
+            </button>
+        </div>
+    </div>
+
+    <!-- Вкладка "Задания" -->
+    <div id="tasks-content">
+        <img src="image/tokendisgn.jpg" alt="Tasks Icon" class="tasks-icon">
+        <h1>Tasks</h1>
+        <p>You will instantly earn points for<br>completing each task.</p>
+        <div class="tasks-container">
+            <div class="task-box">
+                <div class="task-info">
+                    <img src="image/tokendisgn.jpg" alt="Task Icon" class="task-icon">
+                    <div class="task-title-container">
+                        <p class="task-title">Farm 20,000</p>
+                        <p class="task-subtitle">Reward for subscribe</p>
+                    </div>
+                </div>
+                <button class="claim-button">Claim</button>
+            </div>
+            <div class="task-box">
+                <div class="task-info">
+                    <img src="image/tokendisgn.jpg" alt="Task Icon" class="task-icon">
+                    <div class="task-title-container">
+                        <p class="task-title">Farm 10,000</p>
+                        <p class="task-subtitle">Reward for subscribe</p>
+                    </div>
+                </div>
+                <button class="claim-button">Claim</button>
+            </div>
+            <div class="task-box">
+                <div class="task-info">
+                    <img src="image/tokendisgn.jpg" alt="Task Icon" class="task-icon">
+                    <div class="task-title-container">
+                        <p class="task-title">Farm 7,500</p>
+                        <p class="task-subtitle">Reward for subscribe</p>
+                    </div>
+                </div>
+                <button class="claim-button">Claim</button>
+            </div>
+            <!-- Add more tasks here as needed -->
+            <div class="task-box">
+                <div class="task-info">
+                    <img src="image/tokendisgn.jpg" alt="Task Icon" class="task-icon">
+                    <div class="task-title-container">
+                        <p class="task-title">Farm 5,000</p>
+                        <p class="task-subtitle">Reward for subscribe</p>
+                    </div>
+                </div>
+                <button class="claim-button">Claim</button>
+            </div>
+            <div class="task-box">
+                <div class="task-info">
+                    <img src="image/tokendisgn.jpg" alt="Task Icon" class="task-icon">
+                    <div class="task-title-container">
+                        <p class="task-title">Farm 5,000</p>
+                        <p class="task-subtitle">Reward for subscribe</p>
+                    </div>
+                </div>
+                <button class="claim-button">Claim</button>
+            </div>
+            <div class="task-box">
+                <div class="task-info">
+                    <img src="image/tokendisgn.jpg" alt="Task Icon" class="task-icon">
+                    <div class="task-title-container">
+                        <p class="task-title">Farm 2,500</p>
+                        <p class="task-subtitle">Reward for subscribe</p>
+                    </div>
+                </div>
+                <button class="claim-button">Claim</button>
+            </div>
+            <div class="task-box">
+                <div class="task-info">
+                    <img src="image/tokendisgn.jpg" alt="Task Icon" class="task-icon">
+                    <div class="task-title-container">
+                        <p class="task-title">Farm 2,500</p>
+                        <p class="task-subtitle">Reward for subscribe</p>
+                    </div>
+                </div>
+                <button class="claim-button">Claim</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-bar">
+        <button id="game-tab" class="tab-button">
+            <img src="image/home.jpg" alt="Игра">
+        </button>
+        <button id="friends-tab" class="tab-button">
+            <img src="image/referal.jpg" alt="Друзья">
+        </button>
+        <button id="tasks-tab" class="tab-button">
+            <img src="image/task.jpg" alt="Задания">
+        </button>
+    </div>
+    
+    <script src="js/main.js"></script>
+</body>
+</html>
