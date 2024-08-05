@@ -15,20 +15,19 @@ const objects = [
     { src: '../image/bomb.jpg', value: -10 }
 ];
 
-// Event listener for exit button
 exitButton.addEventListener('click', () => {
     const savedGameState = localStorage.getItem('gameState');
     let gameState = savedGameState ? JSON.parse(savedGameState) : null;
 
     if (gameState) {
         gameState.coins += coins;
+        gameState.steps--; // Отнимаем один шаг
         localStorage.setItem('gameState', JSON.stringify(gameState));
     }
 
     window.location.href = '../index.html';
 });
 
-// Function to create falling objects
 function createFallingObject() {
     const objectData = objects[Math.floor(Math.random() * objects.length)];
     const object = document.createElement('img');
@@ -49,7 +48,6 @@ function createFallingObject() {
     animateFallingObject(object);
 }
 
-// Function to animate falling objects
 function animateFallingObject(object) {
     let top = -50; // Start above the game area
     const fallSpeed = Math.random() * 2 + 2; // Random fall speed
@@ -67,7 +65,6 @@ function animateFallingObject(object) {
     fall();
 }
 
-// Function to start the game
 function startGame() {
     // Initialize the timer display
     timerElement.textContent = `0:30`;
@@ -100,15 +97,16 @@ function startGame() {
     setTimeout(() => {
         clearInterval(gameInterval);
         clearInterval(timerInterval);
+        const savedGameState = localStorage.getItem('gameState');
+        let gameState = savedGameState ? JSON.parse(savedGameState) : null;
+
+        if (gameState) {
+            gameState.coins += coins;
+            gameState.steps--; // Отнимаем один шаг
+            localStorage.setItem('gameState', JSON.stringify(gameState));
+        }
+
         setTimeout(() => {
-            const savedGameState = localStorage.getItem('gameState');
-            let gameState = savedGameState ? JSON.parse(savedGameState) : null;
-
-            if (gameState) {
-                gameState.coins += coins;
-                localStorage.setItem('gameState', JSON.stringify(gameState));
-            }
-
             window.location.href = '../index.html';
         }, 3000); // Allow 3 seconds to finish animations
     }, gameDuration);
