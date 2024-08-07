@@ -156,7 +156,7 @@ function movePlayer(dx, dy) {
             world[newY][newX] = 0; // Remove the coin from the world
             returningFromMiniGame = true; // Set the flag indicating returning from mini game
             saveGameState(); // Save the game state before launching the mini game
-            launchSecondMiniGame(); // Always launch the second mini game
+            launchThirdMiniGame(); // Always launch the third mini game
         } else {
             world[playerY][playerX] = 0;
             playerX = newX;
@@ -170,12 +170,30 @@ function movePlayer(dx, dy) {
     }
 }
 
+// Function to launch the first mini game
+function launchFirstMiniGame() {
+    savePreMiniGameState(); // Save the pre-mini game state before launching the mini game
+    returningFromMiniGame = true; // Set the flag indicating returning from mini game
+    saveGameState(); // Save the game state before launching the mini game
+    const miniGameUrl = `html/game1.html`; // Navigate to the first mini game
+    window.location.href = miniGameUrl;
+}
+
 // Function to launch the second mini game
 function launchSecondMiniGame() {
     savePreMiniGameState(); // Save the pre-mini game state before launching the mini game
     returningFromMiniGame = true; // Set the flag indicating returning from mini game
     saveGameState(); // Save the game state before launching the mini game
     const miniGameUrl = `html/game2.html`; // Navigate to the second mini game
+    window.location.href = miniGameUrl;
+}
+
+// Function to launch the third mini game
+function launchThirdMiniGame() {
+    savePreMiniGameState(); // Save the pre-mini game state before launching the mini game
+    returningFromMiniGame = true; // Set the flag indicating returning from mini game
+    saveGameState(); // Save the game state before launching the mini game
+    const miniGameUrl = `html/game3.html`; // Navigate to the third mini game
     window.location.href = miniGameUrl;
 }
 
