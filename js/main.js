@@ -27,6 +27,16 @@ function saveGameState() {
     localStorage.setItem('gameState', JSON.stringify(gameState));
 }
 
+
+function getQueryParams() {
+    let params = {};
+    window.location.search.substring(1).split("&").forEach(pair => {
+        let [key, value] = pair.split("=");
+        params[key] = decodeURIComponent(value);
+    });
+    return params;
+}
+
 function loadGameState() {
     const savedGameState = localStorage.getItem('gameState');
     if (savedGameState) {
@@ -39,21 +49,46 @@ function loadGameState() {
         visibleCells = gameState.visibleCells;
         coinPosition = gameState.coinPosition;
 
-        if (returningFromMiniGame) {
+        // Check if we are returning from the mini-game
+        const params = getQueryParams();
+        let earnedCoins = parseInt(params.earnedCoins || '0');
+
+
+        // Add coins from URL parameter and subtract one
+        if (earnedCoins >= 0) {
+            coins += earnedCoins;
+            coins = Math.max(coins - 1, 0); // Subtract one coin, ensuring coins do not become negative
+            localStorage.removeItem('earnedCoins');
             // Place the player on the position of the collected coin
             playerX = coinPosition.x;
             playerY = coinPosition.y;
             steps--; // Deduct one step when returning from mini game
-            returningFromMiniGame = false; // Reset the flag
         }
 
         // Ensure the player's position is updated in the world
         world[playerY][playerX] = 'player';
-        
+
         updateVisibility(); // Update visibility after loading the state
         renderWorld(); // Render the game world after loading the state
     }
 }
+
+// Call loadGameState when the document is ready
+document.addEventListener('DOMContentLoaded', () => {
+    loadGameState();
+    hideAllTabs();
+    showGameTab();
+});
+
+
+
+
+
+
+
+
+
+
 
 function savePreMiniGameState() {
     preMiniGameState = {
@@ -193,9 +228,10 @@ function launchThirdMiniGame() {
     savePreMiniGameState(); // Save the pre-mini game state before launching the mini game
     returningFromMiniGame = true; // Set the flag indicating returning from mini game
     saveGameState(); // Save the game state before launching the mini game
-    const miniGameUrl = `html/game3.html`; // Navigate to the third mini game
+    const miniGameUrl = `html/game4.html`; // Navigate to the third mini game
     window.location.href = miniGameUrl;
 }
+
 
 document.getElementById('game-tab').addEventListener('click', showGameTab);
 document.getElementById('friends-tab').addEventListener('click', showFriendsTab);
