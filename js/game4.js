@@ -19,8 +19,20 @@ function handleCoinClick() {
         updateMessage();
     }
     if (clickCount >= maxClicks) {
-        coinImage.removeEventListener('click', handleCoinClick);
-        message.textContent += `\nДостигнут лимит: ${coinsEarned} монет`;
+        message.textContent += `\nДостигнут лимит нажатий: ${maxClicks}`;
+    }
+}
+
+function handleCoinTouchStart(event) {
+    event.preventDefault();
+    handleCoinClick();
+}
+
+function handleCoinTouchEnd(event) {
+    event.preventDefault();
+    if (clickCount >= maxClicks) {
+        coinImage.removeEventListener('touchstart', handleCoinTouchStart);
+        coinImage.removeEventListener('mousedown', handleCoinClick);
     }
 }
 
@@ -31,7 +43,8 @@ function startTimer() {
         if (timeLeft <= 0) {
             clearInterval(timer);
             message.textContent = `Время вышло! Монет заработано: ${coinsEarned}`;
-            coinImage.removeEventListener('click', handleCoinClick);
+            coinImage.removeEventListener('touchstart', handleCoinTouchStart);
+            coinImage.removeEventListener('mousedown', handleCoinClick);
             setTimeout(() => {
                 // Save earned coins to local storage and return to main game
                 localStorage.setItem('earnedCoins', coinsEarned);
@@ -41,6 +54,10 @@ function startTimer() {
     }, 1000);
 }
 
-coinImage.addEventListener('click', handleCoinClick);
+coinImage.addEventListener('touchstart', handleCoinTouchStart);
+coinImage.addEventListener('mousedown', handleCoinClick);
+coinImage.addEventListener('touchend', handleCoinTouchEnd);
+coinImage.addEventListener('mouseup', handleCoinTouchEnd);
+
 startTimer();
 updateMessage();
