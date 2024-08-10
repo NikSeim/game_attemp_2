@@ -4,7 +4,7 @@ let message = document.getElementById('message');
 let timerElement = document.getElementById('timer');
 let exitButton = document.getElementById('exit');
 
-let coinsEarned = 0;
+let coinsEarned = 0; // Счетчик заработанных монет
 let timeLeft = 20; // Таймер на 20 секунд
 const maxClicks = 500;
 let clickCount = 0;
@@ -16,28 +16,39 @@ function updateMessage() {
 }
 
 function handleCoinClick(event) {
+    event.preventDefault(); // Предотвращаем стандартное поведение
+
+    // Проверка для обработки множественных касаний
+    const touches = event.touches || [{ clientX: event.clientX, clientY: event.clientY }];
+    
     let currentTime = Date.now();
-    if (currentTime - lastClickTime < 1000) { // Проверка кликов в последнюю секунду
+    if (currentTime - lastClickTime < 1000) {
         if (clicksPerSecond >= 25) {
-            return; // Если уже 25 кликов, выходим
+            return;
         }
     } else {
-        clicksPerSecond = 0; // Сбрасываем счетчик если прошла секунда
+        clicksPerSecond = 0;
         lastClickTime = currentTime;
     }
 
-    clicksPerSecond++;
-    if (clickCount < maxClicks) {
-        clickCount++;
-        coinsEarned++;
-        updateMessage();
+    for (let i = 0; i < touches.length; i++) {
+        const touchX = touches[i].clientX;
+        const touchY = touches[i].clientY;
+        
+        clicksPerSecond++;
+        if (clickCount < maxClicks) {
+            clickCount++;
+            coinsEarned++;
+            updateMessage();
 
-        // Создаем анимацию "+1"
-        createPlusOneEffect(event.clientX, event.clientY);
+            // Создаем анимацию "+1" для каждого касания
+            createPlusOneEffect(touchX, touchY);
+        }
     }
 
     if (clickCount >= maxClicks) {
         coinImage.removeEventListener('click', handleCoinClick);
+        coinImage.removeEventListener('touchstart', handleCoinClick);
         showEndScreen();
     }
 }
@@ -50,7 +61,6 @@ function createPlusOneEffect(x, y) {
     plusOne.style.top = `${y}px`;
     document.body.appendChild(plusOne);
 
-    // Удаляем элемент после завершения анимации
     setTimeout(() => {
         plusOne.remove();
     }, 400); // 0.4 секунды
@@ -63,17 +73,16 @@ function startTimer() {
         if (timeLeft <= 0) {
             clearInterval(timer);
             coinImage.removeEventListener('click', handleCoinClick);
+            coinImage.removeEventListener('touchstart', handleCoinClick);
             showEndScreen();
         }
     }, 1000);
 }
 
 function showEndScreen() {
-    // Скрываем надписи о заработанных монетах и оставшемся времени
     message.style.display = 'none';
     timerElement.style.display = 'none';
 
-    // Создаем затемненное окно с текстом и кнопкой
     const endScreen = document.createElement('div');
     endScreen.id = 'end-screen';
     endScreen.innerHTML = `
@@ -84,9 +93,11 @@ function showEndScreen() {
     `;
     document.body.appendChild(endScreen);
 
-    // Слушатель на кнопку "Забрать"
     document.getElementById('collect-button').addEventListener('click', () => {
+        // Сохраняем заработанные монеты в localStorage
         localStorage.setItem('earnedCoins', coinsEarned);
+
+        // Переход на главное меню
         window.location.href = '../index.html';
     });
 }
@@ -95,8 +106,9 @@ exitButton.addEventListener('click', () => {
     window.location.href = '../index.html';
 });
 
+// Обработка кликов мышью и касаний на телефоне
 coinImage.addEventListener('click', handleCoinClick);
-coinImage.addEventListener('touchstart', handleCoinClick); // Для многопальцевого взаимодействия
+coinImage.addEventListener('touchstart', handleCoinClick);
 
 startTimer();
 updateMessage();

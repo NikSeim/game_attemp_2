@@ -88,20 +88,22 @@ body {
 #collect-button:hover {
     background-color: #218838;
 }
+/* Добавьте этот код в ваш CSS файл */
 .plus-one {
     position: absolute;
-    font-size: 20px;
-    color: #28a745;
-    animation: floatUp 0.4s ease-out forwards;
-    pointer-events: none; /* Чтобы клики проходили сквозь этот элемент */
+    color: #33ff00;
+    font-size: 18px;
+    font-weight: bold;
+    pointer-events: none;
+    animation: moveUp 0.4s ease-out forwards;
 }
 
-@keyframes floatUp {
-    0% {
+@keyframes moveUp {
+    from {
         opacity: 1;
         transform: translateY(0);
     }
-    100% {
+    to {
         opacity: 0;
         transform: translateY(-30px);
     }

@@ -10,9 +10,9 @@ let steps = 150;
 let world = [];
 let visibleCells = Array.from({ length: originalWorldSize }, () => Array(originalWorldSize).fill(false));
 let gameInitialized = false;
-let preMiniGameState = null; // Variable to store game state before mini game
-let returningFromMiniGame = false; // Variable to track if returning from mini game
-let coinPosition = { x: 0, y: 0 }; // Variable to store the position of the collected coin
+let preMiniGameState = null;
+let returningFromMiniGame = false;
+let coinPosition = { x: 0, y: 0 };
 
 function saveGameState() {
     const gameState = {
@@ -40,18 +40,15 @@ function loadGameState() {
         coinPosition = gameState.coinPosition;
 
         if (returningFromMiniGame) {
-            // Place the player on the position of the collected coin
             playerX = coinPosition.x;
             playerY = coinPosition.y;
-            steps--; // Deduct one step when returning from mini game
-            returningFromMiniGame = false; // Reset the flag
+            steps--;
+            returningFromMiniGame = false;
         }
 
-        // Ensure the player's position is updated in the world
         world[playerY][playerX] = 'player';
-        
-        updateVisibility(); // Update visibility after loading the state
-        renderWorld(); // Render the game world after loading the state
+        updateVisibility();
+        renderWorld();
     }
 }
 
@@ -61,9 +58,9 @@ function savePreMiniGameState() {
         playerY,
         coins,
         steps,
-        world: JSON.parse(JSON.stringify(world)), // Deep copy of the world array
-        visibleCells: JSON.parse(JSON.stringify(visibleCells)), // Deep copy of visibleCells array
-        coinPosition: { ...coinPosition } // Save coin position
+        world: JSON.parse(JSON.stringify(world)),
+        visibleCells: JSON.parse(JSON.stringify(visibleCells)),
+        coinPosition: { ...coinPosition }
     };
 }
 
@@ -146,17 +143,16 @@ function movePlayer(dx, dy) {
     let newY = playerY + dy;
     if (newX >= 0 && newX < originalWorldSize && newY >= 0 && newY < originalWorldSize) {
         if (world[newY][newX] === 'coin') {
-            coins++; // Увеличиваем количество монет
-            coinPosition = { x: newX, y: newY }; // Сохраняем позицию монеты
-            world[playerY][playerX] = 0; // Убираем игрока с текущей позиции
-            playerX = newX; // Перемещаем игрока на позицию монеты
+            coinPosition = { x: newX, y: newY };
+            world[playerY][playerX] = 0;
+            playerX = newX;
             playerY = newY;
-            world[playerY][playerX] = 'player'; // Устанавливаем игрока на новой позиции
-            savePreMiniGameState(); // Сохраняем состояние игры перед мини-игрой
-            world[newY][newX] = 0; // Удаляем монету из мира
-            returningFromMiniGame = true; // Флаг возврата из мини-игры
-            saveGameState(); // Сохраняем состояние игры перед мини-игрой
-            launchFourthMiniGame(); // Запускаем четвертую мини-игру
+            world[playerY][playerX] = 'player';
+            savePreMiniGameState();
+            world[newY][newX] = 0;
+            returningFromMiniGame = true;
+            saveGameState();
+            launchFourthMiniGame();
         } else {
             world[playerY][playerX] = 0;
             playerX = newX;
@@ -164,7 +160,7 @@ function movePlayer(dx, dy) {
             world[playerY][playerX] = 'player';
             steps--;
             updateVisibility();
-            saveGameState(); // Сохраняем состояние игры после движения
+            saveGameState();
             renderWorld();
         }
     }
@@ -175,33 +171,6 @@ function launchFourthMiniGame() {
     returningFromMiniGame = true;
     saveGameState();
     const miniGameUrl = `html/game4.html`;
-    window.location.href = miniGameUrl;
-}
-
-// Function to launch the first mini game
-function launchFirstMiniGame() {
-    savePreMiniGameState(); // Save the pre-mini game state before launching the mini game
-    returningFromMiniGame = true; // Set the flag indicating returning from mini game
-    saveGameState(); // Save the game state before launching the mini game
-    const miniGameUrl = `html/game1.html`; // Navigate to the first mini game
-    window.location.href = miniGameUrl;
-}
-
-// Function to launch the second mini game
-function launchSecondMiniGame() {
-    savePreMiniGameState(); // Save the pre-mini game state before launching the mini game
-    returningFromMiniGame = true; // Set the flag indicating returning from mini game
-    saveGameState(); // Save the game state before launching the mini game
-    const miniGameUrl = `html/game2.html`; // Navigate to the second mini game
-    window.location.href = miniGameUrl;
-}
-
-// Function to launch the third mini game
-function launchThirdMiniGame() {
-    savePreMiniGameState(); // Save the pre-mini game state before launching the mini game
-    returningFromMiniGame = true; // Set the flag indicating returning from mini game
-    saveGameState(); // Save the game state before launching the mini game
-    const miniGameUrl = `html/game3.html`; // Navigate to the third mini game
     window.location.href = miniGameUrl;
 }
 
@@ -237,21 +206,39 @@ function showTasksTab() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadGameState(); // Load the game state when the page is loaded
     hideAllTabs();
     showGameTab();
+
+    loadGameState();
 });
 
+// Обработка события coinsEarned для добавления монет
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Получаем заработанные монеты из localStorage
+    const earnedCoins = parseInt(localStorage.getItem('earnedCoins') || '0', 10);
+    
+    if (earnedCoins > 0) {
+        coins += earnedCoins; // Добавляем заработанные монеты к общему счету
+        document.getElementById('token-count').textContent = coins; // Обновляем отображение монет
+        localStorage.removeItem('earnedCoins'); // Удаляем из localStorage после использования
+        saveGameState(); // Сохраняем обновленное состояние игры
+    }
+});
+
+
+
 document.getElementById('new-game').addEventListener('click', () => {
-    localStorage.removeItem('gameState'); // Clear saved game state
-    preMiniGameState = null; // Clear pre-mini game state
-    returningFromMiniGame = false; // Reset the flag
+    localStorage.removeItem('gameState');
+    preMiniGameState = null;
+    returningFromMiniGame = false;
     playerX = Math.floor(originalWorldSize / 2);
     playerY = Math.floor(originalWorldSize / 2);
     steps = 150;
     visibleCells = Array.from({ length: originalWorldSize }, () => Array(originalWorldSize).fill(false));
     gameInitialized = false;
-    initWorld(false); // Initialize a new game
+    initWorld(false);
 });
 
 initWorld();
