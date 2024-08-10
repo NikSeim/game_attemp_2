@@ -127,3 +127,31 @@ body {
 .cell.selected {
   background-color: rgba(0, 170, 255, 0.5);
 }
+.end-game-menu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  border-radius: 10px;
+  text-align: center;
+  z-index: 1000;
+}
+
+.end-game-menu p {
+  margin: 10px 0;
+}
+
+.end-game-menu button {
+  width: 100%;
+  padding: 10px;
+  background-color: green;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 18px;
+}

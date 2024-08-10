@@ -27,16 +27,6 @@ function saveGameState() {
     localStorage.setItem('gameState', JSON.stringify(gameState));
 }
 
-
-function getQueryParams() {
-    let params = {};
-    window.location.search.substring(1).split("&").forEach(pair => {
-        let [key, value] = pair.split("=");
-        params[key] = decodeURIComponent(value);
-    });
-    return params;
-}
-
 function loadGameState() {
     const savedGameState = localStorage.getItem('gameState');
     if (savedGameState) {
@@ -49,46 +39,21 @@ function loadGameState() {
         visibleCells = gameState.visibleCells;
         coinPosition = gameState.coinPosition;
 
-        // Check if we are returning from the mini-game
-        const params = getQueryParams();
-        let earnedCoins = parseInt(params.earnedCoins || '0');
-
-
-        // Add coins from URL parameter and subtract one
-        if (earnedCoins >= 0) {
-            coins += earnedCoins;
-            coins = Math.max(coins - 1, 0); // Subtract one coin, ensuring coins do not become negative
-            localStorage.removeItem('earnedCoins');
+        if (returningFromMiniGame) {
             // Place the player on the position of the collected coin
             playerX = coinPosition.x;
             playerY = coinPosition.y;
             steps--; // Deduct one step when returning from mini game
+            returningFromMiniGame = false; // Reset the flag
         }
 
         // Ensure the player's position is updated in the world
         world[playerY][playerX] = 'player';
-
+        
         updateVisibility(); // Update visibility after loading the state
         renderWorld(); // Render the game world after loading the state
     }
 }
-
-// Call loadGameState when the document is ready
-document.addEventListener('DOMContentLoaded', () => {
-    loadGameState();
-    hideAllTabs();
-    showGameTab();
-});
-
-
-
-
-
-
-
-
-
-
 
 function savePreMiniGameState() {
     preMiniGameState = {
@@ -181,17 +146,17 @@ function movePlayer(dx, dy) {
     let newY = playerY + dy;
     if (newX >= 0 && newX < originalWorldSize && newY >= 0 && newY < originalWorldSize) {
         if (world[newY][newX] === 'coin') {
-            coins++; // Increase coins by 1 on collecting a coin
-            coinPosition = { x: newX, y: newY }; // Save the position of the collected coin
-            world[playerY][playerX] = 0; // Remove player from the old position
-            playerX = newX; // Move player to the coin's position
+            coins++; // Увеличиваем количество монет
+            coinPosition = { x: newX, y: newY }; // Сохраняем позицию монеты
+            world[playerY][playerX] = 0; // Убираем игрока с текущей позиции
+            playerX = newX; // Перемещаем игрока на позицию монеты
             playerY = newY;
-            world[playerY][playerX] = 'player'; // Place player on the new position
-            savePreMiniGameState(); // Save the pre-mini game state before launching the mini game
-            world[newY][newX] = 0; // Remove the coin from the world
-            returningFromMiniGame = true; // Set the flag indicating returning from mini game
-            saveGameState(); // Save the game state before launching the mini game
-            launchThirdMiniGame(); // Always launch the third mini game
+            world[playerY][playerX] = 'player'; // Устанавливаем игрока на новой позиции
+            savePreMiniGameState(); // Сохраняем состояние игры перед мини-игрой
+            world[newY][newX] = 0; // Удаляем монету из мира
+            returningFromMiniGame = true; // Флаг возврата из мини-игры
+            saveGameState(); // Сохраняем состояние игры перед мини-игрой
+            launchFourthMiniGame(); // Запускаем четвертую мини-игру
         } else {
             world[playerY][playerX] = 0;
             playerX = newX;
@@ -199,10 +164,18 @@ function movePlayer(dx, dy) {
             world[playerY][playerX] = 'player';
             steps--;
             updateVisibility();
-            saveGameState(); // Save the game state after player moves
+            saveGameState(); // Сохраняем состояние игры после движения
             renderWorld();
         }
     }
+}
+
+function launchFourthMiniGame() {
+    savePreMiniGameState();
+    returningFromMiniGame = true;
+    saveGameState();
+    const miniGameUrl = `html/game4.html`;
+    window.location.href = miniGameUrl;
 }
 
 // Function to launch the first mini game
@@ -228,10 +201,9 @@ function launchThirdMiniGame() {
     savePreMiniGameState(); // Save the pre-mini game state before launching the mini game
     returningFromMiniGame = true; // Set the flag indicating returning from mini game
     saveGameState(); // Save the game state before launching the mini game
-    const miniGameUrl = `html/game4.html`; // Navigate to the third mini game
+    const miniGameUrl = `html/game3.html`; // Navigate to the third mini game
     window.location.href = miniGameUrl;
 }
-
 
 document.getElementById('game-tab').addEventListener('click', showGameTab);
 document.getElementById('friends-tab').addEventListener('click', showFriendsTab);

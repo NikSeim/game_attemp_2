@@ -147,7 +147,7 @@ exitButton.addEventListener('click', () => {
 function createObstacle(leftPosition) {
     const obstacle = document.createElement('div');
     obstacle.classList.add('obstacle');
-    obstacle.style.left = `${leftPosition}px`;
+    obstacle.style.left = leftPosition + 'px';  // Исправлено
     gameArea.appendChild(obstacle);
     obstacles.push(obstacle);
 }
@@ -155,7 +155,7 @@ function createObstacle(leftPosition) {
 function moveBackground() {
     let backgroundPosition = parseFloat(getComputedStyle(background).backgroundPositionX) || 0;
     backgroundPosition -= backgroundSpeed;
-    background.style.backgroundPositionX = `${backgroundPosition}px`;
+    background.style.backgroundPositionX = backgroundPosition + 'px';  // Исправлено
 }
 
 function moveObstacles() {
@@ -167,12 +167,12 @@ function moveObstacles() {
     groundPosition -= groundSpeed;
     backgroundPosition -= backgroundSpeed;
 
-    ground.style.backgroundPositionX = `${groundPosition}px`;
-    background.style.backgroundPositionX = `${backgroundPosition}px`;
+    ground.style.backgroundPositionX = groundPosition + 'px';
+    background.style.backgroundPositionX = backgroundPosition + 'px';
 
     obstacles.forEach((obstacle, index) => {
         const obstacleLeft = parseFloat(obstacle.style.left);
-        obstacle.style.left = `${obstacleLeft - obstacleSpeed}px`;
+        obstacle.style.left = (obstacleLeft - obstacleSpeed) + 'px';
 
         if (obstacleLeft < -50) {
             obstacle.remove();
@@ -184,7 +184,7 @@ function moveObstacles() {
             if (obstacleLeft + obstacleSpeed <= playerRect.left && obstacleLeft + obstacleSpeed + obstacleSpeed > playerRect.left) {
                 score++;
                 scoreElement.textContent = score;
-                if (score % 10 === 0) {
+                if (score % 6 === 0) {  // Ускорение каждые 6 очков
                     groundSpeed += 2;
                     obstacleSpeed += 2;
                     backgroundSpeed += 0.5;
@@ -204,12 +204,13 @@ function moveObstacles() {
 
     if (timeLeft > 35) {
         const lastObstacleLeft = obstacles.length > 0 ? parseFloat(obstacles[obstacles.length - 1].style.left) : gameArea.clientWidth;
-        const randomGap = Math.random() * 230 + 400;
+        const randomGap = Math.random() * 500 + 600;  // Изменено значение для randomGap
         if (lastObstacleLeft < gameArea.clientWidth) {
             createObstacle(gameArea.clientWidth + randomGap);
         }
     }
 }
+
 
 function updatePlayerPosition() {
     if (gameOver) return;
@@ -224,7 +225,7 @@ function updatePlayerPosition() {
             velocityY = 0;
         }
     }
-    player.style.bottom = `${playerBottom}px`;
+    player.style.bottom = playerBottom + 'px';  // Исправлено
     requestAnimationFrame(updatePlayerPosition);
 }
 
@@ -320,7 +321,7 @@ function startShooting() {
     ammoInterval = setInterval(() => {
         if (gameOver || timeLeft <= 8) return;
         createAmmo();
-    }, 600);
+    }, 900);  // Интервал в 500 ms для атаки 2 снаряда в секунду
 }
 
 function createAmmo() {
@@ -335,7 +336,7 @@ function createAmmo() {
     const minAmmoBottom = 66; // 6px above the ground
     const maxAmmoBottom = 150 + 12; // The height of the enemy + 12px
 
-    ammo.style.bottom = `${Math.random() * (maxAmmoBottom - minAmmoBottom) + minAmmoBottom}px`;
+    ammo.style.bottom = (Math.random() * (maxAmmoBottom - minAmmoBottom) + minAmmoBottom) + 'px';  // Исправлено
     gameArea.appendChild(ammo);
 
     const ammoInterval = setInterval(() => {
@@ -347,7 +348,7 @@ function createAmmo() {
         
         let ammoRight = parseFloat(ammo.style.right);
         ammoRight += 16; // Move ammo to the left at a speed of 16
-        ammo.style.right = `${ammoRight}px`;
+        ammo.style.right = ammoRight + 'px';  // Исправлено
 
         const ammoRect = ammo.getBoundingClientRect();
         const playerRect = player.getBoundingClientRect();
@@ -379,9 +380,9 @@ function launchBigAmmo() {
     // Set the height of bigammo to be within the same range as the enemy's ammo
     const minAmmoBottom = 66; // 6px above the ground
     const maxAmmoBottom = 150 + 12; // The height of the enemy + 12px
-    bigAmmo.style.bottom = `${Math.random() * (maxAmmoBottom - minAmmoBottom) + minAmmoBottom}px`;
+    bigAmmo.style.bottom = (Math.random() * (maxAmmoBottom - minAmmoBottom) + minAmmoBottom) + 'px';  // Исправлено
 
-    bigAmmo.style.left = `${playerRect.right}px`; // Launch from the right side of the player
+    bigAmmo.style.left = playerRect.right + 'px';  // Исправлено
     bigAmmo.style.width = '60px'; // Set desired width for bigammo
     bigAmmo.style.height = '40px'; // Set desired height for bigammo
 
@@ -396,7 +397,7 @@ function launchBigAmmo() {
 
         let bigAmmoLeft = parseFloat(bigAmmo.style.left);
         bigAmmoLeft += 16; // Move big ammo to the right at a speed of 16
-        bigAmmo.style.left = `${bigAmmoLeft}px`;
+        bigAmmo.style.left = bigAmmoLeft + 'px';  // Исправлено
 
         const bigAmmoRect = bigAmmo.getBoundingClientRect();
         const enemyRect = document.getElementById('enemy').getBoundingClientRect();
@@ -427,7 +428,7 @@ function launchBigAmmo() {
 function showWinModal() {
     const winModal = document.getElementById('win-modal');
     const winMessage = document.getElementById('win-message');
-    winMessage.textContent = `Вы выиграли 100 + ${score - 100}!`; // Display the winning message
+    winMessage.textContent = 'Вы выиграли 100 + ' + (score - 100) + '!';  // Исправлено
     winModal.style.display = 'flex';
 }
 
@@ -444,7 +445,7 @@ function endGame() {
 
 function showGameOverModal() {
     attempts++;
-    document.getElementById('attempts-message').textContent = `Попытки: ${attempts}/3`;
+    document.getElementById('attempts-message').textContent = 'Попытки: ' + attempts + '/3';  // Исправлено
     const retryButton = document.getElementById('retry-button');
     if (attempts >= 3) {
         retryButton.classList.add('disabled');

@@ -6,7 +6,6 @@ const successCounter = document.getElementById('success-counter');
 const gridSize = 6;
 let path = [];
 let userPath = [];
-let currentStep = 0;
 let gameInProgress = false;
 let round = 0;
 let rounds = 3;
@@ -15,6 +14,7 @@ let timeLimit = 15; // Time limit for each round
 let timeLeft;
 let timerInterval;
 let successfulRounds = 0; // Number of successful rounds
+let coinsEarned = 0; // Total coins earned
 
 // Exit button event
 exitButton.addEventListener('click', () => {
@@ -39,48 +39,50 @@ startGame();
 function startGame() {
     round = 0;
     successfulRounds = 0;
+    coinsEarned = 0;
     updateSuccessCounter();
     startRound();
 }
 
 function startRound() {
     round++;
-    path = generatePath();
+    const cellCount = 5 + round; // 6 cells in Round 1, 7 in Round 2, and 8 in Round 3
+    path = generatePattern(cellCount);
     highlightPath();
     updateRoundCounter();
     timeLeft = memorizationTime;
     updateTimerDisplay();
+    clearInterval(timerInterval);
     timerInterval = setInterval(updateMemorizationTimer, 1000);
 }
 
 function startMemorizationPhase() {
     gameInProgress = false;
-    currentStep = 0;
     userPath = [];
     timeLeft = memorizationTime;
     updateTimerDisplay();
+    clearInterval(timerInterval);
     timerInterval = setInterval(updateMemorizationTimer, 1000);
 }
 
 function startUserInputPhase() {
     gameInProgress = true;
-    currentStep = 0;
     userPath = [];
     timeLeft = timeLimit;
     updateTimerDisplay();
+    clearInterval(timerInterval);
     timerInterval = setInterval(updateRoundTimer, 1000);
 }
 
-function generatePath() {
+// Generate a random pattern
+function generatePattern(cellCount) {
     const path = [];
-    let x = Math.floor(Math.random() * gridSize);
-    let y = Math.floor(Math.random() * gridSize);
-    for (let i = 0; i < gridSize; i++) {
-        path.push(`${x}-${y}`);
-        if (Math.random() > 0.5) {
-            x = (x + 1) % gridSize;
-        } else {
-            y = (y + 1) % gridSize;
+    while (path.length < cellCount) {
+        const x = Math.floor(Math.random() * gridSize);
+        const y = Math.floor(Math.random() * gridSize);
+        const index = `${x}-${y}`;
+        if (!path.includes(index)) {
+            path.push(index);
         }
     }
     return path;
@@ -116,11 +118,12 @@ function handleCellClick(event) {
     }
 
     if (userPath.length === path.length) {
-        setTimeout(checkUserPath, 200); // Delay the check to allow the last selection to be highlighted
+        setTimeout(checkUserPath, 200);
     }
 }
 
 function checkUserPath() {
+    // Check if all user-selected cells match the pattern (order does not matter)
     const isCorrect = userPath.length === path.length && userPath.every(cell => path.includes(cell));
 
     endRound(isCorrect);
@@ -130,27 +133,26 @@ function endRound(success) {
     clearInterval(timerInterval);
     gameInProgress = false;
     clearHighlight();
-    clearAllSelections(); // Clear all highlights and selections
+    clearAllSelections();
 
     if (success) {
         successfulRounds++;
+        coinsEarned += 15;
         updateSuccessCounter();
     }
 
     if (round >= rounds) {
-        endGame();
+        showEndGameMenu(); // Show the endgame menu after the last round
     } else {
-        setTimeout(() => {
-            startRound();
-        }, 1000); // 1 second delay before the next round
+        setTimeout(startRound, 1000); // Start the next round after a delay
     }
 }
 
 function endGame() {
-    updateCoins(successfulRounds * 10); // Add 10 coins for each successful round
+    updateCoins(coinsEarned); 
     setTimeout(() => {
         window.location.href = '../index.html';
-    }, 1000); // 1 second delay before redirecting to the main menu
+    }, 1000);
 }
 
 function updateMemorizationTimer() {
@@ -169,7 +171,7 @@ function updateRoundTimer() {
         timeLeft--;
         updateTimerDisplay();
     } else {
-        endRound(false); // Time out
+        endRound(false);
     }
 }
 
@@ -193,4 +195,45 @@ function updateCoins(amount) {
         gameState.coins += amount;
         localStorage.setItem('gameState', JSON.stringify(gameState));
     }
+}
+
+// Function to display the endgame menu after 3 rounds
+function showEndGameMenu() {
+    clearGameArea(); // Clear the game area for the endgame menu
+
+    const endGameMenu = document.createElement('div');
+    endGameMenu.classList.add('end-game-menu');
+
+    const message = document.createElement('p');
+    message.textContent = `You won ${successfulRounds}/3 rounds`;
+
+    const coinsMessage = document.createElement('p');
+    coinsMessage.textContent = `You earned ${coinsEarned} coins`;
+
+    const collectButton = document.createElement('button');
+    collectButton.textContent = 'Collect';
+    collectButton.style.backgroundColor = 'green';
+    collectButton.style.color = 'white';
+    collectButton.style.padding = '10px 20px';
+    collectButton.style.fontSize = '18px';
+    collectButton.style.border = 'none';
+    collectButton.style.borderRadius = '5px';
+    collectButton.style.cursor = 'pointer';
+
+    collectButton.addEventListener('click', () => {
+        endGame();
+    });
+
+    endGameMenu.appendChild(message);
+    endGameMenu.appendChild(coinsMessage);
+    endGameMenu.appendChild(collectButton);
+
+    document.body.appendChild(endGameMenu);
+}
+
+// Function to clear the game area
+function clearGameArea() {
+    gameArea.innerHTML = '';
+    const endGameMenu = document.querySelector('.end-game-menu');
+    if (endGameMenu) endGameMenu.remove();
 }
