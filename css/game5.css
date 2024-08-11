@@ -174,3 +174,16 @@ body {
 .collect-button:hover {
     background-color: darkgreen;
 }
+.boss-name, .player-name {
+    position: absolute;
+    top: -20px; /* Расположить над полоской здоровья */
+    width: 100%;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.boss-name.blink {
+    animation: blink 0.5s steps(5, start) infinite;
+}

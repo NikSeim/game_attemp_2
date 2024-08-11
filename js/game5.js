@@ -3,6 +3,8 @@ const playerHealthBar = document.querySelector('.player-health-fill');
 const bossHealthText = document.getElementById('boss-health-text');
 const playerHealthText = document.getElementById('player-health-text');
 const bossImage = document.querySelector('.boss-image');
+const bossNameText = document.getElementById('boss-name-text');
+const playerNameText = document.getElementById('player-name-text');
 
 const hitSound = document.getElementById('hit-sound');
 const blockSound = document.getElementById('block-sound');
@@ -19,21 +21,21 @@ let lastZoneIndex = null;
 let damageStacks = 0;  // Количество стаков урона
 
 const phase1Zones = [
-    { x: '47%', y: '19%' },
-    { x: '50%', y: '42%' },
-    { x: '64%', y: '32%' },
-    { x: '32.5%', y: '47%' },
-    { x: '40%', y: '62%' },
-    { x: '60.9%', y: '57%' },
+    { x: '44%', y: '19%' },
+    { x: '47%', y: '42%' },
+    { x: '61%', y: '32%' },
+    { x: '29.5%', y: '47%' },
+    { x: '37%', y: '62%' },
+    { x: '57.9%', y: '57%' },
 ];
 
 const phase2Zones = [
-    { x: '46%', y: '20%' },
-    { x: '45.7%', y: '32%' },
-    { x: '33.4%', y: '50.5%' },
-    { x: '45%', y: '50%' },
-    { x: '40%', y: '66.6%' },
-    { x: '52%', y: '66.6%' },
+    { x: '43%', y: '20%' },
+    { x: '42.7%', y: '32%' },
+    { x: '30.4%', y: '50.5%' },
+    { x: '42%', y: '50%' },
+    { x: '37%', y: '66.6%' },
+    { x: '49%', y: '66.6%' },
 ];
 
 function createAttackZone(x, y) {
@@ -103,44 +105,45 @@ function startAttackTimer(remainingHits) {
 function updateBossHealth() {
     const healthPercentage = (bossHealth / 100) * 100;
     bossHealthBar.style.width = healthPercentage + '%';
-    bossHealthText.textContent = `${Math.ceil(bossHealth)}/100`;  // Отображение 100/100
+    bossHealthText.textContent = `${Math.ceil(bossHealth)}/100`;
 
     if (bossHealth <= 0 && !isBossEnraged) {
         // Босс входит во вторую фазу (ярость)
         isBossEnraged = true;
-        phaseSound.play(); // Звук перехода фазы
-        clearTimeout(attackTimeout); // Останавливаем текущий таймер
-        removeAttackZones(); // Убираем все зоны атаки
-        resetDamageStacks(); // Сброс стаков
+        phaseSound.play();
+        clearTimeout(attackTimeout);
+        removeAttackZones();
+        resetDamageStacks();
 
         bossImage.classList.add('boss-blink');
+        bossNameText.classList.add('blink'); // Добавляем мигание имени
         setTimeout(() => {
             bossImage.classList.remove('boss-blink');
             bossImage.src = '../image/angryboss.jpg';
             bossImage.classList.add('boss-blink');
-            bossImage.classList.add('phase-2'); // Переход на вторую фазу
+            bossNameText.textContent = 'Angry Boss Name'; // Смена имени на вторую фазу
             setTimeout(() => {
                 bossImage.classList.remove('boss-blink');
+                bossNameText.classList.remove('blink'); // Останавливаем мигание имени
                 bossHealth = 50; // Восстановление здоровья на 50
 
-                // Меняем цвет восстановленного здоровья на фиолетовый
                 bossHealthBar.style.backgroundColor = 'rgb(162, 0, 143)';
                 bossHealthBar.style.width = '50%';
-                bossHealthText.textContent = `${Math.ceil(bossHealth)}/100`; // Отображение 50/100
+                bossHealthText.textContent = `${Math.ceil(bossHealth)}/100`;
 
-                setTimeout(spawnAttackZones, 1000); // Появление новой зоны через 1 секунду
+                setTimeout(spawnAttackZones, 1000);
             }, 1000); // Мигание нового изображения 1 секунда
         }, 1500); // Мигание старого изображения 1.5 секунды
     } else if (bossHealth <= 0 && isBossEnraged) {
-        deathSound.play(); // Звук смерти босса
-        grantVictory(); // Награда за победу
+        deathSound.play(); 
+        grantVictory(); 
     }
 }
 
 function updatePlayerHealth() {
     const healthPercentage = (playerHealth / 100) * 100;
     playerHealthBar.style.width = healthPercentage + '%';
-    playerHealthText.textContent = `${Math.ceil(playerHealth)}/100`; 
+    playerHealthText.textContent = `${Math.ceil(playerHealth)}/100`;
 }
 
 function spawnAttackZones() {
@@ -148,7 +151,7 @@ function spawnAttackZones() {
 
     do {
         randomIndex = Math.floor(Math.random() * (isBossEnraged ? phase2Zones : phase1Zones).length);
-    } while (randomIndex === lastZoneIndex); // Проверяем, чтобы зона не повторялась на том же месте
+    } while (randomIndex === lastZoneIndex);
 
     lastZoneIndex = randomIndex;
     const { x, y } = isBossEnraged ? phase2Zones[randomIndex] : phase1Zones[randomIndex];
@@ -165,14 +168,12 @@ function resetDamageStacks() {
 }
 
 function grantVictory() {
-    resetDamageStacks(); // Сброс стаков при завершении игры
+    resetDamageStacks(); 
 
-    // Добавляем 200 монет в localStorage
     let currentCoins = parseInt(localStorage.getItem('coins') || '0', 10);
     currentCoins += 200;
     localStorage.setItem('coins', currentCoins);
 
-    // Показываем окно победы
     showVictoryModal();
 }
 

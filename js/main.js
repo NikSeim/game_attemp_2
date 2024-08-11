@@ -14,6 +14,8 @@ let preMiniGameState = null;
 let returningFromMiniGame = false;
 let coinPosition = { x: 0, y: 0 };
 
+let previousGameIndex = -1; // Индекс предыдущей игры
+
 function saveGameState() {
     const gameState = {
         playerX,
@@ -22,7 +24,8 @@ function saveGameState() {
         steps,
         world,
         visibleCells,
-        coinPosition
+        coinPosition,
+        previousGameIndex
     };
     localStorage.setItem('gameState', JSON.stringify(gameState));
 }
@@ -38,6 +41,7 @@ function loadGameState() {
         world = gameState.world;
         visibleCells = gameState.visibleCells;
         coinPosition = gameState.coinPosition;
+        previousGameIndex = gameState.previousGameIndex;
 
         if (returningFromMiniGame) {
             playerX = coinPosition.x;
@@ -180,11 +184,18 @@ function launchRandomMiniGame() {
         'html/game5.html'
     ];
 
-    // Выбор случайной мини-игры
-    const randomGame = miniGames[Math.floor(Math.random() * miniGames.length)];
-    
+    // Убираем предыдущую игру из доступных
+    const availableGames = miniGames.filter((_, index) => index !== previousGameIndex);
+
+    // Выбор случайной мини-игры из оставшихся
+    const randomIndex = Math.floor(Math.random() * availableGames.length);
+    const selectedGame = availableGames[randomIndex];
+
+    // Определяем индекс выбранной игры для последующего исключения
+    previousGameIndex = miniGames.indexOf(selectedGame);
+
     // Переход на выбранную мини-игру
-    window.location.href = randomGame;
+    window.location.href = selectedGame;
 }
 
 document.getElementById('game-tab').addEventListener('click', showGameTab);

@@ -5,6 +5,7 @@ const scoreElement = document.getElementById('score');
 const timerElement = document.getElementById('timer');
 const exitButton = document.getElementById('exit');
 const ground = document.getElementById('ground');
+const gameContainer = document.getElementById('game3-container');
 
 let score = 0;
 let isJumping = false;
@@ -27,6 +28,7 @@ let gameOver = false;
 let attempts = 0;
 let enemyVisible = false;
 let ammoInterval;
+let hasStarted = false; // Флаг, указывающий, была ли игра запущена впервые
 
 function createModals() {
     const gameOverModal = document.createElement('div');
@@ -210,7 +212,6 @@ function moveObstacles() {
         }
     }
 }
-
 
 function updatePlayerPosition() {
     if (gameOver) return;
@@ -492,8 +493,40 @@ function restartGame() {
     startGame();
 }
 
+// Создаем элемент "Tap to Play" в JavaScript
+function createStartScreen() {
+    const startScreen = document.createElement('div');
+    startScreen.id = 'start-screen';
+    startScreen.style.position = 'fixed';
+    startScreen.style.top = '0';
+    startScreen.style.left = '0';
+    startScreen.style.width = '100%';
+    startScreen.style.height = '100%';
+    startScreen.style.display = 'flex';
+    startScreen.style.justifyContent = 'center';
+    startScreen.style.alignItems = 'center';
+    startScreen.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    startScreen.style.color = 'white';
+    startScreen.style.fontSize = '36px';
+    startScreen.style.fontWeight = 'bold';
+    startScreen.style.zIndex = '1000';
+    startScreen.style.cursor = 'pointer';
+    startScreen.textContent = 'Tap to Play';
+    
+    startScreen.addEventListener('click', () => {
+        if (!hasStarted) {
+            startScreen.remove();
+            gameContainer.classList.remove('hidden');
+            hasStarted = true; // Флаг, указывающий, что игра была начата
+            startGame(); // Начинаем игру после клика
+        }
+    });
+    
+    document.body.appendChild(startScreen);
+}
+
 function startGame() {
-    createObstacle(gameArea.clientWidth);
+    createObstacle(gameArea.clientWidth + 200);
     gameInterval = setInterval(moveObstacles, 20);
     timerInterval = setInterval(updateTimer, 1000);
     backgroundInterval = setInterval(moveBackground, 20);
@@ -541,11 +574,5 @@ function handleTouchMove(e) {
     }
 }
 
-document.addEventListener('keydown', jumpEvent);
-document.addEventListener('keydown', crouchEvent);
-document.addEventListener('keyup', standUpEvent);
-document.addEventListener('touchstart', handleTouchStart);
-document.addEventListener('touchmove', handleTouchMove);
-document.addEventListener('click', jump);
-
-startGame();
+// Изначально создаем стартовый экран
+createStartScreen();
