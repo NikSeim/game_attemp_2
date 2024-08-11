@@ -152,7 +152,7 @@ function movePlayer(dx, dy) {
             world[newY][newX] = 0;
             returningFromMiniGame = true;
             saveGameState();
-            launchFourthMiniGame();
+            launchRandomMiniGame();  // Вызов обновленной функции
         } else {
             world[playerY][playerX] = 0;
             playerX = newX;
@@ -166,12 +166,25 @@ function movePlayer(dx, dy) {
     }
 }
 
-function launchFourthMiniGame() {
+function launchRandomMiniGame() {
     savePreMiniGameState();
     returningFromMiniGame = true;
     saveGameState();
-    const miniGameUrl = `html/game4.html`;
-    window.location.href = miniGameUrl;
+    
+    // Массив с URL мини-игр
+    const miniGames = [
+        'html/game1.html',
+        'html/game2.html',
+        'html/game3.html',
+        'html/game4.html',
+        'html/game5.html'
+    ];
+
+    // Выбор случайной мини-игры
+    const randomGame = miniGames[Math.floor(Math.random() * miniGames.length)];
+    
+    // Переход на выбранную мини-игру
+    window.location.href = randomGame;
 }
 
 document.getElementById('game-tab').addEventListener('click', showGameTab);
@@ -213,8 +226,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Обработка события coinsEarned для добавления монет
-
-
 document.addEventListener('DOMContentLoaded', () => {
     // Получаем заработанные монеты из localStorage
     const earnedCoins = parseInt(localStorage.getItem('earnedCoins') || '0', 10);
@@ -226,8 +237,6 @@ document.addEventListener('DOMContentLoaded', () => {
         saveGameState(); // Сохраняем обновленное состояние игры
     }
 });
-
-
 
 document.getElementById('new-game').addEventListener('click', () => {
     localStorage.removeItem('gameState');
