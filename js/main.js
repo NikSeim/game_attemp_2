@@ -5,7 +5,11 @@ tg.expand();
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-const tileSize = 100;
+// Уменьшаем игровое поле на 10%
+canvas.width = canvas.width * 0.9;
+canvas.height = canvas.height * 0.9;
+
+const tileSize = canvas.width / 5; // Размер тайла определяется в зависимости от ширины canvas
 const mapCols = 50;
 const mapRows = 50;
 
@@ -15,10 +19,10 @@ const mapHeight = mapRows * tileSize;
 let playerCol = Math.floor(mapCols / 2);
 let playerRow = Math.floor(mapRows / 2);
 
-let offsetX = 0;
-let offsetY = 0;
+let offsetX = -playerCol * tileSize + canvas.width / 2 - tileSize / 2;
+let offsetY = -playerRow * tileSize + canvas.height / 2 - tileSize / 2;
 
-const visibilityRadius = 2;  // Видимость вокруг игрока в радиусе 2 клетки
+const visibilityRadius = 1; // Радиус видимости
 
 let fogState = Array(mapRows).fill().map(() => Array(mapCols).fill(1)); // 1 - не исследовано, 2 - открыто, 3 - полупрозрачно
 
@@ -41,6 +45,7 @@ let earnedCoins = 0;  // Монеты, заработанные в мини-иг
 let steps = 100; // Начальное количество шагов
 
 fogImage.onload = () => {
+    fogCtx.drawImage(mapImage, 0, 0, mapWidth, mapHeight);
     fogCtx.drawImage(fogImage, 0, 0, mapWidth, mapHeight);
     drawVisibleArea(); 
 };
@@ -48,6 +53,7 @@ fogImage.onload = () => {
 // Генерация карты и монет
 let world = generateNewWorld();
 
+// Функция генерации новой карты с монетами
 function generateNewWorld() {
     let newWorld = Array.from({ length: mapRows }, () => Array(mapCols).fill(0));
     for (let i = 0; i < 50; i++) {
@@ -62,6 +68,7 @@ function generateNewWorld() {
     return newWorld;
 }
 
+// Функции рисования карты и тумана
 function drawMap(offsetX, offsetY) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(mapImage, offsetX, offsetY, mapWidth, mapHeight);
@@ -77,6 +84,7 @@ function drawMap(offsetX, offsetY) {
         }
     }
 
+    // Отрисовка персонажа
     ctx.drawImage(
         playerImage,
         offsetX + playerCol * tileSize + tileSize / 4,
@@ -151,29 +159,15 @@ function animateFogClear() {
 }
 
 function drawVisibleArea() {
-    const visibleX = Math.max(0, playerCol - visibilityRadius);
-    const visibleY = Math.max(0, playerRow - visibilityRadius);
-    const visibleWidth = Math.min(visibleX + 5, mapCols) - visibleX;
-    const visibleHeight = Math.min(visibleY + 5, mapRows) - visibleY;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(mapImage, visibleX * tileSize, visibleY * tileSize, visibleWidth * tileSize, visibleHeight * tileSize, 0, 0, canvas.width, canvas.height);
-    
-    drawFog(visibleX * tileSize, visibleY * tileSize);
-    
-    ctx.drawImage(
-        playerImage,
-        (playerCol - visibleX) * tileSize + tileSize / 4,
-        (playerRow - visibleY) * tileSize + tileSize / 4,
-        tileSize / 2,
-        tileSize / 2
-    );
+    drawMap(offsetX, offsetY);
+    drawFog(offsetX, offsetY);
 }
 
 function initInitialVisibility() {
+    // Инициализация видимости клеток вокруг игрока в радиусе 1
     for (let y = Math.max(0, playerRow - visibilityRadius); y <= Math.min(mapRows - 1, playerRow + visibilityRadius); y++) {
         for (let x = Math.max(0, playerCol - visibilityRadius); x <= Math.min(mapCols - 1, playerCol + visibilityRadius); x++) {
-            fogState[y][x] = 2;
+            fogState[y][x] = 2; // Помечаем клетки как исследованные
         }
     }
 }
@@ -181,25 +175,28 @@ function initInitialVisibility() {
 initInitialVisibility();
 drawVisibleArea();
 
+// Функция для обновления и отображения количества оставшихся шагов
 function updateStepCount() {
-    steps--;
-    document.getElementById('step-counter').textContent = `${steps}/100`;
+    steps--; // Уменьшаем количество шагов на 1
+    document.getElementById('step-counter').textContent = `${steps}/100`; // Обновляем отображение на экране
 }
 
+// Обновление функции movePlayer для уменьшения шагов
 function movePlayer(dx, dy) {
     const newCol = playerCol + dx;
     const newRow = playerRow + dy;
 
     if (newCol >= 0 && newCol < mapCols && newRow >= 0 && newRow < mapRows) {
         animatePlayerMove(newCol, newRow);
-        updateStepCount();
+        updateStepCount(); // Уменьшаем количество шагов при каждом перемещении
     }
 }
 
+// Функция для анимации перемещения игрока
 function animatePlayerMove(newCol, newRow) {
     const startCol = playerCol;
     const startRow = playerRow;
-    const duration = 700;
+    const duration = 700; // 700 ms на перемещение
     const startTime = performance.now();
 
     function step(currentTime) {
@@ -217,14 +214,16 @@ function animatePlayerMove(newCol, newRow) {
         if (progress < 1) {
             requestAnimationFrame(step);
         } else {
+            // После завершения анимации обновляем позицию игрока и состояние тумана
             playerCol = newCol;
             playerRow = newRow;
             animateFogClear();
-            saveGameState();
+            saveGameState(); // Сохранение состояния игры после движения
 
+            // Проверяем, есть ли монета на новой клетке
             if (checkAndCollectCoin(newCol, newRow)) {
-                savePreMiniGameState();
-                launchRandomMiniGame();
+                savePreMiniGameState(); // Сохраняем состояние перед мини-игрой
+                launchRandomMiniGame(); // Запускаем случайную мини-игру
             }
         }
     }
@@ -232,15 +231,17 @@ function animatePlayerMove(newCol, newRow) {
     requestAnimationFrame(step);
 }
 
+// Проверка на монету и её сбор
 function checkAndCollectCoin(col, row) {
     if (world[row][col] === 'coin') {
-        world[row][col] = 0;
-        earnedCoins += 1;
+        world[row][col] = 0; // Убираем монету с карты
+        earnedCoins += 1; // Увеличиваем количество заработанных монет
         return true;
     }
     return false;
 }
 
+// Функция для сохранения состояния игры
 function saveGameState() {
     const gameState = {
         playerCol,
@@ -251,11 +252,12 @@ function saveGameState() {
         world,
         offsetX,
         offsetY,
-        steps
+        steps // Сохраняем количество шагов
     };
     localStorage.setItem('gameState', JSON.stringify(gameState));
 }
 
+// Функция для загрузки состояния игры
 function loadGameState() {
     const savedGameState = localStorage.getItem('gameState');
     if (savedGameState) {
@@ -268,17 +270,19 @@ function loadGameState() {
         earnedCoins = gameState.earnedCoins;
         offsetX = gameState.offsetX;
         offsetY = gameState.offsetY;
-        steps = gameState.steps || 100;
-
-        document.getElementById('step-counter').textContent = `${steps}/100`;
+        steps = gameState.steps || 100; // Восстанавливаем количество шагов или устанавливаем начальное значение
+        
+        document.getElementById('step-counter').textContent = `${steps}/100`; // Обновляем отображение шагов на экране
         drawVisibleArea();
     }
 }
 
+// Функция для сохранения состояния перед мини-игрой
 function savePreMiniGameState() {
     saveGameState();
 }
 
+// Запуск случайной мини-игры
 function launchRandomMiniGame() {
     savePreMiniGameState();
 
@@ -293,19 +297,23 @@ function launchRandomMiniGame() {
     window.location.href = miniGames[randomIndex];
 }
 
+// Обработка события coinsEarned для добавления монет после завершения мини-игры
 document.addEventListener('DOMContentLoaded', () => {
     const earnedCoins = parseInt(localStorage.getItem('earnedCoins') || '0', 10);
-
+    
     if (earnedCoins > 0) {
-        globalCoins += earnedCoins;
-        document.getElementById('token-count').textContent = globalCoins;
-        localStorage.removeItem('earnedCoins');
-        saveGameState();
-        loadGameState();
-        animateFogClear();
+        globalCoins += earnedCoins; // Добавляем заработанные монеты к основному счету
+        document.getElementById('token-count').textContent = globalCoins; // Обновляем отображение монет
+        localStorage.removeItem('earnedCoins'); // Удаляем из localStorage после использования
+        saveGameState(); // Сохраняем обновленное состояние игры
+
+        // После завершения мини-игры, возвращаем персонажа на место монеты
+        loadGameState(); // Загружаем сохранённое состояние игры
+        animateFogClear(); // Обновляем туман
     }
 });
 
+// Обработчик событий клавиш перемещения
 document.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowUp') movePlayer(0, -1);
     if (event.key === 'ArrowDown') movePlayer(0, 1);
@@ -313,6 +321,7 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowRight') movePlayer(1, 0);
 });
 
+// Обработчик кликов по клеткам
 canvas.addEventListener('click', (event) => {
     const rect = canvas.getBoundingClientRect();
     const clickX = event.clientX - rect.left;
@@ -329,6 +338,7 @@ canvas.addEventListener('click', (event) => {
     }
 });
 
+// Переключение между вкладками
 document.getElementById('game-tab').addEventListener('click', showGameTab);
 document.getElementById('friends-tab').addEventListener('click', showFriendsTab);
 document.getElementById('tasks-tab').addEventListener('click', showTasksTab);
@@ -360,39 +370,32 @@ function showTasksTab() {
     document.getElementById('tasks-content').style.display = 'block';
 }
 
+// Загрузка состояния при загрузке страницы
 document.addEventListener('DOMContentLoaded', () => {
     hideAllTabs();
     showGameTab();
     loadGameState();
     document.getElementById('token-count').textContent = globalCoins;
-    document.getElementById('step-counter').textContent = `${steps}/100`;
+    document.getElementById('step-counter').textContent = `${steps}/100`; // Отображаем оставшиеся шаги
     drawVisibleArea();
 });
 
-function resizeCanvas() {
-    canvas.width = 5 * tileSize;
-    canvas.height = 5 * tileSize;
-
-    drawVisibleArea();
-}
-
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-
+// Обработка нажатия на кнопку "New Game"
 document.getElementById('new-game').addEventListener('click', () => {
     localStorage.removeItem('gameState');
     playerCol = Math.floor(mapCols / 2);
     playerRow = Math.floor(mapRows / 2);
     fogState = Array(mapRows).fill().map(() => Array(mapCols).fill(1));
-    world = generateNewWorld();
+    world = generateNewWorld(); // Генерация новой карты
 
+    // Обновляем смещение камеры на центр игрока
     offsetX = -playerCol * tileSize + canvas.width / 2 - tileSize / 2;
     offsetY = -playerRow * tileSize + canvas.height / 2 - tileSize / 2;
 
     initInitialVisibility();
     drawVisibleArea();
     globalCoins = 0;
-    steps = 100;
+    steps = 100; // Сброс шагов на начальное значение
     saveGameState();
-    document.getElementById('step-counter').textContent = `${steps}/100`;
+    document.getElementById('step-counter').textContent = `${steps}/100`; // Обновляем отображение шагов
 });
