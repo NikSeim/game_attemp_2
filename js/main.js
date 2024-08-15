@@ -18,7 +18,7 @@ let playerRow = Math.floor(mapRows / 2);
 let offsetX = 0;
 let offsetY = 0;
 
-const visibilityRadius = 1;
+const visibilityRadius = 2;  // Видимость вокруг игрока в радиусе 2 клетки
 
 let fogState = Array(mapRows).fill().map(() => Array(mapCols).fill(1)); // 1 - не исследовано, 2 - открыто, 3 - полупрозрачно
 
@@ -41,7 +41,6 @@ let earnedCoins = 0;  // Монеты, заработанные в мини-иг
 let steps = 100; // Начальное количество шагов
 
 fogImage.onload = () => {
-    fogCtx.drawImage(mapImage, 0, 0, mapWidth, mapHeight);
     fogCtx.drawImage(fogImage, 0, 0, mapWidth, mapHeight);
     drawVisibleArea(); 
 };
@@ -152,8 +151,23 @@ function animateFogClear() {
 }
 
 function drawVisibleArea() {
-    drawMap(offsetX, offsetY);
-    drawFog(offsetX, offsetY);
+    const visibleX = Math.max(0, playerCol - visibilityRadius);
+    const visibleY = Math.max(0, playerRow - visibilityRadius);
+    const visibleWidth = Math.min(visibleX + 5, mapCols) - visibleX;
+    const visibleHeight = Math.min(visibleY + 5, mapRows) - visibleY;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(mapImage, visibleX * tileSize, visibleY * tileSize, visibleWidth * tileSize, visibleHeight * tileSize, 0, 0, canvas.width, canvas.height);
+    
+    drawFog(visibleX * tileSize, visibleY * tileSize);
+    
+    ctx.drawImage(
+        playerImage,
+        (playerCol - visibleX) * tileSize + tileSize / 4,
+        (playerRow - visibleY) * tileSize + tileSize / 4,
+        tileSize / 2,
+        tileSize / 2
+    );
 }
 
 function initInitialVisibility() {
@@ -356,25 +370,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function resizeCanvas() {
-    const container = document.getElementById('game-container');
-    const aspectRatio = mapCols / mapRows;
-    const containerWidth = container.clientWidth;
-    const containerHeight = container.clientHeight;
-
-    if (containerWidth / containerHeight > aspectRatio) {
-        canvas.height = containerHeight;
-        canvas.width = containerHeight * aspectRatio;
-    } else {
-        canvas.width = containerWidth;
-        canvas.height = containerWidth / aspectRatio;
-    }
-
-    tileSize = Math.min(canvas.width / mapCols, canvas.height / mapRows);
-    fogCanvas.width = mapCols * tileSize;
-    fogCanvas.height = mapRows * tileSize;
-
-    offsetX = -playerCol * tileSize + canvas.width / 2 - tileSize / 2;
-    offsetY = -playerRow * tileSize + canvas.height / 2 - tileSize / 2;
+    canvas.width = 5 * tileSize;
+    canvas.height = 5 * tileSize;
 
     drawVisibleArea();
 }
