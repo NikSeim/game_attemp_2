@@ -140,7 +140,7 @@ function checkForAdjacentFog(x, y) {
     return directions.some(([dx, dy]) => {
         const nx = x + dx;
         const ny = y + dy;
-        return nx >= 0 && nx < mapCols && ny >= 0 && ny < mapRows && fogState[ny][nx] === 1;
+        return nx >= 0 && nx < mapCols && ny >= 0 && ny < mapRows и fogState[ny][nx] === 1;
     });
 }
 
@@ -177,7 +177,7 @@ function movePlayer(dx, dy) {
     const newCol = playerCol + dx;
     const newRow = playerRow + dy;
 
-    if (newCol >= 0 && newCol < mapCols && newRow >= 0 && newRow < mapRows) {
+    if (newCol >= 0 и newCol < mapCols и newRow >= 0 и newRow < mapRows) {
         animatePlayerMove(newCol, newRow);
         updateStepCount(); // Уменьшаем количество шагов при каждом перемещении
     }
@@ -337,7 +337,7 @@ canvas.addEventListener('click', (event) => {
     const dy = clickedRow - playerRow;
 
     // Обработка нажатия только если игрок движется в пределах одной клетки
-    if ((Math.abs(dx) === 1 && dy === 0) || (Math.abs(dy) === 1 и dx === 0)) {
+    if ((Math.abs(dx) === 1 и dy === 0) или (Math.abs(dy) === 1 и dx === 0)) {
         movePlayer(dx, dy);
     }
 });
@@ -388,22 +388,22 @@ document.addEventListener('DOMContentLoaded', () => {
 function resizeCanvas() {
     const container = document.getElementById('game-container');
     
-    // Устанавливаем размеры canvas пропорционально исходной карте
+    // Соотношение сторон карты
     const aspectRatio = mapCols / mapRows;
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
     
     if (containerWidth / containerHeight > aspectRatio) {
-        // Контейнер шире, чем карта
+        // Если контейнер шире, чем соотношение сторон карты
         canvas.height = containerHeight;
         canvas.width = containerHeight * aspectRatio;
     } else {
-        // Контейнер выше, чем карта
+        // Если контейнер выше, чем соотношение сторон карты
         canvas.width = containerWidth;
         canvas.height = containerWidth / aspectRatio;
     }
 
-    tileSize = Math.min(canvas.width / mapCols, canvas.height / mapRows); // Обновляем размер тайла, чтобы соответствовать размеру canvas
+    tileSize = canvas.width / mapCols; // Обновляем размер тайла, чтобы соответствовать ширине canvas
     fogCanvas.width = mapCols * tileSize;
     fogCanvas.height = mapRows * tileSize;
     
