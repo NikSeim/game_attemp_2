@@ -6,10 +6,6 @@
     <title>3D Pixel World Explorer</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="css/main.css">
-    <script>
-        // Глобальная переменная для хранения заработанных монет
-        window.earnedCoins = 0;
-    </script>
 </head>
 <body>
     <div id="score">
@@ -18,17 +14,22 @@
     </div>
     
     <div id="game-container">
-        <div id="game-world"></div>
+        <div id="game-world">
+            <canvas id="gameCanvas" width="500" height="500"></canvas>
+        </div>
+        
         <div id="controls">
             <div id="step-container">
                 <img src="image/step.jpg" id="step-indicator" alt="Шаги">
-                <span id="step-counter">150/150</span>
+                <span id="step-counter">100/100</span>
+            </div>
+            <div id="health-container">
+                <span id="health-count">Health: 100/100</span>
             </div>
             <button id="new-game">New Game</button>
         </div>
     </div>
 
-    <!-- Вкладка "Друзья" -->
     <div id="friends-content">
         <h1>Invite friends<br>& get Bonus!</h1>
         <div class="invite-container">
@@ -55,7 +56,6 @@
         </div>
     </div>
 
-    <!-- Вкладка "Задания" -->
     <div id="tasks-content">
         <img src="image/tokendisgn.jpg" alt="Tasks Icon" class="tasks-icon">
         <h1>Tasks</h1>
@@ -91,7 +91,6 @@
                 </div>
                 <button class="claim-button">Claim</button>
             </div>
-            <!-- Add more tasks here as needed -->
             <div class="task-box">
                 <div class="task-info">
                     <img src="image/tokendisgn.jpg" alt="Task Icon" class="task-icon">
@@ -107,16 +106,6 @@
                     <img src="image/tokendisgn.jpg" alt="Task Icon" class="task-icon">
                     <div class="task-title-container">
                         <p class="task-title">Farm 5,000</p>
-                        <p class="task-subtitle">Reward for subscribe</p>
-                    </div>
-                </div>
-                <button class="claim-button">Claim</button>
-            </div>
-            <div class="task-box">
-                <div class="task-info">
-                    <img src="image/tokendisgn.jpg" alt="Task Icon" class="task-icon">
-                    <div class="task-title-container">
-                        <p class="task-title">Farm 2,500</p>
                         <p class="task-subtitle">Reward for subscribe</p>
                     </div>
                 </div>

@@ -12,6 +12,17 @@ body {
 
 }
 
+/* Туманная видимость и исчезновение */
+.fog-visible {
+    opacity: 1;
+    transition: opacity 1s ease-in-out;
+}
+
+.fog-hidden {
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
 #score {
   text-align: center;
   font-size: 24px;
@@ -65,18 +76,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.fog {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: url('../image/fog.gif') no-repeat center center;
-  background-size: cover;
-  z-index: 2;
-  display: none;
 }
 
 .player {
@@ -359,3 +358,4 @@ body {
   font-size: 12px;
   cursor: pointer;
 }
+
