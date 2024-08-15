@@ -5,9 +5,10 @@ tg.expand();
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+const tileSize = 100;
 const mapCols = 50;
 const mapRows = 50;
-let tileSize = 100;
+
 const mapWidth = mapCols * tileSize;
 const mapHeight = mapRows * tileSize;
 
@@ -19,32 +20,33 @@ let offsetY = 0;
 
 const visibilityRadius = 1;
 
-let fogState = Array(mapRows).fill().map(() => Array(mapCols).fill(1)); // 1 - unexplored, 2 - visible, 3 - semi-transparent
+let fogState = Array(mapRows).fill().map(() => Array(mapCols).fill(1)); // 1 - не исследовано, 2 - открыто, 3 - полупрозрачно
 
 const mapImage = new Image();
-mapImage.src = 'image/grace.jpg';
+mapImage.src = 'image/grace.jpg';  // Путь к карте
 
 const fogImage = new Image();
-fogImage.src = 'image/revorkFog.png';
+fogImage.src = 'image/revorkFog.png';  // Путь к туману
 
 const playerImage = new Image();
-playerImage.src = 'image/boss.jpg';
+playerImage.src = 'image/boss.jpg';  // Путь к изображению персонажа
 
 const fogCanvas = document.createElement('canvas');
 fogCanvas.width = mapWidth;
 fogCanvas.height = mapHeight;
 const fogCtx = fogCanvas.getContext('2d');
 
-let globalCoins = parseInt(localStorage.getItem('globalCoins') || '0', 10);
-let earnedCoins = 0;
-let steps = 100;
+let globalCoins = parseInt(localStorage.getItem('globalCoins') || '0', 10); // Глобальные монеты
+let earnedCoins = 0;  // Монеты, заработанные в мини-игре
+let steps = 100; // Начальное количество шагов
 
 fogImage.onload = () => {
     fogCtx.drawImage(mapImage, 0, 0, mapWidth, mapHeight);
     fogCtx.drawImage(fogImage, 0, 0, mapWidth, mapHeight);
-    drawVisibleArea();
+    drawVisibleArea(); 
 };
 
+// Генерация карты и монет
 let world = generateNewWorld();
 
 function generateNewWorld() {
@@ -54,7 +56,7 @@ function generateNewWorld() {
         do {
             x = Math.floor(Math.random() * mapCols);
             y = Math.floor(Math.random() * mapRows);
-        } while (x === playerCol && y === playerRow);
+        } while (x === playerCol && y === playerRow); // Исключаем позицию игрока
 
         newWorld[y][x] = 'coin';
     }
