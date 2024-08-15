@@ -5,9 +5,6 @@ tg.expand();
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// Уменьшаем игровое поле на 10%
-canvas.width = canvas.width * 0.5;
-canvas.height = canvas.height * 0.5;
 
 const tileSize = canvas.width / 5; // Размер тайла определяется в зависимости от ширины canvas
 const mapCols = 50;
