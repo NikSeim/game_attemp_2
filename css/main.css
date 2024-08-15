@@ -10,15 +10,6 @@ body {
   overflow-x: hidden; /* Блокировка горизонтальной прокрутки */
 }
 
-
-#game-container, #friends-content, #tasks-content {
-  max-width: 100vw; /* Ограничение ширины контейнера */
-  overflow-x: hidden; /* Блокировка горизонтальной прокрутки внутри контейнера */
-}
-
-
-
-/* Туманная видимость и исчезновение */
 .fog-visible {
     opacity: 1;
     transition: opacity 1s ease-in-out;
@@ -57,6 +48,8 @@ body {
   justify-content: center;
   align-items: center;
   width: 100%;
+  max-width: 100vw; /* Ограничение ширины игрового контейнера */
+  overflow-x: hidden; /* Блокировка горизонтальной прокрутки */
 }
 
 #game-world {
@@ -71,6 +64,7 @@ body {
   grid-template-columns: repeat(5, 1fr);
   margin-bottom: 20px;
   border: 2px solid #000;
+  overflow-x: hidden; /* Блокировка горизонтальной прокрутки */
 }
 
 .cell {
@@ -82,6 +76,12 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+canvas {
+  width: 100%; /* Заставляем canvas занимать всю ширину родительского контейнера */
+  height: auto; /* Автоматическое изменение высоты */
+  max-width: 100vw; /* Ограничение ширины canvas до ширины экрана */
 }
 
 .player {
@@ -152,7 +152,6 @@ body {
   font-size: 18px;
   cursor: pointer;
 }
-
 
 .tab-bar {
   background-color: rgba(241, 241, 241, 0.8);
@@ -367,4 +366,3 @@ body {
   font-size: 12px;
   cursor: pointer;
 }
-
