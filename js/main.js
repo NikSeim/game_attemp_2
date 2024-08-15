@@ -7,13 +7,13 @@ const ctx = canvas.getContext('2d');
 
 const mapCols = 50;
 const mapRows = 50;
-let tileSize = canvas.width / 5;
+let tileSize; // Размер тайла будет вычисляться позже
 
 let playerCol = Math.floor(mapCols / 2);
 let playerRow = Math.floor(mapRows / 2);
 
-let offsetX = -playerCol * tileSize + canvas.width / 2 - tileSize / 2;
-let offsetY = -playerRow * tileSize + canvas.height / 2 - tileSize / 2;
+let offsetX = 0;
+let offsetY = 0;
 
 const visibilityRadius = 1; // Радиус видимости
 
@@ -29,8 +29,6 @@ const playerImage = new Image();
 playerImage.src = 'image/boss.jpg';  // Путь к изображению персонажа
 
 const fogCanvas = document.createElement('canvas');
-fogCanvas.width = mapCols * tileSize;
-fogCanvas.height = mapRows * tileSize;
 const fogCtx = fogCanvas.getContext('2d');
 
 let globalCoins = parseInt(localStorage.getItem('globalCoins') || '0', 10); // Глобальные монеты
@@ -38,9 +36,9 @@ let earnedCoins = 0;  // Монеты, заработанные в мини-иг
 let steps = 100; // Начальное количество шагов
 
 fogImage.onload = () => {
-    fogCtx.drawImage(mapImage, 0, 0, mapCols * tileSize, mapRows * tileSize);
-    fogCtx.drawImage(fogImage, 0, 0, mapCols * tileSize, mapRows * tileSize);
-    drawVisibleArea(); 
+    fogCtx.drawImage(mapImage, 0, 0, fogCanvas.width, fogCanvas.height);
+    fogCtx.drawImage(fogImage, 0, 0, fogCanvas.width, fogCanvas.height);
+    drawVisibleArea();
 };
 
 // Генерация карты и монет
@@ -64,7 +62,7 @@ function generateNewWorld() {
 // Функции рисования карты и тумана
 function drawMap(offsetX, offsetY) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(mapImage, offsetX, offsetY, mapCols * tileSize, mapRows * tileSize);
+    ctx.drawImage(mapImage, offsetX, offsetY, fogCanvas.width, fogCanvas.height);
 
     for (let y = 0; y < mapRows; y++) {
         for (let x = 0; x < mapCols; x++) {
@@ -393,6 +391,9 @@ function resizeCanvas() {
     canvas.height = container.clientHeight;
     
     tileSize = canvas.width / 5; // Обновляем размер тайла в зависимости от нового размера canvas
+    fogCanvas.width = mapCols * tileSize;
+    fogCanvas.height = mapRows * tileSize;
+    
     offsetX = -playerCol * tileSize + canvas.width / 2 - tileSize / 2;
     offsetY = -playerRow * tileSize + canvas.height / 2 - tileSize / 2;
     
