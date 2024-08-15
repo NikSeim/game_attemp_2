@@ -5,7 +5,7 @@ tg.expand();
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-const tileSize = 100;
+const tileSize = canvas.width / 5; // Размер тайла определяется в зависимости от ширины canvas
 const mapCols = 50;
 const mapRows = 50;
 
@@ -15,8 +15,8 @@ const mapHeight = mapRows * tileSize;
 let playerCol = Math.floor(mapCols / 2);
 let playerRow = Math.floor(mapRows / 2);
 
-let offsetX = 0;
-let offsetY = 0;
+let offsetX = -playerCol * tileSize + canvas.width / 2 - tileSize / 2;
+let offsetY = -playerRow * tileSize + canvas.height / 2 - tileSize / 2;
 
 const visibilityRadius = 1; // Радиус видимости
 
@@ -79,6 +79,7 @@ function drawMap(offsetX, offsetY) {
             }
         }
     }
+
     // Отрисовка персонажа
     ctx.drawImage(
         playerImage,
