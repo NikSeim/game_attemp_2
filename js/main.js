@@ -5,19 +5,28 @@ tg.expand();
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-
-const tileSize = canvas.width / 5; // Размер тайла определяется в зависимости от ширины canvas
+// Константы для работы в процентах
 const mapCols = 50;
 const mapRows = 50;
 
-const mapWidth = mapCols * tileSize;
-const mapHeight = mapRows * tileSize;
+const tileWidthPercent = 20; // Процент ширины canvas для одной клетки (100% / 5 клеток)
+const tileHeightPercent = 20; // Процент высоты canvas для одной клетки (100% / 5 клеток)
+
+// Устанавливаем размеры canvas в процентах от ширины и высоты экрана
+canvas.style.width = '90%'; // Уменьшаем на 10%
+canvas.style.height = '90%'; // Уменьшаем на 10%
+// Устанавливаем реальные размеры canvas
+canvas.width = canvas.offsetWidth;
+canvas.height = canvas.offsetHeight;
+
+const tileSizeX = (tileWidthPercent / 100) * canvas.width; // Ширина клетки
+const tileSizeY = (tileHeightPercent / 100) * canvas.height; // Высота клетки
 
 let playerCol = Math.floor(mapCols / 2);
 let playerRow = Math.floor(mapRows / 2);
 
-let offsetX = -playerCol * tileSize + canvas.width / 2 - tileSize / 2;
-let offsetY = -playerRow * tileSize + canvas.height / 2 - tileSize / 2;
+let offsetX = -playerCol * tileSizeX + canvas.width / 2 - tileSizeX / 2;
+let offsetY = -playerRow * tileSizeY + canvas.height / 2 - tileSizeY / 2;
 
 const visibilityRadius = 1; // Радиус видимости
 
@@ -33,8 +42,8 @@ const playerImage = new Image();
 playerImage.src = 'image/boss.jpg';  // Путь к изображению персонажа
 
 const fogCanvas = document.createElement('canvas');
-fogCanvas.width = mapWidth;
-fogCanvas.height = mapHeight;
+fogCanvas.width = mapCols * tileSizeX;
+fogCanvas.height = mapRows * tileSizeY;
 const fogCtx = fogCanvas.getContext('2d');
 
 let globalCoins = parseInt(localStorage.getItem('globalCoins') || '0', 10); // Глобальные монеты
@@ -42,8 +51,8 @@ let earnedCoins = 0;  // Монеты, заработанные в мини-иг
 let steps = 100; // Начальное количество шагов
 
 fogImage.onload = () => {
-    fogCtx.drawImage(mapImage, 0, 0, mapWidth, mapHeight);
-    fogCtx.drawImage(fogImage, 0, 0, mapWidth, mapHeight);
+    fogCtx.drawImage(mapImage, 0, 0, fogCanvas.width, fogCanvas.height);
+    fogCtx.drawImage(fogImage, 0, 0, fogCanvas.width, fogCanvas.height);
     drawVisibleArea(); 
 };
 
@@ -68,14 +77,14 @@ function generateNewWorld() {
 // Функции рисования карты и тумана
 function drawMap(offsetX, offsetY) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(mapImage, offsetX, offsetY, mapWidth, mapHeight);
+    ctx.drawImage(mapImage, offsetX, offsetY, fogCanvas.width, fogCanvas.height);
 
     for (let y = 0; y < mapRows; y++) {
         for (let x = 0; x < mapCols; x++) {
             if (world[y][x] === 'coin') {
                 ctx.fillStyle = 'gold';
                 ctx.beginPath();
-                ctx.arc(offsetX + x * tileSize + tileSize / 2, offsetY + y * tileSize + tileSize / 2, 10, 0, 2 * Math.PI);
+                ctx.arc(offsetX + x * tileSizeX + tileSizeX / 2, offsetY + y * tileSizeY + tileSizeY / 2, 0.02 * canvas.width, 0, 2 * Math.PI);
                 ctx.fill();
             }
         }
@@ -84,36 +93,36 @@ function drawMap(offsetX, offsetY) {
     // Отрисовка персонажа
     ctx.drawImage(
         playerImage,
-        offsetX + playerCol * tileSize + tileSize / 4,
-        offsetY + playerRow * tileSize + tileSize / 4,
-        tileSize / 2,
-        tileSize / 2
+        offsetX + playerCol * tileSizeX + tileSizeX / 4,
+        offsetY + playerRow * tileSizeY + tileSizeY / 4,
+        tileSizeX / 2,
+        tileSizeY / 2
     );
 }
 
 function drawFog(offsetX, offsetY) {
-    fogCtx.clearRect(0, 0, mapWidth, mapHeight);
-    fogCtx.drawImage(mapImage, 0, 0, mapWidth, mapHeight);
-    fogCtx.drawImage(fogImage, 0, 0, mapWidth, mapHeight);
+    fogCtx.clearRect(0, 0, fogCanvas.width, fogCanvas.height);
+    fogCtx.drawImage(mapImage, 0, 0, fogCanvas.width, fogCanvas.height);
+    fogCtx.drawImage(fogImage, 0, 0, fogCanvas.width, fogCanvas.height);
 
     for (let y = 0; y < mapRows; y++) {
         for (let x = 0; x < mapCols; x++) {
             if (fogState[y][x] === 2) {
                 fogCtx.save();
                 fogCtx.globalCompositeOperation = 'destination-out';
-                fogCtx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                fogCtx.fillRect(x * tileSizeX, y * tileSizeY, tileSizeX, tileSizeY);
                 fogCtx.restore();
             } else if (fogState[y][x] === 3) {
                 fogCtx.save();
                 fogCtx.globalAlpha = 0.3;
                 fogCtx.globalCompositeOperation = 'destination-out';
-                fogCtx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                fogCtx.fillRect(x * tileSizeX, y * tileSizeY, tileSizeX, tileSizeY);
                 fogCtx.restore();
             }
         }
     }
 
-    ctx.drawImage(fogCanvas, offsetX, offsetY, mapWidth, mapHeight);
+    ctx.drawImage(fogCanvas, offsetX, offsetY, fogCanvas.width, fogCanvas.height);
     fogCtx.globalAlpha = 1;
 }
 
@@ -203,8 +212,8 @@ function animatePlayerMove(newCol, newRow) {
         playerCol = startCol + progress * (newCol - startCol);
         playerRow = startRow + progress * (newRow - startRow);
 
-        offsetX = -playerCol * tileSize + canvas.width / 2 - tileSize / 2;
-        offsetY = -playerRow * tileSize + canvas.height / 2 - tileSize / 2;
+        offsetX = -playerCol * tileSizeX + canvas.width / 2 - tileSizeX / 2;
+        offsetY = -playerRow * tileSizeY + canvas.height / 2 - tileSizeY / 2;
 
         drawVisibleArea();
 
@@ -324,8 +333,8 @@ canvas.addEventListener('click', (event) => {
     const clickX = event.clientX - rect.left;
     const clickY = event.clientY - rect.top;
 
-    const clickedCol = Math.floor((clickX - offsetX) / tileSize);
-    const clickedRow = Math.floor((clickY - offsetY) / tileSize);
+    const clickedCol = Math.floor((clickX - offsetX) / tileSizeX);
+    const clickedRow = Math.floor((clickY - offsetY) / tileSizeY);
 
     const dx = clickedCol - playerCol;
     const dy = clickedRow - playerRow;
@@ -386,8 +395,8 @@ document.getElementById('new-game').addEventListener('click', () => {
     world = generateNewWorld(); // Генерация новой карты
 
     // Обновляем смещение камеры на центр игрока
-    offsetX = -playerCol * tileSize + canvas.width / 2 - tileSize / 2;
-    offsetY = -playerRow * tileSize + canvas.height / 2 - tileSize / 2;
+    offsetX = -playerCol * tileSizeX + canvas.width / 2 - tileSizeX / 2;
+    offsetY = -playerRow * tileSizeY + canvas.height / 2 - tileSizeY / 2;
 
     initInitialVisibility();
     drawVisibleArea();
