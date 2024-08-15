@@ -337,7 +337,7 @@ canvas.addEventListener('click', (event) => {
     const dy = clickedRow - playerRow;
 
     // Обработка нажатия только если игрок движется в пределах одной клетки
-    if ((Math.abs(dx) === 1 && dy === 0) || (Math.abs(dy) === 1 && dx === 0)) {
+    if ((Math.abs(dx) === 1 && dy === 0) || (Math.abs(dy) === 1 и dx === 0)) {
         movePlayer(dx, dy);
     }
 });
@@ -387,9 +387,22 @@ document.addEventListener('DOMContentLoaded', () => {
 // Функция для корректировки размеров canvas при загрузке или изменении размера окна
 function resizeCanvas() {
     const container = document.getElementById('game-container');
-    canvas.width = container.clientWidth;
-    canvas.height = container.clientHeight;
     
+    // Устанавливаем размеры canvas пропорционально исходной карте
+    const aspectRatio = mapCols / mapRows;
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
+    
+    if (containerWidth / containerHeight > aspectRatio) {
+        // Контейнер шире, чем карта
+        canvas.height = containerHeight;
+        canvas.width = containerHeight * aspectRatio;
+    } else {
+        // Контейнер выше, чем карта
+        canvas.width = containerWidth;
+        canvas.height = containerWidth / aspectRatio;
+    }
+
     tileSize = Math.min(canvas.width / mapCols, canvas.height / mapRows); // Обновляем размер тайла, чтобы соответствовать размеру canvas
     fogCanvas.width = mapCols * tileSize;
     fogCanvas.height = mapRows * tileSize;
