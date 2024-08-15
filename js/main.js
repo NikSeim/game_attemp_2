@@ -1,4 +1,4 @@
-// Initialize Telegram Web App
+// Инициализация Telegram Web App
 let tg = window.Telegram.WebApp;
 tg.expand();
 
@@ -7,7 +7,9 @@ const ctx = canvas.getContext('2d');
 
 const mapCols = 50;
 const mapRows = 50;
-let tileSize;
+let tileSize = 100;
+const mapWidth = mapCols * tileSize;
+const mapHeight = mapRows * tileSize;
 
 let playerCol = Math.floor(mapCols / 2);
 let playerRow = Math.floor(mapRows / 2);
@@ -15,36 +17,36 @@ let playerRow = Math.floor(mapRows / 2);
 let offsetX = 0;
 let offsetY = 0;
 
-const visibilityRadius = 1; // Visibility radius
+const visibilityRadius = 1;
 
 let fogState = Array(mapRows).fill().map(() => Array(mapCols).fill(1)); // 1 - unexplored, 2 - visible, 3 - semi-transparent
 
 const mapImage = new Image();
-mapImage.src = 'image/grace.jpg';  // Path to the map
+mapImage.src = 'image/grace.jpg';
 
 const fogImage = new Image();
-fogImage.src = 'image/revorkFog.png';  // Path to the fog
+fogImage.src = 'image/revorkFog.png';
 
 const playerImage = new Image();
-playerImage.src = 'image/boss.jpg';  // Path to the player image
+playerImage.src = 'image/boss.jpg';
 
 const fogCanvas = document.createElement('canvas');
+fogCanvas.width = mapWidth;
+fogCanvas.height = mapHeight;
 const fogCtx = fogCanvas.getContext('2d');
 
-let globalCoins = parseInt(localStorage.getItem('globalCoins') || '0', 10); // Global coins
-let earnedCoins = 0;  // Coins earned in the mini-game
-let steps = 100; // Initial number of steps
+let globalCoins = parseInt(localStorage.getItem('globalCoins') || '0', 10);
+let earnedCoins = 0;
+let steps = 100;
 
 fogImage.onload = () => {
-    fogCtx.drawImage(mapImage, 0, 0, fogCanvas.width, fogCanvas.height);
-    fogCtx.drawImage(fogImage, 0, 0, fogCanvas.width, fogCanvas.height);
+    fogCtx.drawImage(mapImage, 0, 0, mapWidth, mapHeight);
+    fogCtx.drawImage(fogImage, 0, 0, mapWidth, mapHeight);
     drawVisibleArea();
 };
 
-// Generate map and coins
 let world = generateNewWorld();
 
-// Function to generate a new map with coins
 function generateNewWorld() {
     let newWorld = Array.from({ length: mapRows }, () => Array(mapCols).fill(0));
     for (let i = 0; i < 50; i++) {
@@ -52,17 +54,16 @@ function generateNewWorld() {
         do {
             x = Math.floor(Math.random() * mapCols);
             y = Math.floor(Math.random() * mapRows);
-        } while (x === playerCol && y === playerRow); // Exclude player's position
+        } while (x === playerCol && y === playerRow);
 
         newWorld[y][x] = 'coin';
     }
     return newWorld;
 }
 
-// Functions to draw the map and fog
 function drawMap(offsetX, offsetY) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(mapImage, offsetX, offsetY, fogCanvas.width, fogCanvas.height);
+    ctx.drawImage(mapImage, offsetX, offsetY, mapWidth, mapHeight);
 
     for (let y = 0; y < mapRows; y++) {
         for (let x = 0; x < mapCols; x++) {
@@ -75,7 +76,6 @@ function drawMap(offsetX, offsetY) {
         }
     }
 
-    // Draw player
     ctx.drawImage(
         playerImage,
         offsetX + playerCol * tileSize + tileSize / 4,
@@ -86,9 +86,9 @@ function drawMap(offsetX, offsetY) {
 }
 
 function drawFog(offsetX, offsetY) {
-    fogCtx.clearRect(0, 0, fogCanvas.width, fogCanvas.height);
-    fogCtx.drawImage(mapImage, 0, 0, fogCanvas.width, fogCanvas.height);
-    fogCtx.drawImage(fogImage, 0, 0, fogCanvas.width, fogCanvas.height);
+    fogCtx.clearRect(0, 0, mapWidth, mapHeight);
+    fogCtx.drawImage(mapImage, 0, 0, mapWidth, mapHeight);
+    fogCtx.drawImage(fogImage, 0, 0, mapWidth, mapHeight);
 
     for (let y = 0; y < mapRows; y++) {
         for (let x = 0; x < mapCols; x++) {
@@ -107,7 +107,7 @@ function drawFog(offsetX, offsetY) {
         }
     }
 
-    ctx.drawImage(fogCanvas, offsetX, offsetY, fogCanvas.width, fogCanvas.height);
+    ctx.drawImage(fogCanvas, offsetX, offsetY, mapWidth, mapHeight);
     fogCtx.globalAlpha = 1;
 }
 
@@ -155,10 +155,9 @@ function drawVisibleArea() {
 }
 
 function initInitialVisibility() {
-    // Initialize visibility of cells around the player within radius 1
     for (let y = Math.max(0, playerRow - visibilityRadius); y <= Math.min(mapRows - 1, playerRow + visibilityRadius); y++) {
         for (let x = Math.max(0, playerCol - visibilityRadius); x <= Math.min(mapCols - 1, playerCol + visibilityRadius); x++) {
-            fogState[y][x] = 2; // Mark cells as explored
+            fogState[y][x] = 2;
         }
     }
 }
@@ -166,40 +165,36 @@ function initInitialVisibility() {
 initInitialVisibility();
 drawVisibleArea();
 
-// Function to update and display the remaining steps
 function updateStepCount() {
-    steps--; // Decrease steps by 1
-    document.getElementById('step-counter').textContent = `${steps}/100`; // Update the display on the screen
+    steps--;
+    document.getElementById('step-counter').textContent = `${steps}/100`;
 }
 
-// Update movePlayer function to decrease steps
 function movePlayer(dx, dy) {
     const newCol = playerCol + dx;
     const newRow = playerRow + dy;
 
     if (newCol >= 0 && newCol < mapCols && newRow >= 0 && newRow < mapRows) {
         animatePlayerMove(newCol, newRow);
-        updateStepCount(); // Decrease steps on each move
+        updateStepCount();
     }
 }
 
-// Function to animate the player's movement
 function animatePlayerMove(newCol, newRow) {
     const startCol = playerCol;
     const startRow = playerRow;
-    const duration = 700; // 700 ms for movement
+    const duration = 700;
     const startTime = performance.now();
 
     function step(currentTime) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
 
-        // Smooth player movement
-        const currentCol = startCol + progress * (newCol - startCol);
-        const currentRow = startRow + progress * (newRow - startRow);
+        playerCol = startCol + progress * (newCol - startCol);
+        playerRow = startRow + progress * (newRow - startRow);
 
-        offsetX = -currentCol * tileSize + canvas.width / 2 - tileSize / 2;
-        offsetY = -currentRow * tileSize + canvas.height / 2 - tileSize / 2;
+        offsetX = -playerCol * tileSize + canvas.width / 2 - tileSize / 2;
+        offsetY = -playerRow * tileSize + canvas.height / 2 - tileSize / 2;
 
         drawVisibleArea();
 
@@ -210,23 +205,26 @@ function animatePlayerMove(newCol, newRow) {
             playerRow = newRow;
             animateFogClear();
             saveGameState();
+
+            if (checkAndCollectCoin(newCol, newRow)) {
+                savePreMiniGameState();
+                launchRandomMiniGame();
+            }
         }
     }
 
     requestAnimationFrame(step);
 }
 
-// Check for coin and collect it
 function checkAndCollectCoin(col, row) {
     if (world[row][col] === 'coin') {
-        world[row][col] = 0; // Remove the coin from the map
-        earnedCoins += 1; // Increase earned coins
+        world[row][col] = 0;
+        earnedCoins += 1;
         return true;
     }
     return false;
 }
 
-// Function to save game state
 function saveGameState() {
     const gameState = {
         playerCol,
@@ -237,12 +235,11 @@ function saveGameState() {
         world,
         offsetX,
         offsetY,
-        steps // Save the number of steps
+        steps
     };
     localStorage.setItem('gameState', JSON.stringify(gameState));
 }
 
-// Function to load game state
 function loadGameState() {
     const savedGameState = localStorage.getItem('gameState');
     if (savedGameState) {
@@ -255,19 +252,17 @@ function loadGameState() {
         earnedCoins = gameState.earnedCoins;
         offsetX = gameState.offsetX;
         offsetY = gameState.offsetY;
-        steps = gameState.steps || 100; // Restore steps or set to initial value
-        
-        document.getElementById('step-counter').textContent = `${steps}/100`; // Update the steps display
+        steps = gameState.steps || 100;
+
+        document.getElementById('step-counter').textContent = `${steps}/100`;
         drawVisibleArea();
     }
 }
 
-// Function to save state before mini-game
 function savePreMiniGameState() {
     saveGameState();
 }
 
-// Launch random mini-game
 function launchRandomMiniGame() {
     savePreMiniGameState();
 
@@ -282,53 +277,30 @@ function launchRandomMiniGame() {
     window.location.href = miniGames[randomIndex];
 }
 
-// Handle coinsEarned event to add coins after mini-game
 document.addEventListener('DOMContentLoaded', () => {
     const earnedCoins = parseInt(localStorage.getItem('earnedCoins') || '0', 10);
-    
+
     if (earnedCoins > 0) {
-        globalCoins += earnedCoins; // Add earned coins to the main score
-        document.getElementById('token-count').textContent = globalCoins; // Update the coin display
-        localStorage.removeItem('earnedCoins'); // Remove from localStorage after use
-        saveGameState(); // Save updated game state
-
-        // After completing the mini-game, return the player to the coin's position
-        loadGameState(); // Load saved game state
-        animateFogClear(); // Update the fog
+        globalCoins += earnedCoins;
+        document.getElementById('token-count').textContent = globalCoins;
+        localStorage.removeItem('earnedCoins');
+        saveGameState();
+        loadGameState();
+        animateFogClear();
     }
 });
 
-// Handle arrow key events for movement
 document.addEventListener('keydown', (event) => {
-    let dx = 0;
-    let dy = 0;
-
-    switch (event.key) {
-        case 'ArrowUp':
-            dy = -1;
-            break;
-        case 'ArrowDown':
-            dy = 1;
-            break;
-        case 'ArrowLeft':
-            dx = -1;
-            break;
-        case 'ArrowRight':
-            dx = 1;
-            break;
-    }
-
-    movePlayer(dx, dy);
+    if (event.key === 'ArrowUp') movePlayer(0, -1);
+    if (event.key === 'ArrowDown') movePlayer(0, 1);
+    if (event.key === 'ArrowLeft') movePlayer(-1, 0);
+    if (event.key === 'ArrowRight') movePlayer(1, 0);
 });
 
-// Handle clicks on cells
 canvas.addEventListener('click', (event) => {
     const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;    // Width scaling
-    const scaleY = canvas.height / rect.height;  // Height scaling
-
-    const clickX = (event.clientX - rect.left) * scaleX;  // Scale X coordinate
-    const clickY = (event.clientY - rect.top) * scaleY;   // Scale Y coordinate
+    const clickX = event.clientX - rect.left;
+    const clickY = event.clientY - rect.top;
 
     const clickedCol = Math.floor((clickX - offsetX) / tileSize);
     const clickedRow = Math.floor((clickY - offsetY) / tileSize);
@@ -336,13 +308,11 @@ canvas.addEventListener('click', (event) => {
     const dx = clickedCol - playerCol;
     const dy = clickedRow - playerRow;
 
-    // Handle click only if player moves within one cell
     if ((Math.abs(dx) === 1 && dy === 0) || (Math.abs(dy) === 1 && dx === 0)) {
         movePlayer(dx, dy);
     }
 });
 
-// Switch between tabs
 document.getElementById('game-tab').addEventListener('click', showGameTab);
 document.getElementById('friends-tab').addEventListener('click', showFriendsTab);
 document.getElementById('tasks-tab').addEventListener('click', showTasksTab);
@@ -374,64 +344,56 @@ function showTasksTab() {
     document.getElementById('tasks-content').style.display = 'block';
 }
 
-// Load game state on page load
 document.addEventListener('DOMContentLoaded', () => {
     hideAllTabs();
     showGameTab();
     loadGameState();
     document.getElementById('token-count').textContent = globalCoins;
-    document.getElementById('step-counter').textContent = `${steps}/100`; // Display remaining steps
+    document.getElementById('step-counter').textContent = `${steps}/100`;
     drawVisibleArea();
 });
 
-// Function to resize the canvas to fit the container while keeping the aspect ratio
 function resizeCanvas() {
     const container = document.getElementById('game-container');
-    
-    // Aspect ratio of the map
     const aspectRatio = mapCols / mapRows;
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
-    
+
     if (containerWidth / containerHeight > aspectRatio) {
-        // If container is wider than the map's aspect ratio
         canvas.height = containerHeight;
         canvas.width = containerHeight * aspectRatio;
     } else {
-        // If container is taller than the map's aspect ratio
         canvas.width = containerWidth;
         canvas.height = containerWidth / aspectRatio;
     }
 
-    tileSize = canvas.width / mapCols; // Update tile size to match canvas width
+    tileSize = Math.min(canvas.width / mapCols, canvas.height / mapRows);
     fogCanvas.width = mapCols * tileSize;
     fogCanvas.height = mapRows * tileSize;
-    
+
     offsetX = -playerCol * tileSize + canvas.width / 2 - tileSize / 2;
     offsetY = -playerRow * tileSize + canvas.height / 2 - tileSize / 2;
-    
-    drawVisibleArea(); // Update the map after resizing
+
+    drawVisibleArea();
 }
 
 window.addEventListener('resize', resizeCanvas);
-resizeCanvas(); // Adjust sizes on initial load
+resizeCanvas();
 
-// Handle "New Game" button click
 document.getElementById('new-game').addEventListener('click', () => {
     localStorage.removeItem('gameState');
     playerCol = Math.floor(mapCols / 2);
     playerRow = Math.floor(mapRows / 2);
     fogState = Array(mapRows).fill().map(() => Array(mapCols).fill(1));
-    world = generateNewWorld(); // Generate a new map
+    world = generateNewWorld();
 
-    // Update camera offset to center the player
     offsetX = -playerCol * tileSize + canvas.width / 2 - tileSize / 2;
     offsetY = -playerRow * tileSize + canvas.height / 2 - tileSize / 2;
 
     initInitialVisibility();
     drawVisibleArea();
     globalCoins = 0;
-    steps = 100; // Reset steps to the initial value
+    steps = 100;
     saveGameState();
-    document.getElementById('step-counter').textContent = `${steps}/100`; // Update the steps display
+    document.getElementById('step-counter').textContent = `${steps}/100`;
 });
