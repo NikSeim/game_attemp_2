@@ -199,28 +199,22 @@ function animatePlayerMove(newCol, newRow) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
 
-        playerCol = startCol + progress * (newCol - startCol);
-        playerRow = startRow + progress * (newRow - startRow);
+        // Плавное перемещение игрока
+        const currentCol = startCol + progress * (newCol - startCol);
+        const currentRow = startRow + progress * (newRow - startRow);
 
-        offsetX = -playerCol * tileSize + canvas.width / 2 - tileSize / 2;
-        offsetY = -playerRow * tileSize + canvas.height / 2 - tileSize / 2;
+        offsetX = -currentCol * tileSize + canvas.width / 2 - tileSize / 2;
+        offsetY = -currentRow * tileSize + canvas.height / 2 - tileSize / 2;
 
         drawVisibleArea();
 
         if (progress < 1) {
             requestAnimationFrame(step);
         } else {
-            // После завершения анимации обновляем позицию игрока и состояние тумана
             playerCol = newCol;
             playerRow = newRow;
             animateFogClear();
-            saveGameState(); // Сохранение состояния игры после движения
-
-            // Проверяем, есть ли монета на новой клетке
-            if (checkAndCollectCoin(newCol, newRow)) {
-                savePreMiniGameState(); // Сохраняем состояние перед мини-игрой
-                launchRandomMiniGame(); // Запускаем случайную мини-игру
-            }
+            saveGameState();
         }
     }
 
@@ -311,17 +305,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Обработчик событий клавиш перемещения
 document.addEventListener('keydown', (event) => {
-    if (event.key === 'ArrowUp') movePlayer(0, -1);
-    if (event.key === 'ArrowDown') movePlayer(0, 1);
-    if (event.key === 'ArrowLeft') movePlayer(-1, 0);
-    if (event.key === 'ArrowRight') movePlayer(1, 0);
+    let dx = 0;
+    let dy = 0;
+
+    switch (event.key) {
+        case 'ArrowUp':
+            dy = -1;
+            break;
+        case 'ArrowDown':
+            dy = 1;
+            break;
+        case 'ArrowLeft':
+            dx = -1;
+            break;
+        case 'ArrowRight':
+            dx = 1;
+            break;
+    }
+
+    movePlayer(dx, dy);
 });
 
 // Обработчик кликов по клеткам
 canvas.addEventListener('click', (event) => {
     const rect = canvas.getBoundingClientRect();
-    const clickX = event.clientX - rect.left;
-    const clickY = event.clientY - rect.top;
+    const clickX = event.pageX - rect.left; // Используем pageX для точной координаты касания
+    const clickY = event.pageY - rect.top;  // Используем pageY для точной координаты касания
 
     const clickedCol = Math.floor((clickX - offsetX) / tileSize);
     const clickedRow = Math.floor((clickY - offsetY) / tileSize);
@@ -329,6 +338,7 @@ canvas.addEventListener('click', (event) => {
     const dx = clickedCol - playerCol;
     const dy = clickedRow - playerRow;
 
+    // Обработка нажатия только если игрок движется в пределах одной клетки
     if ((Math.abs(dx) === 1 && dy === 0) || (Math.abs(dy) === 1 && dx === 0)) {
         movePlayer(dx, dy);
     }
