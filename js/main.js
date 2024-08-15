@@ -124,7 +124,7 @@ function updateFogState() {
 
     for (let y = 0; y < mapRows; y++) {
         for (let x = 0; x < mapCols; x++) {
-            if (fogState[y][x] === 3 && !checkForAdjacentFog(x, y)) {
+            if (fogState[y][x] === 3 && не checkForAdjacentFog(x, y)) {
                 fogState[y][x] = 2;
             }
         }
@@ -390,7 +390,7 @@ function resizeCanvas() {
     canvas.width = container.clientWidth;
     canvas.height = container.clientHeight;
     
-    tileSize = canvas.width / 5; // Обновляем размер тайла в зависимости от нового размера canvas
+    tileSize = Math.min(canvas.width / mapCols, canvas.height / mapRows); // Обновляем размер тайла, чтобы соответствовать размеру canvas
     fogCanvas.width = mapCols * tileSize;
     fogCanvas.height = mapRows * tileSize;
     
