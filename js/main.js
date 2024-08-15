@@ -336,9 +336,9 @@ canvas.addEventListener('click', (event) => {
     const clickedCol = Math.floor((clickX - offsetX) / tileSizeX);
     const clickedRow = Math.floor((clickY - offsetY) / tileSizeY);
 
-    // Проверка на то, что клик был произведен на соседнюю клетку
-    const dx = clickedCol - playerCol;
-    const dy = clickedRow - playerRow;
+    // Сдвигаем нажатие на одну клетку вверх и влево
+    const dx = clickedCol - playerCol - 1;
+    const dy = clickedRow - playerRow - 1;
 
     if (
         (Math.abs(dx) === 1 && dy === 0) || // Клетка справа или слева
