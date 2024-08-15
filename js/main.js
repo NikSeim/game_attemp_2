@@ -5,12 +5,9 @@ tg.expand();
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-const tileSize = canvas.width / 5; // Размер тайла определяется в зависимости от ширины canvas
 const mapCols = 50;
 const mapRows = 50;
-
-const mapWidth = mapCols * tileSize;
-const mapHeight = mapRows * tileSize;
+let tileSize = canvas.width / 5;
 
 let playerCol = Math.floor(mapCols / 2);
 let playerRow = Math.floor(mapRows / 2);
@@ -32,8 +29,8 @@ const playerImage = new Image();
 playerImage.src = 'image/boss.jpg';  // Путь к изображению персонажа
 
 const fogCanvas = document.createElement('canvas');
-fogCanvas.width = mapWidth;
-fogCanvas.height = mapHeight;
+fogCanvas.width = mapCols * tileSize;
+fogCanvas.height = mapRows * tileSize;
 const fogCtx = fogCanvas.getContext('2d');
 
 let globalCoins = parseInt(localStorage.getItem('globalCoins') || '0', 10); // Глобальные монеты
@@ -41,8 +38,8 @@ let earnedCoins = 0;  // Монеты, заработанные в мини-иг
 let steps = 100; // Начальное количество шагов
 
 fogImage.onload = () => {
-    fogCtx.drawImage(mapImage, 0, 0, mapWidth, mapHeight);
-    fogCtx.drawImage(fogImage, 0, 0, mapWidth, mapHeight);
+    fogCtx.drawImage(mapImage, 0, 0, mapCols * tileSize, mapRows * tileSize);
+    fogCtx.drawImage(fogImage, 0, 0, mapCols * tileSize, mapRows * tileSize);
     drawVisibleArea(); 
 };
 
@@ -67,7 +64,7 @@ function generateNewWorld() {
 // Функции рисования карты и тумана
 function drawMap(offsetX, offsetY) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(mapImage, offsetX, offsetY, mapWidth, mapHeight);
+    ctx.drawImage(mapImage, offsetX, offsetY, mapCols * tileSize, mapRows * tileSize);
 
     for (let y = 0; y < mapRows; y++) {
         for (let x = 0; x < mapCols; x++) {
@@ -91,9 +88,9 @@ function drawMap(offsetX, offsetY) {
 }
 
 function drawFog(offsetX, offsetY) {
-    fogCtx.clearRect(0, 0, mapWidth, mapHeight);
-    fogCtx.drawImage(mapImage, 0, 0, mapWidth, mapHeight);
-    fogCtx.drawImage(fogImage, 0, 0, mapWidth, mapHeight);
+    fogCtx.clearRect(0, 0, fogCanvas.width, fogCanvas.height);
+    fogCtx.drawImage(mapImage, 0, 0, fogCanvas.width, fogCanvas.height);
+    fogCtx.drawImage(fogImage, 0, 0, fogCanvas.width, fogCanvas.height);
 
     for (let y = 0; y < mapRows; y++) {
         for (let x = 0; x < mapCols; x++) {
@@ -112,7 +109,7 @@ function drawFog(offsetX, offsetY) {
         }
     }
 
-    ctx.drawImage(fogCanvas, offsetX, offsetY, mapWidth, mapHeight);
+    ctx.drawImage(fogCanvas, offsetX, offsetY, fogCanvas.width, fogCanvas.height);
     fogCtx.globalAlpha = 1;
 }
 
@@ -329,8 +326,11 @@ document.addEventListener('keydown', (event) => {
 // Обработчик кликов по клеткам
 canvas.addEventListener('click', (event) => {
     const rect = canvas.getBoundingClientRect();
-    const clickX = event.pageX - rect.left; // Используем pageX для точной координаты касания
-    const clickY = event.pageY - rect.top;  // Используем pageY для точной координаты касания
+    const scaleX = canvas.width / rect.width;    // Соотношение ширины
+    const scaleY = canvas.height / rect.height;  // Соотношение высоты
+
+    const clickX = (event.clientX - rect.left) * scaleX;  // Масштабируем координаты касания по X
+    const clickY = (event.clientY - rect.top) * scaleY;   // Масштабируем координаты касания по Y
 
     const clickedCol = Math.floor((clickX - offsetX) / tileSize);
     const clickedRow = Math.floor((clickY - offsetY) / tileSize);
@@ -385,6 +385,22 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('step-counter').textContent = `${steps}/100`; // Отображаем оставшиеся шаги
     drawVisibleArea();
 });
+
+// Функция для корректировки размеров canvas при загрузке или изменении размера окна
+function resizeCanvas() {
+    const container = document.getElementById('game-container');
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+    
+    tileSize = canvas.width / 5; // Обновляем размер тайла в зависимости от нового размера canvas
+    offsetX = -playerCol * tileSize + canvas.width / 2 - tileSize / 2;
+    offsetY = -playerRow * tileSize + canvas.height / 2 - tileSize / 2;
+    
+    drawVisibleArea(); // Обновление карты после изменения размеров
+}
+
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas(); // Корректировка размеров при первой загрузке
 
 // Обработка нажатия на кнопку "New Game"
 document.getElementById('new-game').addEventListener('click', () => {
