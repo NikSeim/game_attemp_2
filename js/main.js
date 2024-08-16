@@ -325,11 +325,14 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowRight') movePlayer(1, 0);
 });
 
-// Обработчик кликов по клеткам
+// Оптимизированный обработчик кликов по клеткам для мобильных устройств
 canvas.addEventListener('click', (event) => {
     const rect = canvas.getBoundingClientRect();
-    const clickX = event.clientX - rect.left;
-    const clickY = event.clientY - rect.top;
+    const scaleX = canvas.width / rect.width;    // Масштабируем координаты клика по ширине
+    const scaleY = canvas.height / rect.height;  // Масштабируем координаты клика по высоте
+
+    const clickX = (event.clientX - rect.left) * scaleX;
+    const clickY = (event.clientY - rect.top) * scaleY;
 
     const clickedCol = Math.floor((clickX - offsetX) / tileSize);
     const clickedRow = Math.floor((clickY - offsetY) / tileSize);
