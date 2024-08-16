@@ -19,6 +19,7 @@ let offsetX = 0;
 let offsetY = 0;
 
 const visibilityRadius = 1; // Радиус видимости
+let isAnimating = false; // Флаг для блокировки ввода во время анимации
 
 // Инициализация fogState
 let fogState = Array.from({ length: mapRows }, () => Array(mapCols).fill(1)); // Заполняем массив значениями 1 (не исследовано)
@@ -57,7 +58,6 @@ fogImage.onload = () => {
 // Генерация карты и монет
 let world = generateNewWorld();
 
-// Функция генерации новой карты с монетами
 function generateNewWorld() {
     let newWorld = Array.from({ length: mapRows }, () => Array(mapCols).fill(0));
     for (let i = 0; i < 50; i++) {
@@ -187,14 +187,22 @@ function updateStepCount() {
     document.getElementById('step-counter').textContent = `${steps}/100`; // Обновляем отображение на экране
 }
 
-// Обновление функции movePlayer для уменьшения шагов
+// Функция для обновления кнопок управления после перемещения игрока
+function updateControlButtons() {
+    const controlInfo = `Player at (${playerCol}, ${playerRow})`;
+    document.getElementById('control-info').textContent = controlInfo;
+}
+
+// Функция перемещения игрока
 function movePlayer(dx, dy) {
+    if (isAnimating) return; // Если происходит анимация, не обрабатываем ввод
+
     const newCol = playerCol + dx;
     const newRow = playerRow + dy;
 
     if (newCol >= 0 && newCol < mapCols && newRow >= 0 && newRow < mapRows) {
+        isAnimating = true; // Устанавливаем флаг, что начинается анимация
         animatePlayerMove(newCol, newRow);
-        updateStepCount(); // Уменьшаем количество шагов при каждом перемещении
     }
 }
 
@@ -202,7 +210,7 @@ function movePlayer(dx, dy) {
 function animatePlayerMove(newCol, newRow) {
     const startCol = playerCol;
     const startRow = playerRow;
-    const duration = 700; // 700 ms на перемещение
+    const duration = 300; // 300 ms на перемещение
     const startTime = performance.now();
 
     function step(currentTime) {
@@ -222,13 +230,14 @@ function animatePlayerMove(newCol, newRow) {
             playerRow = newRow;
             recalculateOffsets(); // Пересчитываем смещения после перемещения
             animateFogClear();
-            saveGameState(); // Сохранение состояния игры после движения
+            isAnimating = false; // Снимаем флаг после завершения анимации
 
-            // Проверяем, есть ли монета на новой клетке
             if (checkAndCollectCoin(newCol, newRow)) {
-                savePreMiniGameState(); // Сохраняем состояние перед мини-игрой
-                launchRandomMiniGame(); // Запускаем случайную мини-игру
+                launchRandomMiniGame(); // Запускаем случайную мини-игру после подбора монеты
             }
+
+            saveGameState(); // Сохранение состояния игры после движения
+            updateControlButtons(); // Обновляем кнопки управления после завершения анимации
         }
     }
 
@@ -311,22 +320,15 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('earnedCoins'); // Удаляем из localStorage после использования
         saveGameState(); // Сохраняем обновленное состояние игры
 
-        // После завершения мини-игры, возвращаем персонажа на место монеты
         loadGameState(); // Загружаем сохранённое состояние игры
         animateFogClear(); // Обновляем туман
     }
 });
 
-// Обработчик событий клавиш перемещения
-document.addEventListener('keydown', (event) => {
-    if (event.key === 'ArrowUp') movePlayer(0, -1);
-    if (event.key === 'ArrowDown') movePlayer(0, 1);
-    if (event.key === 'ArrowLeft') movePlayer(-1, 0);
-    if (event.key === 'ArrowRight') movePlayer(1, 0);
-});
-
-// Оптимизированный обработчик кликов по клеткам для мобильных устройств
+// Обработчик кликов по клеткам
 canvas.addEventListener('click', (event) => {
+    if (isAnimating) return; // Если происходит анимация, не обрабатываем ввод
+
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;    // Масштабируем координаты клика по ширине
     const scaleY = canvas.height / rect.height;  // Масштабируем координаты клика по высоте
@@ -334,13 +336,26 @@ canvas.addEventListener('click', (event) => {
     const clickX = (event.clientX - rect.left) * scaleX;
     const clickY = (event.clientY - rect.top) * scaleY;
 
-    const clickedCol = Math.floor((clickX - offsetX) / tileSize);
-    const clickedRow = Math.floor((clickY - offsetY) / tileSize);
+    // Находим координаты текущего положения игрока
+    const playerX = playerCol * tileSize + offsetX;
+    const playerY = playerRow * tileSize + offsetY;
 
-    const dx = clickedCol - playerCol;
-    const dy = clickedRow - playerRow;
+    // Проверяем направление движения на соседние клетки строго по вертикали и горизонтали
+    let dx = 0;
+    let dy = 0;
 
-    if ((Math.abs(dx) === 1 && dy === 0) || (Math.abs(dy) === 1 && dx === 0)) {
+    if (clickX > playerX + tileSize && clickX <= playerX + 2 * tileSize && clickY >= playerY && clickY <= playerY + tileSize) {
+        dx = 1;  // Вправо
+    } else if (clickX < playerX && clickX >= playerX - tileSize && clickY >= playerY && clickY <= playerY + tileSize) {
+        dx = -1; // Влево
+    } else if (clickY > playerY + tileSize && clickY <= playerY + 2 * tileSize && clickX >= playerX && clickX <= playerX + tileSize) {
+        dy = 1;  // Вниз
+    } else if (clickY < playerY && clickY >= playerY - tileSize && clickX >= playerX && clickX <= playerX + tileSize) {
+        dy = -1; // Вверх
+    }
+
+    // Перемещаем игрока, только если он может двигаться на одну клетку и только по горизонтали или вертикали
+    if ((dx !== 0 || dy !== 0) && Math.abs(dx) + Math.abs(dy) === 1) {
         movePlayer(dx, dy);
     }
 });
@@ -385,6 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('token-count').textContent = globalCoins;
     document.getElementById('step-counter').textContent = `${steps}/100`; // Отображаем оставшиеся шаги
     drawVisibleArea();
+    updateControlButtons(); // Обновляем кнопки управления при загрузке страницы
 });
 
 // Обработка нажатия на кнопку "New Game"
@@ -405,4 +421,5 @@ document.getElementById('new-game').addEventListener('click', () => {
     steps = 100; // Сброс шагов на начальное значение
     saveGameState();
     document.getElementById('step-counter').textContent = `${steps}/100`; // Обновляем отображение шагов
+    updateControlButtons(); // Обновляем кнопки управления после начала новой игры
 });
