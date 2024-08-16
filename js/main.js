@@ -5,10 +5,6 @@ tg.expand();
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// Уменьшаем игровое поле на 10%
-canvas.width = canvas.width * 0.9;
-canvas.height = canvas.height * 0.9;
-
 const tileSize = canvas.width / 5; // Размер тайла определяется в зависимости от ширины canvas
 const mapCols = 50;
 const mapRows = 50;
@@ -19,12 +15,19 @@ const mapHeight = mapRows * tileSize;
 let playerCol = Math.floor(mapCols / 2);
 let playerRow = Math.floor(mapRows / 2);
 
-let offsetX = -playerCol * tileSize + canvas.width / 2 - tileSize / 2;
-let offsetY = -playerRow * tileSize + canvas.height / 2 - tileSize / 2;
+let offsetX = 0;
+let offsetY = 0;
 
 const visibilityRadius = 1; // Радиус видимости
 
-let fogState = Array(mapRows).fill().map(() => Array(mapCols).fill(1)); // 1 - не исследовано, 2 - открыто, 3 - полупрозрачно
+// Инициализация fogState
+let fogState = Array.from({ length: mapRows }, () => Array(mapCols).fill(1)); // Заполняем массив значениями 1 (не исследовано)
+
+// Функция пересчета смещений для центрирования игрока
+function recalculateOffsets() {
+    offsetX = -playerCol * tileSize + canvas.width / 2 - tileSize / 2;
+    offsetY = -playerRow * tileSize + canvas.height / 2 - tileSize / 2;
+}
 
 const mapImage = new Image();
 mapImage.src = 'image/grace.jpg';  // Путь к карте
@@ -47,6 +50,7 @@ let steps = 100; // Начальное количество шагов
 fogImage.onload = () => {
     fogCtx.drawImage(mapImage, 0, 0, mapWidth, mapHeight);
     fogCtx.drawImage(fogImage, 0, 0, mapWidth, mapHeight);
+    recalculateOffsets(); // Пересчитываем смещения после загрузки изображений
     drawVisibleArea(); 
 };
 
@@ -101,7 +105,7 @@ function drawFog(offsetX, offsetY) {
 
     for (let y = 0; y < mapRows; y++) {
         for (let x = 0; x < mapCols; x++) {
-            if (fogState[y][x] === 2) {
+            if (fogState[y][x] === 2) { // Проверка на значение fogState
                 fogCtx.save();
                 fogCtx.globalCompositeOperation = 'destination-out';
                 fogCtx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
@@ -124,7 +128,7 @@ function updateFogState() {
     for (let y = 0; y < mapRows; y++) {
         for (let x = 0; x < mapCols; x++) {
             if (Math.abs(x - playerCol) <= visibilityRadius && Math.abs(y - playerRow) <= visibilityRadius) {
-                fogState[y][x] = 2;
+                fogState[y][x] = 2; // Открываем клетку
             } else if (fogState[y][x] === 2) {
                 fogState[y][x] = checkForAdjacentFog(x, y) ? 3 : 2;
             }
@@ -158,7 +162,9 @@ function animateFogClear() {
     drawVisibleArea();
 }
 
+// Обновляем смещения перед отрисовкой видимой области
 function drawVisibleArea() {
+    recalculateOffsets();
     drawMap(offsetX, offsetY);
     drawFog(offsetX, offsetY);
 }
@@ -206,9 +212,6 @@ function animatePlayerMove(newCol, newRow) {
         playerCol = startCol + progress * (newCol - startCol);
         playerRow = startRow + progress * (newRow - startRow);
 
-        offsetX = -playerCol * tileSize + canvas.width / 2 - tileSize / 2;
-        offsetY = -playerRow * tileSize + canvas.height / 2 - tileSize / 2;
-
         drawVisibleArea();
 
         if (progress < 1) {
@@ -217,6 +220,7 @@ function animatePlayerMove(newCol, newRow) {
             // После завершения анимации обновляем позицию игрока и состояние тумана
             playerCol = newCol;
             playerRow = newRow;
+            recalculateOffsets(); // Пересчитываем смещения после перемещения
             animateFogClear();
             saveGameState(); // Сохранение состояния игры после движения
 
@@ -385,7 +389,7 @@ document.getElementById('new-game').addEventListener('click', () => {
     localStorage.removeItem('gameState');
     playerCol = Math.floor(mapCols / 2);
     playerRow = Math.floor(mapRows / 2);
-    fogState = Array(mapRows).fill().map(() => Array(mapCols).fill(1));
+    fogState = Array(mapRows).fill().map(() => Array(mapCols).fill(1)); // Переинициализация fogState
     world = generateNewWorld(); // Генерация новой карты
 
     // Обновляем смещение камеры на центр игрока
