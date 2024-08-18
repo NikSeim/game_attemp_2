@@ -387,7 +387,7 @@ canvas {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 18%;
+  width: 50%;
 }
 
 .confirmation-buttons {
