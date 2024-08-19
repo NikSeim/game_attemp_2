@@ -1,0 +1,60 @@
+/* Стили для вкладки Tasks */
+#tasks-content {
+    padding-top: 10px;
+    text-align: center;
+    font-size: 24px;
+    color: white;
+}
+
+.tasks-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.task-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #222;
+    border-radius: 10px;
+    padding: 10px;
+    width: 90%;
+    max-width: 500px;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.task-icon {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+}
+
+.task-title-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.task-title {
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.task-subtitle {
+    font-size: 12px;
+    margin: 3px 0 0;
+}
+
+.claim-button {
+    background-color: #00aaff;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+}

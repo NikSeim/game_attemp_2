@@ -11,7 +11,7 @@ const mapCols = 50;
 const mapRows = 50;
 const grassTiles = 10; // Количество повторений травы на карте
 
-const tileSize = canvas.width / visibleCols; // Размер тайла определяется исходя из видимой области 5x5
+const tileSize = canvas.width / visibleCols;
 const mapWidth = mapCols * tileSize;
 const mapHeight = mapRows * tileSize;
 
@@ -22,16 +22,14 @@ let offsetX = 0;
 let offsetY = 0;
 
 const visibilityRadius = 1; // Радиус видимости
-let isAnimating = false; // Флаг для блокировки ввода во время анимации
-let steps = 100; // Начальное количество шагов, максимум 100
-let portal = null; // Переменная для хранения позиции портала
-let stepTimer = 5; // Таймер восстановления шагов (5 секунд)
-let stepInterval = null; // Интервал для таймера
+let isAnimating = false;
+let steps = 100;
+let portal = null;
+let stepTimer = 5;
+let stepInterval = null;
 
-// Инициализация fogState
-let fogState = Array.from({ length: mapRows }, () => Array(mapCols).fill(1)); // Заполняем массив значениями 1 (не исследовано)
+let fogState = Array.from({ length: mapRows }, () => Array(mapCols).fill(1));
 
-// Функция пересчета смещений для центрирования игрока
 function recalculateOffsets() {
     const maxOffsetX = -(mapCols * tileSize - canvas.width);
     const maxOffsetY = -(mapRows * tileSize - canvas.height);
@@ -41,33 +39,32 @@ function recalculateOffsets() {
 }
 
 const grassImage = new Image();
-grassImage.src = 'image/grace.jpg'; // Путь к изображению травы
+grassImage.src = 'image/grace.jpg';
 
 const fogImage = new Image();
-fogImage.src = 'image/revorkFog.png';  // Путь к туману
+fogImage.src = 'image/revorkFog.png';
 
 const playerImage = new Image();
-playerImage.src = 'image/boss.jpg';  // Путь к изображению персонажа
+playerImage.src = 'image/boss.jpg';
 
 const portalImage = new Image();
-portalImage.src = 'image/portal.png';  // Путь к изображению портала
+portalImage.src = 'image/portal.png';
 
 const fogCanvas = document.createElement('canvas');
 fogCanvas.width = mapWidth;
 fogCanvas.height = mapHeight;
 const fogCtx = fogCanvas.getContext('2d');
 
-let globalCoins = parseInt(localStorage.getItem('globalCoins') || '0', 10); // Глобальные монеты
-let earnedCoins = 0;  // Монеты, заработанные в мини-игре
+let globalCoins = parseInt(localStorage.getItem('globalCoins') || '0', 10);
+let earnedCoins = 0;
 
 fogImage.onload = () => {
-    fogCtx.drawImage(grassImage, 0, 0, mapWidth, mapHeight); // Отрисовка травы
+    fogCtx.drawImage(grassImage, 0, 0, mapWidth, mapHeight);
     fogCtx.drawImage(fogImage, 0, 0, mapWidth, mapHeight);
-    recalculateOffsets(); // Пересчитываем смещения после загрузки изображений
+    recalculateOffsets();
     drawVisibleArea(); 
 };
 
-// Генерация карты и монет
 let world = generateNewWorld();
 
 function generateNewWorld() {
@@ -77,50 +74,43 @@ function generateNewWorld() {
         do {
             x = Math.floor(Math.random() * mapCols);
             y = Math.floor(Math.random() * mapRows);
-        } while (x === playerCol && y === playerRow); // Исключаем позицию игрока
+        } while (x === playerCol && y === playerRow);
 
         newWorld[y][x] = 'coin';
     }
     return newWorld;
 }
 
-// Функция для размещения портала по краям карты, на расстоянии 2 клеток от края
 function placePortalNearEdge() {
     const positions = [];
 
-    // Собираем возможные позиции для портала на верхнем и нижнем краях
     for (let col = 2; col < mapCols - 2; col++) {
-        positions.push({ x: col, y: 2 }); // Верхний край
-        positions.push({ x: col, y: mapRows - 3 }); // Нижний край
+        positions.push({ x: col, y: 2 });
+        positions.push({ x: col, y: mapRows - 3 });
     }
 
-    // Собираем возможные позиции для портала на левом и правом краях
     for (let row = 2; row < mapRows - 2; row++) {
-        positions.push({ x: 2, y: row }); // Левый край
-        positions.push({ x: mapCols - 3, y: row }); // Правый край
+        positions.push({ x: 2, y: row });
+        positions.push({ x: mapCols - 3, y: row });
     }
 
-    // Выбираем случайную позицию из собранных
     let portalPosition;
     do {
         portalPosition = positions[Math.floor(Math.random() * positions.length)];
-    } while (world[portalPosition.y][portalPosition.x] === 'coin'); // Проверяем, что на позиции нет монеты
+    } while (world[portalPosition.y][portalPosition.x] === 'coin');
 
-    portal = portalPosition; // Устанавливаем портал в выбранную позицию
+    portal = portalPosition;
 }
 
-// Функция для отрисовки карты с учетом портала
 function drawMap(offsetX, offsetY) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Отрисовка бесшовной текстуры травы
     for (let x = offsetX % (tileSize * mapCols / grassTiles) - tileSize; x < canvas.width; x += tileSize * mapCols / grassTiles) {
         for (let y = offsetY % (tileSize * mapRows / grassTiles) - tileSize; y < canvas.height; y += tileSize * mapRows / grassTiles) {
             ctx.drawImage(grassImage, x, y, tileSize * mapCols / grassTiles, tileSize * mapRows / grassTiles);
         }
     }
 
-    // Отрисовка монет
     for (let y = 0; y < mapRows; y++) {
         for (let x = 0; x < mapCols; x++) {
             if (world[y][x] === 'coin') {
@@ -132,7 +122,6 @@ function drawMap(offsetX, offsetY) {
         }
     }
 
-    // Отрисовка портала
     if (portal) {
         ctx.drawImage(
             portalImage,
@@ -143,7 +132,6 @@ function drawMap(offsetX, offsetY) {
         );
     }
 
-    // Отрисовка персонажа
     ctx.drawImage(
         playerImage,
         offsetX + playerCol * tileSize + tileSize / 4,
@@ -155,12 +143,12 @@ function drawMap(offsetX, offsetY) {
 
 function drawFog(offsetX, offsetY) {
     fogCtx.clearRect(0, 0, mapWidth, mapHeight);
-    fogCtx.drawImage(grassImage, 0, 0, mapWidth, mapHeight); // Отрисовка травы
+    fogCtx.drawImage(grassImage, 0, 0, mapWidth, mapHeight);
     fogCtx.drawImage(fogImage, 0, 0, mapWidth, mapHeight);
 
     for (let y = 0; y < mapRows; y++) {
         for (let x = 0; x < mapCols; x++) {
-            if (fogState[y][x] === 2) { // Проверка на значение fogState
+            if (fogState[y][x] === 2) {
                 fogCtx.save();
                 fogCtx.globalCompositeOperation = 'destination-out';
                 fogCtx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
@@ -183,7 +171,7 @@ function updateFogState() {
     for (let y = 0; y < mapRows; y++) {
         for (let x = 0; x < mapCols; x++) {
             if (Math.abs(x - playerCol) <= visibilityRadius && Math.abs(y - playerRow) <= visibilityRadius) {
-                fogState[y][x] = 2; // Открываем клетку
+                fogState[y][x] = 2;
             } else if (fogState[y][x] === 2) {
                 fogState[y][x] = checkForAdjacentFog(x, y) ? 3 : 2;
             }
@@ -217,7 +205,6 @@ function animateFogClear() {
     drawVisibleArea();
 }
 
-// Обновляем смещения перед отрисовкой видимой области
 function drawVisibleArea() {
     recalculateOffsets();
     drawMap(offsetX, offsetY);
@@ -225,10 +212,9 @@ function drawVisibleArea() {
 }
 
 function initInitialVisibility() {
-    // Инициализация видимости клеток вокруг игрока в радиусе 1
     for (let y = Math.max(0, playerRow - visibilityRadius); y <= Math.min(mapRows - 1, playerRow + visibilityRadius); y++) {
         for (let x = Math.max(0, playerCol - visibilityRadius); x <= Math.min(mapCols - 1, playerCol + visibilityRadius); x++) {
-            fogState[y][x] = 2; // Помечаем клетки как исследованные
+            fogState[y][x] = 2;
         }
     }
 }
@@ -236,72 +222,65 @@ function initInitialVisibility() {
 initInitialVisibility();
 drawVisibleArea();
 
-// Функция для обновления и отображения количества оставшихся шагов
 function updateStepCount() {
-    steps = Math.max(0, steps - 1); // Уменьшаем количество шагов на 1, но не ниже 0
-    document.getElementById('step-counter').textContent = `${steps}/100`; // Обновляем отображение на экране
-
-    checkStepTimerVisibility(); // Проверяем видимость таймера после обновления шагов
+    steps = Math.max(0, steps - 1);
+    document.getElementById('step-counter').textContent = `${steps}/100`;
+    checkStepTimerVisibility();
 }
 
-// Функция для восстановления шагов каждые 5 секунд
 function restoreSteps() {
     const stepTimerElement = document.getElementById('step-timer');
 
     stepInterval = setInterval(() => {
         if (steps < 100) {
-            stepTimerElement.style.display = 'inline'; // Показываем таймер
+            stepTimerElement.style.display = 'inline';
             stepTimer -= 1;
             if (stepTimer <= 0) {
-                steps = Math.min(100, steps + 1); // Восстанавливаем 1 шаг
-                stepTimer = 5; // Сброс таймера на 5 секунд
+                steps = Math.min(100, steps + 1);
+                stepTimer = 5;
                 document.getElementById('step-counter').textContent = `${steps}/100`;
-                checkStepTimerVisibility(); // Проверяем видимость таймера после восстановления шагов
+                checkStepTimerVisibility();
             }
             stepTimerElement.textContent = `00:0${stepTimer}`;
         } else {
-            stepTimerElement.style.display = 'none'; // Скрываем таймер, если шаги восстановлены до 100
-            clearInterval(stepInterval); // Останавливаем таймер
+            stepTimerElement.style.display = 'none';
+            clearInterval(stepInterval);
             stepInterval = null;
         }
     }, 1000);
 }
 
-// Функция для проверки видимости таймера
 function checkStepTimerVisibility() {
     const stepTimerElement = document.getElementById('step-timer');
     if (steps === 100) {
-        stepTimerElement.style.display = 'none'; // Таймер не виден, когда шаги равны 100/100
+        stepTimerElement.style.display = 'none';
     } else {
-        stepTimerElement.style.display = 'inline'; // Таймер виден, когда шаги меньше 100/100
+        stepTimerElement.style.display = 'inline';
     }
 }
 
-// Обновление функции movePlayer для уменьшения шагов
 function movePlayer(dx, dy) {
-    if (isAnimating) return; // Если происходит анимация, не обрабатываем ввод
-    if (steps <= 0) return; // Если шагов нет, не перемещаем игрока
+    if (isAnimating) return;
+    if (steps <= 0) return;
 
     const newCol = playerCol + dx;
     const newRow = playerRow + dy;
 
     if (newCol >= 0 && newCol < mapCols && newRow >= 0 && newRow < mapRows) {
-        isAnimating = true; // Устанавливаем флаг, что начинается анимация
+        isAnimating = true;
         animatePlayerMove(newCol, newRow);
-        updateStepCount(); // Уменьшаем количество шагов при каждом перемещении
+        updateStepCount();
 
-        // Запускаем таймер восстановления шагов, если он еще не активен и шаги меньше 100
         if (steps < 100 && !stepInterval) {
             restoreSteps();
         }
     }
 }
 
-// Функция для анимации перемещения игрока
 function animatePlayerMove(newCol, newRow) {
     const startCol = playerCol;
     const startRow = playerRow;
-    const duration = 700; // 700 ms на перемещение
+    const duration = 700;
     const startTime = performance.now();
 
     function step(currentTime) {
@@ -316,43 +295,38 @@ function animatePlayerMove(newCol, newRow) {
         if (progress < 1) {
             requestAnimationFrame(step);
         } else {
-            // После завершения анимации обновляем позицию игрока и состояние тумана
             playerCol = newCol;
             playerRow = newRow;
-            recalculateOffsets(); // Пересчитываем смещения после перемещения
+            recalculateOffsets();
             animateFogClear();
-            saveGameState(); // Сохранение состояния игры после движения
+            saveGameState();
 
-            // Проверяем, есть ли монета на новой клетке
             if (checkAndCollectCoin(newCol, newRow)) {
-                savePreMiniGameState(); // Сохраняем состояние перед мини-игрой
-                launchRandomMiniGame(); // Запускаем случайную мини-игру
+                savePreMiniGameState();
+                launchRandomMiniGame();
             }
 
-            // Проверяем, достиг ли игрок портала
             if (portal && newCol === portal.x && newRow === portal.y) {
                 showConfirmationBox();
             }
 
-            isAnimating = false; // Снимаем флаг после завершения анимации
-            updateControlButtons(); // Обновляем кнопки управления после завершения анимации
+            isAnimating = false;
+            updateControlButtons();
         }
     }
 
     requestAnimationFrame(step);
 }
 
-// Проверка на монету и её сбор
 function checkAndCollectCoin(col, row) {
     if (world[row][col] === 'coin') {
-        world[row][col] = 0; // Убираем монету с карты
-        earnedCoins += 1; // Увеличиваем количество заработанных монет
+        world[row][col] = 0;
+        earnedCoins += 1;
         return true;
     }
     return false;
 }
 
-// Функция для сохранения состояния игры
 function saveGameState() {
     const gameState = {
         playerCol,
@@ -363,12 +337,11 @@ function saveGameState() {
         world,
         offsetX,
         offsetY,
-        steps // Сохраняем количество шагов
+        steps
     };
     localStorage.setItem('gameState', JSON.stringify(gameState));
 }
 
-// Функция для загрузки состояния игры
 function loadGameState() {
     const savedGameState = localStorage.getItem('gameState');
     if (savedGameState) {
@@ -381,19 +354,17 @@ function loadGameState() {
         earnedCoins = gameState.earnedCoins;
         offsetX = gameState.offsetX;
         offsetY = gameState.offsetY;
-        steps = gameState.steps || 100; // Восстанавливаем количество шагов или устанавливаем начальное значение
+        steps = gameState.steps || 100;
         
-        document.getElementById('step-counter').textContent = `${steps}/100`; // Обновляем отображение шагов на экране
+        document.getElementById('step-counter').textContent = `${steps}/100`;
         drawVisibleArea();
     }
 }
 
-// Функция для сохранения состояния перед мини-игрой
 function savePreMiniGameState() {
     saveGameState();
 }
 
-// Запуск случайной мини-игры
 function launchRandomMiniGame() {
     savePreMiniGameState();
 
@@ -408,76 +379,82 @@ function launchRandomMiniGame() {
     window.location.href = miniGames[randomIndex];
 }
 
-// Обработка события coinsEarned для добавления монет после завершения мини-игры
 document.addEventListener('DOMContentLoaded', () => {
-    placePortalNearEdge(); // Размещаем портал по краям карты на расстоянии 2 клеток при загрузке игры
+    placePortalNearEdge();
 
     const earnedCoins = parseInt(localStorage.getItem('earnedCoins') || '0', 10);
     
     if (earnedCoins > 0) {
-        globalCoins += earnedCoins; // Добавляем заработанные монеты к основному счету
-        document.getElementById('token-count').textContent = globalCoins; // Обновляем отображение монет
-        localStorage.removeItem('earnedCoins'); // Удаляем из localStorage после использования
-        saveGameState(); // Сохраняем обновленное состояние игры
+        globalCoins += earnedCoins;
+        document.getElementById('token-count').textContent = globalCoins;
+        localStorage.removeItem('earnedCoins');
+        saveGameState();
 
-        loadGameState(); // Загружаем сохранённое состояние игры
-        animateFogClear(); // Обновляем туман
+        loadGameState();
+        animateFogClear();
     }
 
-    restoreSteps(); // Запускаем таймер восстановления шагов
+    restoreSteps();
 });
 
-// Оптимизированный обработчик кликов по клеткам для мобильных устройств
 canvas.addEventListener('click', (event) => {
-    if (isAnimating) return; // Если происходит анимация, не обрабатываем ввод
-    if (steps <= 0) return; // Если шагов нет, не перемещаем игрока
+    if (isAnimating) return;
+    if (steps <= 0) return;
 
     const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;    // Масштабируем координаты клика по ширине
-    const scaleY = canvas.height / rect.height;  // Масштабируем координаты клика по высоте
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
 
     const clickX = (event.clientX - rect.left) * scaleX;
     const clickY = (event.clientY - rect.top) * scaleY;
 
-    // Находим координаты текущего положения игрока
     const playerX = playerCol * tileSize + offsetX;
     const playerY = playerRow * tileSize + offsetY;
 
-    // Проверяем направление движения на соседние клетки строго по вертикали и горизонтали
     let dx = 0;
     let dy = 0;
 
     if (clickX > playerX + tileSize && clickX <= playerX + 2 * tileSize && clickY >= playerY && clickY <= playerY + tileSize) {
-        dx = 1;  // Вправо
+        dx = 1;
     } else if (clickX < playerX && clickX >= playerX - tileSize && clickY >= playerY && clickY <= playerY + tileSize) {
-        dx = -1; // Влево
+        dx = -1;
     } else if (clickY > playerY + tileSize && clickY <= playerY + 2 * tileSize && clickX >= playerX && clickX <= playerX + tileSize) {
-        dy = 1;  // Вниз
+        dy = 1;
     } else if (clickY < playerY && clickY >= playerY - tileSize && clickX >= playerX && clickX <= playerX + tileSize) {
-        dy = -1; // Вверх
+        dy = -1;
     }
 
-    // Перемещаем игрока, только если он может двигаться на одну клетку и только по горизонтали или вертикали
     if (dx !== 0 || dy !== 0) {
         movePlayer(dx, dy);
     }
 });
 
-// Переключение между вкладками
-document.getElementById('game-tab').addEventListener('click', showGameTab);
-document.getElementById('friends-tab').addEventListener('click', showFriendsTab);
-document.getElementById('tasks-tab').addEventListener('click', showTasksTab);
+// Добавление логики переключения вкладок и подгрузки контента
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Назначаем обработчики событий на вкладки
+    document.getElementById('game-tab').addEventListener('click', showGameTab);
+    document.getElementById('shop-tab').addEventListener('click', loadShopContent);
+    document.getElementById('friends-tab').addEventListener('click', loadFriendsContent);
+    document.getElementById('tasks-tab').addEventListener('click', loadTasksContent);
+
+    // Показываем вкладку "Game" по умолчанию
+    showGameTab();
+});
 
 function hideAllTabs() {
+    // Скрываем все вкладки и связанные элементы
     document.getElementById('game-world').style.display = 'none';
     document.getElementById('controls').style.display = 'none';
     document.getElementById('new-game').style.display = 'none';
     document.getElementById('score').style.display = 'none';
+    document.getElementById('shop-content').style.display = 'none';
     document.getElementById('friends-content').style.display = 'none';
     document.getElementById('tasks-content').style.display = 'none';
 }
 
 function showGameTab() {
+    // Показываем вкладку "Game"
     hideAllTabs();
     document.getElementById('game-world').style.display = 'grid';
     document.getElementById('controls').style.display = 'flex';
@@ -485,85 +462,113 @@ function showGameTab() {
     document.getElementById('score').style.display = 'flex';
 }
 
-function showFriendsTab() {
+function loadShopContent() {
+    // Загружаем и показываем вкладку "Shop"
     hideAllTabs();
-    document.getElementById('friends-content').style.display = 'block';
+    loadHTMLContent('html/tab-shop.html', 'shop-content', () => {
+        loadCSS('css/tab-shop.css');
+        loadScript('js/tab-shop.js');
+        document.getElementById('shop-content').style.display = 'block';
+    });
 }
 
-function showTasksTab() {
+function loadFriendsContent() {
+    // Загружаем и показываем вкладку "Friends"
     hideAllTabs();
-    document.getElementById('tasks-content').style.display = 'block';
+    loadHTMLContent('html/tab-friend.html', 'friends-content', () => {
+        loadCSS('css/tab-friend.css');
+        loadScript('js/tab-friend.js');
+        document.getElementById('friends-content').style.display = 'block';
+    });
 }
 
-// Загрузка состояния при загрузке страницы
-document.addEventListener('DOMContentLoaded', () => {
+function loadTasksContent() {
+    // Загружаем и показываем вкладку "Tasks"
     hideAllTabs();
-    showGameTab();
-    loadGameState();
-    document.getElementById('token-count').textContent = globalCoins;
-    document.getElementById('step-counter').textContent = `${steps}/100`; // Отображаем оставшиеся шаги
-    drawVisibleArea();
-    updateControlButtons(); // Обновляем кнопки управления при загрузке страницы
-    checkStepTimerVisibility(); // Проверяем видимость таймера при загрузке страницы
-});
+    loadHTMLContent('html/tab-tasks.html', 'tasks-content', () => {
+        loadCSS('css/tab-tasks.css');
+        loadScript('js/tab-tasks.js');
+        document.getElementById('tasks-content').style.display = 'block';
+    });
+}
 
-// Обработка нажатия на кнопку "New Game"
+function loadHTMLContent(url, containerId, callback) {
+    // Загружаем HTML-контент в указанный контейнер
+    fetch(url)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById(containerId).innerHTML = html;
+            if (callback) callback();
+        })
+        .catch(error => console.error('Ошибка загрузки HTML:', error));
+}
+
+function loadCSS(url) {
+    // Динамически подключаем CSS
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = url;
+    document.head.appendChild(link);
+}
+
+function loadScript(url) {
+    // Динамически подключаем JS
+    const script = document.createElement('script');
+    script.src = url;
+    document.body.appendChild(script);
+}
+
 document.getElementById('new-game').addEventListener('click', () => {
     localStorage.removeItem('gameState');
     playerCol = Math.floor(mapCols / 2);
     playerRow = Math.floor(mapRows / 2);
-    fogState = Array(mapRows).fill().map(() => Array(mapCols).fill(1)); // Переинициализация fogState
-    world = generateNewWorld(); // Генерация новой карты
+    fogState = Array(mapRows).fill().map(() => Array(mapCols).fill(1));
+    world = generateNewWorld();
 
-    // Обновляем смещение камеры на центр игрока
     offsetX = -playerCol * tileSize + canvas.width / 2 - tileSize / 2;
     offsetY = -playerRow * tileSize + canvas.height / 2 - tileSize / 2;
 
-    placePortalNearEdge(); // Размещаем портал по краям карты на расстоянии 2 клеток от игрока
+    placePortalNearEdge();
 
     initInitialVisibility();
     drawVisibleArea();
     globalCoins = 0;
-    steps = 100; // Сбрасываем шаги до 100/100
-    document.getElementById('step-counter').textContent = `${steps}/100`; // Обновляем отображение шагов
-    updateControlButtons(); // Обновляем кнопки управления после начала новой игры
+    steps = 100;
+    document.getElementById('step-counter').textContent = `${steps}/100`;
+    updateControlButtons();
 });
 
-// Функция для показа модального окна подтверждения перехода
 function showConfirmationBox() {
     const confirmationBox = document.getElementById('confirmation-box');
     confirmationBox.style.display = 'block';
 
-    // Обработчик для кнопки "Да"
     document.getElementById('confirm-yes').addEventListener('click', () => {
         confirmationBox.style.display = 'none';
-        startTransition(); // Начинаем плавное затемнение экрана
+        startTransition();
     });
 
-    // Обработчик для кнопки "Нет"
     document.getElementById('confirm-no').addEventListener('click', () => {
         confirmationBox.style.display = 'none';
     });
 }
 
-// Функция для начала плавного затемнения экрана и перехода в новую локацию
 function startTransition() {
     const blackout = document.getElementById('blackout');
-    blackout.style.display = 'block';           // Показываем элемент
-    blackout.style.opacity = '0';               // Устанавливаем начальную прозрачность
+    blackout.style.display = 'block';
+    blackout.style.opacity = '0';
     setTimeout(() => {
-        blackout.style.transition = 'opacity 1.5s ease'; // Плавный переход за 1.5 секунды
-        blackout.style.opacity = '1';           // Увеличиваем прозрачность до 100%
-    }, 10); // Небольшая задержка перед запуском анимации, чтобы изменение стилей применилось
+        blackout.style.transition = 'opacity 1.5s ease';
+        blackout.style.opacity = '1';
+    }, 10);
 
     setTimeout(() => {
-        document.getElementById('new-game').click(); // Запуск новой игры
+        document.getElementById('new-game').click();
         setTimeout(() => {
-            blackout.style.transition = 'opacity 1s ease'; // Переход от черного к прозрачному за 1 секунду
-            blackout.style.opacity = '0';                  // Уменьшаем прозрачность до 0
+            blackout.style.transition = 'opacity 1s ease';
+            blackout.style.opacity = '0';
             setTimeout(() => {
-                blackout.style.display = 'none';           // Скрываем элемент после завершения анимации
+                blackout.style.display = 'none';
             }, 1000);
-        }, 1000); // Длительность черного экрана 1 секунда
-    }, 1500); // Переход в черный экран 1.5 секунды
+        }, 1000);
+    }, 1500);
 }
