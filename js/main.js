@@ -9,7 +9,7 @@ const visibleCols = 5;
 const visibleRows = 5;
 const mapCols = 50;
 const mapRows = 50;
-const grassTiles = 10; // Количество повторений травы на карте
+const grassTiles = 10;
 
 const tileSize = canvas.width / visibleCols;
 const mapWidth = mapCols * tileSize;
@@ -45,7 +45,7 @@ const fogImage = new Image();
 fogImage.src = 'image/revorkFog.png';
 
 const playerImage = new Image();
-playerImage.src = 'image/boss.jpg';
+playerImage.src = 'image/xyeta.webp';
 
 const portalImage = new Image();
 portalImage.src = 'image/portal.png';
@@ -57,6 +57,12 @@ const fogCtx = fogCanvas.getContext('2d');
 
 let globalCoins = parseInt(localStorage.getItem('globalCoins') || '0', 10);
 let earnedCoins = 0;
+
+// Обработка клика по кнопке "Booster"
+document.getElementById('booster-button').addEventListener('click', () => {
+    saveGameState();  // Сохраняем игру при переходе на другую страницу
+    window.location.href = 'html/booster.html';
+});
 
 fogImage.onload = () => {
     fogCtx.drawImage(grassImage, 0, 0, mapWidth, mapHeight);
@@ -226,6 +232,7 @@ function updateStepCount() {
     steps = Math.max(0, steps - 1);
     document.getElementById('step-counter').textContent = `${steps}/100`;
     checkStepTimerVisibility();
+    saveGameState();  // Сохранение игры при каждом изменении шагов
 }
 
 function restoreSteps() {
@@ -240,6 +247,7 @@ function restoreSteps() {
                 stepTimer = 5;
                 document.getElementById('step-counter').textContent = `${steps}/100`;
                 checkStepTimerVisibility();
+                saveGameState();  // Сохранение игры при восстановлении шагов
             }
             stepTimerElement.textContent = `00:0${stepTimer}`;
         } else {
@@ -270,6 +278,7 @@ function movePlayer(dx, dy) {
         isAnimating = true;
         animatePlayerMove(newCol, newRow);
         updateStepCount();
+        saveGameState();  // Сохранение игры после перемещения игрока
 
         if (steps < 100 && !stepInterval) {
             restoreSteps();
@@ -299,7 +308,7 @@ function animatePlayerMove(newCol, newRow) {
             playerRow = newRow;
             recalculateOffsets();
             animateFogClear();
-            saveGameState();
+            saveGameState();  // Сохранение игры после завершения перемещения
 
             if (checkAndCollectCoin(newCol, newRow)) {
                 savePreMiniGameState();
@@ -322,6 +331,7 @@ function checkAndCollectCoin(col, row) {
     if (world[row][col] === 'coin') {
         world[row][col] = 0;
         earnedCoins += 1;
+        saveGameState();  // Сохранение игры после сбора монеты
         return true;
     }
     return false;
@@ -380,6 +390,7 @@ function launchRandomMiniGame() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    loadGameState();  // Загрузка состояния игры при загрузке страницы
     placePortalNearEdge();
 
     const earnedCoins = parseInt(localStorage.getItem('earnedCoins') || '0', 10);
@@ -428,8 +439,6 @@ canvas.addEventListener('click', (event) => {
         movePlayer(dx, dy);
     }
 });
-
-// Добавление логики переключения вкладок и подгрузки контента
 
 document.addEventListener('DOMContentLoaded', () => {
     // Назначаем обработчики событий на вкладки
@@ -536,6 +545,7 @@ document.getElementById('new-game').addEventListener('click', () => {
     steps = 100;
     document.getElementById('step-counter').textContent = `${steps}/100`;
     updateControlButtons();
+    saveGameState();  // Сохранение игры после начала новой игры
 });
 
 function showConfirmationBox() {

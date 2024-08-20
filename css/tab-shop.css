@@ -1,61 +1,94 @@
-/* Стили для вкладки Shop */
-#shop-content {
-    padding-top: 10px;
-    text-align: center;
-    font-size: 24px;
+body {
+    background: url('../image/backgroundmarket.jpg') no-repeat center center fixed;
+    background-size: cover;
     color: white;
-}
-
-.shop-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-}
-
-.shop-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #333;
-    border-radius: 10px;
-    padding: 10px;
-    width: 90%;
-    max-width: 500px;
-    color: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.shop-item-image {
-    width: 50px;
-    height: 50px;
-    margin-right: 10px;
-}
-
-.shop-item-info {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    flex-grow: 1;
-}
-
-.shop-item-title {
-    font-size: 18px;
-    font-weight: bold;
+    font-family: Arial, sans-serif;
     margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;  /* Центрируем контент по горизонтали */
+    align-items: center;       /* Центрируем контент по вертикали */
+    overflow-y: hidden;        /* Скрываем вертикальную прокрутку у body */
 }
 
-.shop-item-price {
-    font-size: 14px;
-    margin: 3px 0 0;
+#market-wrapper {
+    display: flex;
+    justify-content: center;    /* Центрируем содержимое по горизонтали */
+    align-items: center;        /* Центрируем содержимое по вертикали */
+    height: 100%;               /* Высота на весь экран */
+    width: 100%;                /* Ширина на весь экран */
 }
 
-.buy-button {
-    background-color: #00aa00;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 5px 15px;
-    font-size: 16px;
-    cursor: pointer;
+#market-content {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Две колонки с одинаковыми размерами */
+    grid-auto-rows: auto;                  /* Автоматическая высота строк */
+    justify-content: center;               /* Центрируем содержимое внутри сетки */
+    align-items: center;                   /* Центрируем объекты по вертикали внутри сетки */
+    max-height: 80vh;                      /* Высота контейнера ограничена 80% от высоты окна */
+    overflow-y: auto;                      /* Вертикальная прокрутка */
+    scrollbar-width: none;                 /* Скрываем полосу прокрутки в Firefox */
+    -ms-overflow-style: none;              /* Скрываем полосу прокрутки в IE и Edge */
+    width: 90%;                            /* Ограничиваем ширину контейнера */
+    padding-top: 40px;                     /* Отступ сверху для содержимого */
+    padding-bottom: 40px;                  /* Отступ снизу для содержимого */
+}
+
+#market-content::-webkit-scrollbar {
+    display: none;                         /* Скрываем полосу прокрутки в WebKit (Chrome, Safari) */
+}
+
+.market-item {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    width: 12.84vw;                        /* Увеличенная ширина контейнера */
+    height: 15.41vw;                       /* Увеличенная высота контейнера */
+    display: flex;
+    flex-direction: column;
+    margin: 20px;
+}
+
+.market-item img {
+    width: 100%;                           /* Картинка занимает всю ширину контейнера */
+    height: 12.84vw;                       /* Увеличенная высота картинки */
+    object-fit: cover;                     /* Картинка масштабируется, сохраняя пропорции */
+    border-radius: 10px 10px 0 0;          /* Закругленные углы сверху */
+}
+
+.market-item .price-container {
+    height: 2.57vw;                        /* Увеличенная высота контейнера для цены */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 0 0 10px 10px;          /* Закругленные углы снизу */
+}
+
+.market-item .price {
+    font-size: 1.93vw;                     /* Увеличенный размер шрифта для цены */
+    color: #ffd700;
+}
+
+/* Адаптация для экранов шириной менее 768px (мобильные устройства) */
+@media (max-width: 768px) {
+    .market-item {
+        width: 45vw;                        /* Увеличенная ширина для маленьких экранов */
+        height: 50vw;                       /* Увеличенная высота для маленьких экранов */
+    }
+
+    .market-item img {
+        height: 45vw;                       /* Увеличенная высота картинки */
+    }
+
+    .market-item .price-container {
+        height: 5vw;                        /* Увеличенная высота контейнера для цены */
+    }
+
+    .market-item .price {
+        font-size: 4vw;                     /* Увеличенный размер шрифта для цены */
+    }
 }

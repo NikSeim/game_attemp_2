@@ -1,7 +1,10 @@
-// Дополнительный функционал для вкладки Shop
+document.addEventListener('DOMContentLoaded', () => {
+    const marketItems = document.querySelectorAll('.market-item');
 
-document.querySelectorAll('.buy-button').forEach(button => {
-    button.addEventListener('click', () => {
-        alert('Item bought!');
+    marketItems.forEach(item => {
+        item.addEventListener('click', () => {
+            // Здесь можно добавить функционал, например, открытие модального окна с детальной информацией
+            alert('Товар добавлен в корзину!');
+        });
     });
 });
