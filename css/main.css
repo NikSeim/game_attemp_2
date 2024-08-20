@@ -28,9 +28,7 @@ body {
 
 #rocket {
   position: fixed; /* Фиксированное положение */
-  top: 20px; /* Отступ от верхнего края окна */
   left: 80%; /* Сдвигаем вправо, можно регулировать по процентам или пикселям */
-  width: 50px; /* Ширина изображения */
   height: auto; /* Автоматическая высота для сохранения пропорций */
   z-index: 1000; /* Убедитесь, что ракета выше других элементов */
 }
@@ -38,8 +36,9 @@ body {
 
 
 #booster-button {
+  width: 30px;
   cursor: pointer;
-  width: 50px;
+  width: 35px;
   height: auto;
   margin-right: 40px;
   z-index: 10;
@@ -82,7 +81,6 @@ body {
   max-width: 100vw;
   overflow-x: hidden;
   padding: 10px;
-  margin-top: 15px;
 }
 
 #game-world {
@@ -95,7 +93,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 20px;
   border: 2px solid #000;
   overflow: hidden;
 }
