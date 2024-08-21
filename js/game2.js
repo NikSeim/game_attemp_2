@@ -187,14 +187,11 @@ function updateTimerDisplay() {
     timerDisplay.textContent = timeLeft;
 }
 
-function updateCoins(amount) {
+function updateCoins(earnedCoins) {
     const savedGameState = localStorage.getItem('gameState');
     let gameState = savedGameState ? JSON.parse(savedGameState) : null;
 
-    if (gameState) {
-        gameState.coins += amount;
-        localStorage.setItem('gameState', JSON.stringify(gameState));
-    }
+    localStorage.setItem('earnedCoins', coinsEarned);
 }
 
 // Function to display the endgame menu after 3 rounds
@@ -235,5 +232,5 @@ function showEndGameMenu() {
 function clearGameArea() {
     gameArea.innerHTML = '';
     const endGameMenu = document.querySelector('.end-game-menu');
-    if (endGameMenu) endGameMenu.remove();
+    endGameMenu.remove();
 }

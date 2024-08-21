@@ -39,24 +39,23 @@ function recalculateOffsets() {
 }
 
 const grassImage = new Image();
-grassImage.src = 'image/grace.webp';
+grassImage.src = 'image/grace.jpg';
 
 const fogImage = new Image();
-fogImage.src = 'image/revorkFog.webp';
+fogImage.src = 'image/revorkFog.png';
 
 const playerImage = new Image();
 playerImage.src = 'image/xyeta.webp';
 
 const portalImage = new Image();
-portalImage.src = 'image/portal.webp';
+portalImage.src = 'image/portal.png';
 
 const fogCanvas = document.createElement('canvas');
 fogCanvas.width = mapWidth;
 fogCanvas.height = mapHeight;
 const fogCtx = fogCanvas.getContext('2d');
 
-let globalCoins = parseInt(localStorage.getItem('globalCoins') || '0', 10);
-let earnedCoins = 0;
+let globalCoins = 0, earnedCoins = 0;
 
 // Обработка клика по кнопке "Booster"
 document.getElementById('booster-button').addEventListener('click', () => {
@@ -76,12 +75,7 @@ let world = generateNewWorld();
 function generateNewWorld() {
     let newWorld = Array.from({ length: mapRows }, () => Array(mapCols).fill(0));
     for (let i = 0; i < 50; i++) {
-        let x, y;
-        do {
-            x = Math.floor(Math.random() * mapCols);
-            y = Math.floor(Math.random() * mapRows);
-        } while (x === playerCol && y === playerRow);
-
+        let x = Math.floor(Math.random() * mapCols), y = Math.floor(Math.random() * mapRows);
         newWorld[y][x] = 'coin';
     }
     return newWorld;
@@ -327,9 +321,9 @@ function animatePlayerMove(newCol, newRow) {
     requestAnimationFrame(step);
 }
 
-function checkAndCollectCoin(col, row) {
-    if (world[row][col] === 'coin') {
-        world[row][col] = 0;
+function checkAndCollectCoin(y, x) {
+    if (world[x][y] === 'coin') {
+        world[x][y] = 0;
         earnedCoins += 1;
         saveGameState();  // Сохранение игры после сбора монеты
         return true;
@@ -381,7 +375,6 @@ function launchRandomMiniGame() {
     const miniGames = [
         'html/game1.html',
         'html/game2.html',
-        'html/game3.html',
         'html/game4.html',
         'html/game5.html'
     ];

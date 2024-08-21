@@ -3,17 +3,16 @@ const coinCounter = document.getElementById('coin-counter');
 const exitButton = document.getElementById('exit');
 const timerElement = document.getElementById('timer');
 const endMenu = document.createElement('div'); // Создаем элемент для меню
-let coins = 0;
-const gameDuration = 30000; // 30 секунд
+let earnedCoins = 0;
 const objectFallInterval = 400; // Увеличен интервал спавна объектов (скорость спавна уменьшена)
 
 // Массив объектов с значением 1 для каждой монеты и -10 для бомбы
 const objects = [
-    { src: '../image/blummedium.webp', value: 1 },
-    { src: '../image/blummedium.webp', value: 1 },
-    { src: '../image/blummedium.webp', value: 1 },
-    { src: '../image/blummedium.webp', value: 1 }, // Добавляем больше монет для уменьшения шанса спавна бомбы
-    { src: '../image/bomb.webp', value: -10 }
+    { src: '../image/blummedium.jpg', value: 1 },
+    { src: '../image/blummedium.jpg', value: 1 },
+    { src: '../image/blummedium.jpg', value: 1 },
+    { src: '../image/blummedium.jpg', value: 1 }, // Добавляем больше монет для уменьшения шанса спавна бомбы
+    { src: '../image/bomb.jpg', value: -10 }
 ];
 
 // Добавляем слушатель для кнопки выхода
@@ -22,18 +21,6 @@ exitButton.addEventListener('click', () => {
 });
 
 // Функция добавления монет и возврат в главное меню
-function addCoinsAndExit() {
-    const savedGameState = localStorage.getItem('gameState');
-    let gameState = savedGameState ? JSON.parse(savedGameState) : null;
-
-    if (gameState) {
-        gameState.coins += coins; // Добавляем количество собранных монет
-        gameState.steps--; // Отнимаем один шаг
-        localStorage.setItem('gameState', JSON.stringify(gameState));
-    }
-
-    window.location.href = '../index.html'; // Возвращаемся в главное меню
-}
 
 // Функция создания падающего объекта
 function createFallingObject() {
@@ -47,9 +34,9 @@ function createFallingObject() {
 
     // Убедимся, что каждый клик по объекту будет корректно обработан
     object.addEventListener('mousedown', () => {
-        coins += object.value;
-        if (coins < 0) coins = 0;
-        coinCounter.textContent = coins;
+        earnedCoins += object.value;
+        if (earnedCoins < 0) earnedCoins = 0;
+        coinCounter.textContent = earnedCoins;
         object.remove();
 
         // Проверка, остались ли еще монеты на экране
@@ -93,7 +80,7 @@ function startGame() {
 
     // Интервал падения объектов
     const gameInterval = setInterval(createFallingObject, objectFallInterval);
-    let timeLeft = gameDuration / 1000; // Конвертация в секунды
+    let timeLeft = 30; // Конвертация в секунды
 
     // Интервал для таймера
     const timerInterval = setInterval(() => {
@@ -126,23 +113,27 @@ function startGame() {
 // Функция отображения конечного меню
 function endGameMenu() {
     // Очистка игрового поля
-    while (gameArea.firstChild) {
-        gameArea.removeChild(gameArea.firstChild);
-    }
+    gameArea.removeChild(gameArea.firstChild);
 
     // Создание меню
     endMenu.id = 'end-menu';
     endMenu.innerHTML = `
         <div id="end-menu-content">
-            <p>Вы получили ${coins} монет</p>
+            <p>Вы получили ${earnedCoins} монет</p>
             <button id="collect-coins-button">Забрать</button>
         </div>
     `;
     gameArea.appendChild(endMenu);
+        // Слушатель для кнопки "Забрать"
+    document.getElementById('collect-coins-button').addEventListener('click', () => {
+    const savedGameState = localStorage.getItem('gameState');
+    let gameState = savedGameState ? JSON.parse(savedGameState) : null;
 
-    // Слушатель для кнопки "Забрать"
-    document.getElementById('collect-coins-button').addEventListener('click', addCoinsAndExit);
+    localStorage.setItem('earnedCoins', earnedCoins);
+    
+
+    window.location.href = '../index.html'; // Возвращаемся в главное меню
+    });
 }
 
-// Запуск игры
 startGame();

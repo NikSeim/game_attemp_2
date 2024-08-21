@@ -5,7 +5,7 @@ let timerElement = document.getElementById('timer');
 let exitButton = document.getElementById('exit');
 
 let coinsEarned = 0; // Счетчик заработанных монет
-let timeLeft = 20; // Таймер на 20 секунд
+let timeLeft = 5; // Таймер на 20 секунд
 const maxClicks = 500;
 let clickCount = 0;
 let clicksPerSecond = 0;
@@ -49,7 +49,7 @@ function handleCoinClick(event) {
     if (clickCount >= maxClicks) {
         coinImage.removeEventListener('click', handleCoinClick);
         coinImage.removeEventListener('touchstart', handleCoinClick);
-        showEndScreen();
+        endGameMenu();
     }
 }
 
@@ -74,37 +74,55 @@ function startTimer() {
             clearInterval(timer);
             coinImage.removeEventListener('click', handleCoinClick);
             coinImage.removeEventListener('touchstart', handleCoinClick);
-            showEndScreen();
+            endGameMenu();
         }
     }, 1000);
 }
 
-function showEndScreen() {
-    message.style.display = 'none';
-    timerElement.style.display = 'none';
+function endGameMenu() {
 
     const endScreen = document.createElement('div');
     endScreen.id = 'end-screen';
     endScreen.innerHTML = `
-        <div id="end-screen-content">
+    <div id="end-screen-content">
+        <p>Время вышло! Монет заработано: ${coinsEarned}</p>
+        <button id="collect-button">Забрать</button>
+    </div>`;
+
+    document.body.appendChild(endScreen);
+    localStorage.setItem('earnedCoins', coinsEarned);
+    
+    const collectButton = document.getElementById('collect-button');
+
+    // Добавляем обработчик события только к кнопке
+    console.log(" ");
+    
+    collectButton.addEventListener('click', () => {
+        console.log(" ");
+        window.location.href = '../index.html';
+    });
+}
+
+
+/*function endGameMenu() {
+    // Очистка игрового поля
+    gameArea.removeChild(gameArea.firstChild);
+
+    // Создание меню
+    endMenu.id = 'end-menu';
+    endMenu.innerHTML = `
+        <div id="end-menu-content">
             <p>Время вышло! Монет заработано: ${coinsEarned}</p>
             <button id="collect-button">Забрать</button>
         </div>
     `;
-    document.body.appendChild(endScreen);
-
     document.getElementById('collect-button').addEventListener('click', () => {
         // Сохраняем заработанные монеты в localStorage
         localStorage.setItem('earnedCoins', coinsEarned);
 
         // Переход на главное меню
         window.location.href = '../index.html';
-    });
-}
-
-exitButton.addEventListener('click', () => {
-    window.location.href = '../index.html';
-});
+    });*/
 
 // Обработка кликов мышью и касаний на телефоне
 coinImage.addEventListener('click', handleCoinClick);

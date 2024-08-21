@@ -240,7 +240,7 @@ function jump() {
 function crouch() {
     if (!isCrouching) {
         isCrouching = true;
-        player.src = '../image/polxyeta.webp';
+        player.src = '../image/polxyeta.jpg';
         player.style.height = '50px';
         player.style.bottom = '60px';
     }
@@ -249,7 +249,7 @@ function crouch() {
 function standUp() {
     if (isCrouching) {
         isCrouching = false;
-        player.src = '../image/xyeta.webp';
+        player.src = '../image/xyeta.jpg';
         player.style.height = '100px';
         player.style.bottom = '60px';
     }
@@ -297,7 +297,7 @@ function updateTimer() {
 function showEnemy() {
     if (!enemyVisible) {
         const enemy = document.createElement('img');
-        enemy.src = '../image/enemy.webp';
+        enemy.src = '../image/enemy.jpg';
         enemy.id = 'enemy';
         enemy.style.position = 'absolute';
         enemy.style.bottom = '60px';
@@ -327,7 +327,7 @@ function startShooting() {
 
 function createAmmo() {
     const ammo = document.createElement('img');
-    ammo.src = '../image/ammo.webp';
+    ammo.src = '../image/ammo.jpg';
     ammo.classList.add('ammo');
     ammo.style.position = 'absolute';
     ammo.style.right = '124px'; // Adjusted to match the enemy's right position
@@ -372,7 +372,7 @@ function createAmmo() {
 
 function launchBigAmmo() {
     const bigAmmo = document.createElement('img');
-    bigAmmo.src = '../image/bigammo.webp';
+    bigAmmo.src = '../image/bigammo.jpg';
     bigAmmo.classList.add('bigammo');
     bigAmmo.style.position = 'absolute';
 
@@ -411,8 +411,8 @@ function launchBigAmmo() {
         ) {
             clearInterval(bigAmmoInterval);
             const enemy = document.getElementById('enemy');
-            enemy.src = '../image/deadenemy.webp';
-            player.src = '../image/win.webp';
+            enemy.src = '../image/deadenemy.jpg';
+            player.src = '../image/win.jpg';
             score += 100; // Add 100 points
             scoreElement.textContent = score; // Update score display
             showWinModal(); // Show win modal
@@ -435,7 +435,7 @@ function showWinModal() {
 
 function endGame() {
     gameOver = true;
-    player.src = '../image/rip.webp';
+    player.src = '../image/rip.jpg';
     player.style.bottom = '60px';
     clearInterval(gameInterval);
     clearInterval(timerInterval);
@@ -479,7 +479,7 @@ function restartGame() {
     if (enemy) {
         enemy.remove();
     }
-    player.src = '../image/xyeta.webp';
+    player.src = '../image/xyeta.jpg';
     player.style.bottom = '60px';
     player.style.height = '100px';
     gameOver = false;
