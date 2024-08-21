@@ -119,7 +119,7 @@ function updateBossHealth() {
         bossNameText.classList.add('blink'); // Добавляем мигание имени
         setTimeout(() => {
             bossImage.classList.remove('boss-blink');
-            bossImage.src = '../image/angryboss.jpg';
+            bossImage.src = '../image/angryboss.webp';
             bossImage.classList.add('boss-blink');
             bossNameText.textContent = 'Angry Boss Name'; // Смена имени на вторую фазу
             setTimeout(() => {

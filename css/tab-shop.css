@@ -1,5 +1,5 @@
 body {
-    background: url('../image/backgroundmarket.jpg') no-repeat center center fixed;
+    /*background: url('../image/backgroundmarket.jpg') no-repeat center center fixed;*/
     background-size: cover;
     color: white;
     font-family: Arial, sans-serif;
@@ -17,8 +17,9 @@ body {
     display: flex;
     justify-content: center;    /* Центрируем содержимое по горизонтали */
     align-items: center;        /* Центрируем содержимое по вертикали */
-    height: 100%;               /* Высота на весь экран */
+    height: 97%;               /* Высота на весь экран */
     width: 100%;                /* Ширина на весь экран */
+    
 }
 
 #market-content {
@@ -32,7 +33,7 @@ body {
     scrollbar-width: none;                 /* Скрываем полосу прокрутки в Firefox */
     -ms-overflow-style: none;              /* Скрываем полосу прокрутки в IE и Edge */
     width: 90%;                            /* Ограничиваем ширину контейнера */
-    padding-top: 40px;                     /* Отступ сверху для содержимого */
+    padding-top: 20px;                     /* Отступ сверху для содержимого */
     padding-bottom: 40px;                  /* Отступ снизу для содержимого */
 }
 

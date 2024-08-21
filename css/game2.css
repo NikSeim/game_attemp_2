@@ -7,9 +7,16 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: url('../image/game1background.jpg') no-repeat center center fixed;
+  background: url('../image/game1background.webp') no-repeat center center fixed;
   background-size: cover;
-  font-family: Arial, sans-serif;
+  font-family: 'Pixel Times', sans-serif; /* Применяем шрифт ко всему документу */
+}
+
+@font-face {
+    font-family: 'Pixel Times';
+    src: url('../font/Pixel Times.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
 }
 
 #game2-container {
