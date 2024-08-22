@@ -39,16 +39,16 @@ function recalculateOffsets() {
 }
 
 const grassImage = new Image();
-grassImage.src = 'image/grace.jpg';
+grassImage.src = 'image/grace.webp';
 
 const fogImage = new Image();
-fogImage.src = 'image/revorkFog.png';
+fogImage.src = 'image/fogg.webp';
 
 const playerImage = new Image();
 playerImage.src = 'image/xyeta.webp';
 
 const portalImage = new Image();
-portalImage.src = 'image/portal.png';
+portalImage.src = 'image/portal.webp';
 
 const fogCanvas = document.createElement('canvas');
 fogCanvas.width = mapWidth;
@@ -56,6 +56,11 @@ fogCanvas.height = mapHeight;
 const fogCtx = fogCanvas.getContext('2d');
 
 let globalCoins = 0, earnedCoins = 0;
+
+
+
+
+
 
 // Обработка клика по кнопке "Booster"
 document.getElementById('booster-button').addEventListener('click', () => {

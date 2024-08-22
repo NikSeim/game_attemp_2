@@ -8,11 +8,11 @@ const objectFallInterval = 400; // Увеличен интервал спавн�
 
 // Массив объектов с значением 1 для каждой монеты и -10 для бомбы
 const objects = [
-    { src: '../image/blummedium.jpg', value: 1 },
-    { src: '../image/blummedium.jpg', value: 1 },
-    { src: '../image/blummedium.jpg', value: 1 },
-    { src: '../image/blummedium.jpg', value: 1 }, // Добавляем больше монет для уменьшения шанса спавна бомбы
-    { src: '../image/bomb.jpg', value: -10 }
+    { src: '../image/blummedium.webp', value: 1 },
+    { src: '../image/blummedium.webp', value: 1 },
+    { src: '../image/blummedium.webp', value: 1 },
+    { src: '../image/blummedium.webp', value: 1 }, // Добавляем больше монет для уменьшения шанса спавна бомбы
+    { src: '../image/bomb.webp', value: -10 }
 ];
 
 // Добавляем слушатель для кнопки выхода

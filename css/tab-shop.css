@@ -1,5 +1,5 @@
 body {
-    /*background: url('../image/backgroundmarket.jpg') no-repeat center center fixed;*/
+    background: url('../image/backgroundmarket.webp') no-repeat center center fixed;
     background-size: cover;
     color: white;
     font-family: Arial, sans-serif;
@@ -8,37 +8,38 @@ body {
     height: 100vh;
     width: 100vw;
     display: flex;
-    justify-content: center;  /* Центрируем контент по горизонтали */
-    align-items: center;       /* Центрируем контент по вертикали */
-    overflow-y: hidden;        /* Скрываем вертикальную прокрутку у body */
+    justify-content: center;
+    align-items: center;
+    overflow-y: hidden;
 }
 
 #market-wrapper {
     display: flex;
-    justify-content: center;    /* Центрируем содержимое по горизонтали */
-    align-items: center;        /* Центрируем содержимое по вертикали */
-    height: 97%;               /* Высота на весь экран */
-    width: 100%;                /* Ширина на весь экран */
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    padding-bottom: 3%;
     
 }
 
 #market-content {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Две колонки с одинаковыми размерами */
-    grid-auto-rows: auto;                  /* Автоматическая высота строк */
-    justify-content: center;               /* Центрируем содержимое внутри сетки */
-    align-items: center;                   /* Центрируем объекты по вертикали внутри сетки */
-    max-height: 80vh;                      /* Высота контейнера ограничена 80% от высоты окна */
-    overflow-y: auto;                      /* Вертикальная прокрутка */
-    scrollbar-width: none;                 /* Скрываем полосу прокрутки в Firefox */
-    -ms-overflow-style: none;              /* Скрываем полосу прокрутки в IE и Edge */
-    width: 90%;                            /* Ограничиваем ширину контейнера */
-    padding-top: 20px;                     /* Отступ сверху для содержимого */
-    padding-bottom: 40px;                  /* Отступ снизу для содержимого */
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: auto;
+    justify-content: center;
+    align-items: center;
+    max-height: 76vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    width: 90%;
+    padding-top: 40px;
+    padding-bottom: 40px;
 }
 
 #market-content::-webkit-scrollbar {
-    display: none;                         /* Скрываем полосу прокрутки в WebKit (Chrome, Safari) */
+    display: none;
 }
 
 .market-item {
@@ -46,50 +47,154 @@ body {
     border-radius: 15px;
     text-align: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    width: 12.84vw;                        /* Увеличенная ширина контейнера */
-    height: 15.41vw;                       /* Увеличенная высота контейнера */
+    width: 12.84vw;
+    height: 15.41vw;
     display: flex;
     flex-direction: column;
     margin: 20px;
+    cursor: pointer;
 }
 
 .market-item img {
-    width: 100%;                           /* Картинка занимает всю ширину контейнера */
-    height: 12.84vw;                       /* Увеличенная высота картинки */
-    object-fit: cover;                     /* Картинка масштабируется, сохраняя пропорции */
-    border-radius: 10px 10px 0 0;          /* Закругленные углы сверху */
+    width: 100%;
+    height: 12.84vw;
+    object-fit: cover;
+    border-radius: 10px 10px 0 0;
 }
 
 .market-item .price-container {
-    height: 2.57vw;                        /* Увеличенная высота контейнера для цены */
+    height: 2.57vw;
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: rgba(0, 0, 0, 0.8);
-    border-radius: 0 0 10px 10px;          /* Закругленные углы снизу */
+    border-radius: 0 0 10px 10px;
 }
 
 .market-item .price {
-    font-size: 1.93vw;                     /* Увеличенный размер шрифта для цены */
+    font-size: 1.93vw;
     color: #ffd700;
 }
 
-/* Адаптация для экранов шириной менее 768px (мобильные устройства) */
 @media (max-width: 768px) {
     .market-item {
-        width: 45vw;                        /* Увеличенная ширина для маленьких экранов */
-        height: 50vw;                       /* Увеличенная высота для маленьких экранов */
+        width: 45vw;
+        height: 50vw;
     }
 
     .market-item img {
-        height: 45vw;                       /* Увеличенная высота картинки */
+        height: 45vw;
     }
 
     .market-item .price-container {
-        height: 5vw;                        /* Увеличенная высота контейнера для цены */
+        height: 5vw;
     }
 
     .market-item .price {
-        font-size: 4vw;                     /* Увеличенный размер шрифта для цены */
+        font-size: 4vw;
     }
+}
+
+/* Стили для модального окна */
+.modal {
+    display: none; /* Скрываем модальное окно по умолчанию */
+    position: fixed; 
+    z-index: 1; /* Поверх остальных элементов */
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.7); /* Увеличенное затемнение */
+    overflow: hidden;
+}
+
+.modal-content {
+    margin: 8% auto; /* Уменьшаем отступы сверху и снизу */
+    padding: 20px; 
+    width: 88%; /* Увеличиваем ширину */
+    max-width: 440px; /* Увеличиваем максимальную ширину */
+    background-color: rgba(50, 50, 50, 0.9); /* Менее черный фон с прозрачностью */
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+    height: auto; /* Даем возможность окну растягиваться по высоте */
+    color: white; /* Белый цвет текста */
+}
+
+.modal-content img {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    border-radius: 10px;
+    aspect-ratio: 1 / 1; /* Делаем изображение квадратным */
+}
+
+.modal-content .price {
+    font-size: 1.2em;
+    color: #fff; /* Белый цвет текста */
+    margin-top: 10px;
+}
+
+/* Стили для двух столбиков под изображением */
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.info-column {
+    width: 48%; /* Две колонки занимают по 48% ширины каждая */
+    font-size: 1em;
+    color: #fff; /* Белый цвет текста */
+}
+
+/* Стили для кнопки Купить */
+.buy-button {
+    display: block;
+    width: 100%;
+    margin-top: 20px;
+    padding: 10px;
+    font-size: 1em;
+    color: black; /* Черный текст на кнопке */
+    background-color: #fff; /* Белая кнопка */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.buy-button:hover {
+    background-color: #ddd;
+}
+
+/* Стили для описания и дополнительной информации */
+.modal-description {
+    margin-top: 15px;
+    font-size: 1em;
+    color: #fff; /* Белый цвет текста */
+}
+
+.modal-detail {
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #ccc; /* Светлый текст */
+}
+
+/* Стили для крестика закрытия */
+.close {
+    position: absolute;
+    top: 10px;
+    right: 10px; /* Перемещаем крестик вправо */
+    color: #fff;
+    font-size: 30px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #aaa; /* Светлее при наведении */
+    text-decoration: none;
+    cursor: pointer;
 }

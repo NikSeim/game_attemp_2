@@ -3,22 +3,14 @@ body {
     padding: 0;
     background: url('../image/dakfantassyjgl.webp') no-repeat center center fixed;
     background-size: cover;
+    font-family: Arial, sans-serif;
     display: flex;
     flex-direction: column;
     height: 100vh;
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    font-family: 'Pixel Times', sans-serif; /* Применяем шрифт ко всему документу */
 }
-
-@font-face {
-    font-family: 'Pixel Times';
-    src: url('../font/Pixel Times.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-}
-
 
 
 .top-bar {

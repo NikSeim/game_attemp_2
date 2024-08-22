@@ -9,14 +9,7 @@ body {
   height: 100vh;
   background: url('../image/game1background.webp') no-repeat center center fixed;
   background-size: cover;
-  font-family: 'Pixel Times', sans-serif; /* Применяем шрифт ко всему документу */
-}
-
-@font-face {
-    font-family: 'Pixel Times';
-    src: url('../font/Pixel Times.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
+  font-family: Arial, sans-serif;
 }
 
 #game2-container {
@@ -152,13 +145,3 @@ body {
   margin: 10px 0;
 }
 
-.end-game-menu button {
-  width: 100%;
-  padding: 10px;
-  background-color: green;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 18px;
-}

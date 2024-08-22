@@ -16,6 +16,13 @@ html, body {
     font-style: normal;
 }
 
+.lazy-load {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
 
 h1, h2, h3, p, button, span {
   font-family: 'Pixel Times', sans-serif;
@@ -179,6 +186,7 @@ canvas {
   font-size: 20px;
   color: white;
   right: 10%;
+  
 }
 
 #step-info {
@@ -195,6 +203,7 @@ canvas {
 }
 
 #step-counter {
+  width: 72px;
   font-size: 20px;
   color: white;
   margin-top: 15px; /* Опускаем счетчик шагов на 15px */
