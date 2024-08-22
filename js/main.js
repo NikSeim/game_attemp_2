@@ -39,16 +39,16 @@ function recalculateOffsets() {
 }
 
 const grassImage = new Image();
-grassImage.src = 'image/grace.webp';
+grassImage.src = 'https://github.com/NikSeim/images/raw/main/grace.webp';
 
 const fogImage = new Image();
-fogImage.src = 'image/fogg.webp';
+fogImage.src = 'https://github.com/NikSeim/images/raw/main/fogg.webp';
 
 const playerImage = new Image();
-playerImage.src = 'image/xyeta.webp';
+playerImage.src = 'https://github.com/NikSeim/images/raw/main/xyeta.webp';
 
 const portalImage = new Image();
-portalImage.src = 'image/portal.webp';
+portalImage.src = 'https://github.com/NikSeim/images/raw/main/portal.webp';
 
 const fogCanvas = document.createElement('canvas');
 fogCanvas.width = mapWidth;
