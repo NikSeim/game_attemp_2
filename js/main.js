@@ -16,12 +16,12 @@ const mapWidth = mapCols * tileSize;
 const mapHeight = mapRows * tileSize;
 
 let playerCol = Math.floor(mapCols / 2);
-let playerRow = Math.floor(mapRows / 2);
+let playerRow = Math.floor(Math.rows / 2);
 
 let offsetX = 0;
 let offsetY = 0;
 
-const visibilityRadius = 1; // Радиус видимости
+const visibilityRadius = 1;
 let isAnimating = false;
 let steps = 100;
 let portal = null;
@@ -30,25 +30,11 @@ let stepInterval = null;
 
 let fogState = Array.from({ length: mapRows }, () => Array(mapCols).fill(1));
 
-function recalculateOffsets() {
-    const maxOffsetX = -(mapCols * tileSize - canvas.width);
-    const maxOffsetY = -(mapRows * tileSize - canvas.height);
-
-    offsetX = Math.min(0, Math.max(maxOffsetX, -playerCol * tileSize + (canvas.width / 2) - (tileSize / 2)));
-    offsetY = Math.min(0, Math.max(maxOffsetY, -playerRow * tileSize + (canvas.height / 2) - (tileSize / 2)));
-}
-
-const grassImage = new Image();
-grassImage.src = 'https://github.com/NikSeim/images/raw/main/grace.webp';
-
-const fogImage = new Image();
-fogImage.src = 'https://github.com/NikSeim/images/raw/main/fogg.webp';
-
-const playerImage = new Image();
-playerImage.src = 'https://github.com/NikSeim/images/raw/main/xyeta.webp';
-
-const portalImage = new Image();
-portalImage.src = 'https://github.com/NikSeim/images/raw/main/portal.webp';
+const grassImage = loadImage('./image/grace.webp', 'Grass image');
+const fogImage = loadImage('./image/fogg.webp', 'Fog image');
+const playerImage = loadImage('./image/xyeta.webp', 'Player image');
+const portalImage = loadImage('./image/portal.webp', 'Portal image');
+const traderImage = loadImage('./image/trader.webp', 'Trader image');
 
 const fogCanvas = document.createElement('canvas');
 fogCanvas.width = mapWidth;
@@ -57,30 +43,126 @@ const fogCtx = fogCanvas.getContext('2d');
 
 let globalCoins = 0, earnedCoins = 0;
 
+let trader = null;
+let isTraderVisible = false;
 
+// Функция для загрузки изображения с обработкой ошибок
+function loadImage(src, name) {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => console.log(`${name} loaded successfully`);
+    img.onerror = () => {
+        console.error(`Failed to load ${name}`);
+    };
+    return img;
+}
 
+// Функция для показа оверлея
+function showOverlay() {
+    const overlay = document.getElementById('overlay');
+    overlay.style.display = 'block';
+}
 
+// Функция для скрытия оверлея
+function hideOverlay() {
+    const overlay = document.getElementById('overlay');
+    overlay.style.display = 'none';
+}
 
+// Функция для плавного скрытия торговца и закрытия окна
+function hideTrader() {
+    const tradeMenu = document.getElementById('trade-menu');
+    
+    if (tradeMenu) {
+        // Анимация плавного исчезновения меню торговца
+        tradeMenu.style.transition = 'opacity 0.2s ease';
+        tradeMenu.style.opacity = '0';
 
-// Обработка клика по кнопке "Booster"
-document.getElementById('booster-button').addEventListener('click', () => {
-    saveGameState();  // Сохраняем игру при переходе на другую страницу
-    window.location.href = 'html/booster.html';
-});
+        // Убираем элемент меню после завершения анимации
+        setTimeout(() => {
+            tradeMenu.remove();
+            hideOverlay();  // Скрываем оверлей
+            // Плавное исчезновение торговца
+            isTraderVisible = false;
+            trader = null;  // Убираем торговца после закрытия окна
+            drawVisibleArea();  // Обновляем видимую область без торговца
+        }, 400); // Задержка 200ms соответствует 0.2 секундам
+    }
+}
 
-fogImage.onload = () => {
-    fogCtx.drawImage(grassImage, 0, 0, mapWidth, mapHeight);
-    fogCtx.drawImage(fogImage, 0, 0, mapWidth, mapHeight);
-    recalculateOffsets();
-    drawVisibleArea(); 
-};
+// Функция для отображения меню торговца
+function showTradeMenu() {
+    // Убедимся, что предыдущий элемент меню удален, если он есть
+    const existingMenu = document.getElementById('trade-menu');
+    if (existingMenu) {
+        existingMenu.remove();
+    }
 
-let world = generateNewWorld();
+    // Создаем новое меню
+    const tradeMenu = document.createElement('div');
+    tradeMenu.id = 'trade-menu';
+    tradeMenu.innerHTML = `
+        <img src="./image/naperstki.webp" class="modal-image" id="choose-naperstki" alt="Наперстки">
+        <img src="./image/stavki.webp" class="modal-image" id="choose-stavki" alt="Ставки">
+        <button id="cancel-trade" class="small-button cancel-button">Отказаться</button>
+    `;
+    document.body.appendChild(tradeMenu);
 
+    // Привязываем обработчики событий после добавления элементов в DOM
+    document.getElementById('choose-naperstki').onclick = () => {
+        console.log('Наперстки выбраны');
+        window.location.href = '/game_attemp0_2-main123/html/stavki.html';
+    };
+
+    document.getElementById('choose-stavki').onclick = () => {
+        console.log('Ставки выбраны');
+        window.location.href = '/game_attemp0_2-main123/html/naperstki.html';
+    };
+
+    document.getElementById('cancel-trade').onclick = () => {
+        console.log('Отказаться нажато');
+        hideTrader();
+    };
+
+    showOverlay();  // Показываем оверлей, когда открывается окно торговца
+}
+
+// Функция для появления торговца рядом с игроком только один раз в начале игры
+function initializeTrader() {
+    if (!trader) {
+        const potentialPositions = [
+            { x: playerCol + 1, y: playerRow }, // Справа
+            { x: playerCol - 1, y: playerRow }, // Слева
+            { x: playerCol, y: playerRow + 1 }, // Внизу
+            { x: playerCol, y: playerRow - 1 }  // Сверху
+        ];
+
+        const validPositions = potentialPositions.filter(pos => 
+            pos.x >= 0 && pos.x < mapCols && pos.y >= 0 && pos.y < mapRows
+        );
+
+        const position = validPositions[Math.floor(Math.random() * validPositions.length)];
+        trader = { x: position.x, y: position.y };
+        isTraderVisible = true;
+    }
+    drawVisibleArea();
+}
+
+// Функция пересчета смещений для центрации игрока на экране
+function recalculateOffsets() {
+    offsetX = Math.min(0, Math.max(-(mapCols * tileSize - canvas.width), -playerCol * tileSize + (canvas.width / 2) - (tileSize / 2)));
+    offsetY = Math.min(0, Math.max(-(mapRows * tileSize - canvas.height), -playerRow * tileSize + (canvas.height / 2) - (tileSize / 2)));
+}
+
+// Генерация мира с монетами
 function generateNewWorld() {
-    let newWorld = Array.from({ length: mapRows }, () => Array(mapCols).fill(0));
+    const newWorld = Array.from({ length: mapRows }, () => Array(mapCols).fill(0));
     for (let i = 0; i < 50; i++) {
-        let x = Math.floor(Math.random() * mapCols), y = Math.floor(Math.random() * mapRows);
+        let x, y;
+        do {
+            x = Math.floor(Math.random() * mapCols);
+            y = Math.floor(Math.random() * mapRows);
+        } while (newWorld[y][x] !== 0);  // Избегаем повторной установки монет
         newWorld[y][x] = 'coin';
     }
     return newWorld;
@@ -88,132 +170,110 @@ function generateNewWorld() {
 
 function placePortalNearEdge() {
     const positions = [];
-
-    for (let col = 2; col < mapCols - 2; col++) {
-        positions.push({ x: col, y: 2 });
-        positions.push({ x: col, y: mapRows - 3 });
+    for (let i = 2; i < mapCols - 2; i++) {
+        positions.push({ x: i, y: 2 }, { x: i, y: mapRows - 3 });
+    }
+    for (let i = 2; i < mapRows - 2; i++) {
+        positions.push({ x: 2, y: i }, { x: mapCols - 3, y: i });
     }
 
-    for (let row = 2; row < mapRows - 2; row++) {
-        positions.push({ x: 2, y: row });
-        positions.push({ x: mapCols - 3, y: row });
-    }
-
-    let portalPosition;
     do {
-        portalPosition = positions[Math.floor(Math.random() * positions.length)];
-    } while (world[portalPosition.y][portalPosition.x] === 'coin');
-
-    portal = portalPosition;
+        portal = positions[Math.floor(Math.random() * positions.length)];
+    } while (world[portal.y][portal.x] === 'coin');
 }
 
-function drawMap(offsetX, offsetY) {
+function drawMap() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    for (let x = offsetX % (tileSize * mapCols / grassTiles) - tileSize; x < canvas.width; x += tileSize * mapCols / grassTiles) {
-        for (let y = offsetY % (tileSize * mapRows / grassTiles) - tileSize; y < canvas.height; y += tileSize * mapRows / grassTiles) {
+    const tileOffsetX = offsetX % (tileSize * mapCols / grassTiles) - tileSize;
+    const tileOffsetY = offsetY % (tileSize * mapRows / grassTiles) - tileSize;
+
+    for (let x = tileOffsetX; x < canvas.width; x += tileSize * mapCols / grassTiles) {
+        for (let y = tileOffsetY; y < canvas.height; y += tileSize * mapRows / grassTiles) {
             ctx.drawImage(grassImage, x, y, tileSize * mapCols / grassTiles, tileSize * mapRows / grassTiles);
         }
     }
 
-    for (let y = 0; y < mapRows; y++) {
-        for (let x = 0; x < mapCols; x++) {
-            if (world[y][x] === 'coin') {
+    world.forEach((row, y) => {
+        row.forEach((tile, x) => {
+            if (tile === 'coin') {
                 ctx.fillStyle = 'gold';
                 ctx.beginPath();
                 ctx.arc(offsetX + x * tileSize + tileSize / 2, offsetY + y * tileSize + tileSize / 2, 10, 0, 2 * Math.PI);
                 ctx.fill();
             }
-        }
-    }
+        });
+    });
 
     if (portal) {
-        ctx.drawImage(
-            portalImage,
-            offsetX + portal.x * tileSize,
-            offsetY + portal.y * tileSize,
-            tileSize,
-            tileSize
-        );
+        ctx.drawImage(portalImage, offsetX + portal.x * tileSize, offsetY + portal.y * tileSize, tileSize, tileSize);
     }
 
-    ctx.drawImage(
-        playerImage,
-        offsetX + playerCol * tileSize + tileSize / 4,
-        offsetY + playerRow * tileSize + tileSize / 4,
-        tileSize / 2,
-        tileSize / 2
-    );
+    ctx.drawImage(playerImage, offsetX + playerCol * tileSize + tileSize / 4, offsetY + playerRow * tileSize + tileSize / 4, tileSize / 2, tileSize / 2);
 }
 
-function drawFog(offsetX, offsetY) {
+// Рисуем торговца на карте
+function drawTrader() {
+    if (trader && isTraderVisible && traderImage.complete && traderImage.naturalHeight !== 0) {
+        ctx.drawImage(traderImage, offsetX + trader.x * tileSize, offsetY + trader.y * tileSize, tileSize, tileSize);
+    }
+}
+
+
+// Изменяем функцию drawVisibleArea, чтобы учитывать торговца
+function drawVisibleArea() {
+    recalculateOffsets();
+    drawMap(); // Отрисовываем карту и все объекты на ней, включая торговца
+    drawTrader(); // Отрисовываем торговца на карте перед туманом
+    drawFog(); // Отрисовываем туман поверх карты и торговца
+}
+function drawFog() {
     fogCtx.clearRect(0, 0, mapWidth, mapHeight);
     fogCtx.drawImage(grassImage, 0, 0, mapWidth, mapHeight);
     fogCtx.drawImage(fogImage, 0, 0, mapWidth, mapHeight);
 
-    for (let y = 0; y < mapRows; y++) {
-        for (let x = 0; x < mapCols; x++) {
-            if (fogState[y][x] === 2) {
+    fogState.forEach((row, y) => {
+        row.forEach((state, x) => {
+            if (state > 1) {
                 fogCtx.save();
                 fogCtx.globalCompositeOperation = 'destination-out';
-                fogCtx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
-                fogCtx.restore();
-            } else if (fogState[y][x] === 3) {
-                fogCtx.save();
-                fogCtx.globalAlpha = 0.3;
-                fogCtx.globalCompositeOperation = 'destination-out';
+                fogCtx.globalAlpha = state === 2 ? 1 : 0.3;
                 fogCtx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
                 fogCtx.restore();
             }
-        }
-    }
+        });
+    });
 
     ctx.drawImage(fogCanvas, offsetX, offsetY, mapWidth, mapHeight);
-    fogCtx.globalAlpha = 1;
 }
 
 function updateFogState() {
-    for (let y = 0; y < mapRows; y++) {
-        for (let x = 0; x < mapCols; x++) {
+    fogState.forEach((row, y) => {
+        row.forEach((state, x) => {
             if (Math.abs(x - playerCol) <= visibilityRadius && Math.abs(y - playerRow) <= visibilityRadius) {
                 fogState[y][x] = 2;
-            } else if (fogState[y][x] === 2) {
+            } else if (state === 2) {
                 fogState[y][x] = checkForAdjacentFog(x, y) ? 3 : 2;
             }
-        }
-    }
+        });
+    });
 
-    for (let y = 0; y < mapRows; y++) {
-        for (let x = 0; x < mapCols; x++) {
-            if (fogState[y][x] === 3 && !checkForAdjacentFog(x, y)) {
+    fogState.forEach((row, y) => {
+        row.forEach((state, x) => {
+            if (state === 3 && !checkForAdjacentFog(x, y)) {
                 fogState[y][x] = 2;
             }
-        }
-    }
+        });
+    });
 }
 
 function checkForAdjacentFog(x, y) {
-    const directions = [
-        [-1, 0], [1, 0], [0, -1], [0, 1],
-        [-1, -1], [1, -1], [-1, 1], [1, 1]
-    ];
-
-    return directions.some(([dx, dy]) => {
-        const nx = x + dx;
-        const ny = y + dy;
-        return nx >= 0 && nx < mapCols && ny >= 0 && ny < mapRows && fogState[ny][nx] === 1;
-    });
+    return [-1, 0, 1].some(dx => [-1, 0, 1].some(dy => fogState[y + dy]?.[x + dx] === 1));
 }
 
 function animateFogClear() {
     updateFogState();
     drawVisibleArea();
-}
-
-function drawVisibleArea() {
-    recalculateOffsets();
-    drawMap(offsetX, offsetY);
-    drawFog(offsetX, offsetY);
 }
 
 function initInitialVisibility() {
@@ -224,14 +284,11 @@ function initInitialVisibility() {
     }
 }
 
-initInitialVisibility();
-drawVisibleArea();
-
 function updateStepCount() {
     steps = Math.max(0, steps - 1);
     document.getElementById('step-counter').textContent = `${steps}/100`;
     checkStepTimerVisibility();
-    saveGameState();  // Сохранение игры при каждом изменении шагов
+    saveGameState();
 }
 
 function restoreSteps() {
@@ -246,7 +303,7 @@ function restoreSteps() {
                 stepTimer = 5;
                 document.getElementById('step-counter').textContent = `${steps}/100`;
                 checkStepTimerVisibility();
-                saveGameState();  // Сохранение игры при восстановлении шагов
+                saveGameState();
             }
             stepTimerElement.textContent = `00:0${stepTimer}`;
         } else {
@@ -259,25 +316,27 @@ function restoreSteps() {
 
 function checkStepTimerVisibility() {
     const stepTimerElement = document.getElementById('step-timer');
-    if (steps === 100) {
-        stepTimerElement.style.display = 'none';
-    } else {
-        stepTimerElement.style.display = 'inline';
-    }
+    stepTimerElement.style.display = steps === 100 ? 'none' : 'inline';
 }
 
 function movePlayer(dx, dy) {
-    if (isAnimating) return;
-    if (steps <= 0) return;
+    if (isAnimating || steps <= 0) return;
 
     const newCol = playerCol + dx;
     const newRow = playerRow + dy;
+
+    // Проверка на торговца
+    if (trader && newCol === trader.x && newRow === trader.y) {
+        // Если игрок пытается перейти на клетку с торговцем, остановим движение
+        showTradeMenu(); // Открываем меню торговца при попытке хода на его клетку
+        return;
+    }
 
     if (newCol >= 0 && newCol < mapCols && newRow >= 0 && newRow < mapRows) {
         isAnimating = true;
         animatePlayerMove(newCol, newRow);
         updateStepCount();
-        saveGameState();  // Сохранение игры после перемещения игрока
+        saveGameState();
 
         if (steps < 100 && !stepInterval) {
             restoreSteps();
@@ -307,7 +366,7 @@ function animatePlayerMove(newCol, newRow) {
             playerRow = newRow;
             recalculateOffsets();
             animateFogClear();
-            saveGameState();  // Сохранение игры после завершения перемещения
+            saveGameState();
 
             if (checkAndCollectCoin(newCol, newRow)) {
                 savePreMiniGameState();
@@ -326,11 +385,11 @@ function animatePlayerMove(newCol, newRow) {
     requestAnimationFrame(step);
 }
 
-function checkAndCollectCoin(y, x) {
-    if (world[x][y] === 'coin') {
-        world[x][y] = 0;
+function checkAndCollectCoin(x, y) {
+    if (world[y][x] === 'coin') {
+        world[y][x] = 0;
         earnedCoins += 1;
-        saveGameState();  // Сохранение игры после сбора монеты
+        saveGameState();
         return true;
     }
     return false;
@@ -346,7 +405,9 @@ function saveGameState() {
         world,
         offsetX,
         offsetY,
-        steps
+        steps,
+        trader,  // Сохраняем позицию торговца
+        isTraderVisible
     };
     localStorage.setItem('gameState', JSON.stringify(gameState));
 }
@@ -364,9 +425,14 @@ function loadGameState() {
         offsetX = gameState.offsetX;
         offsetY = gameState.offsetY;
         steps = gameState.steps || 100;
-        
+        trader = gameState.trader;  // Загружаем позицию торговца
+        isTraderVisible = gameState.isTraderVisible;
+
         document.getElementById('step-counter').textContent = `${steps}/100`;
         drawVisibleArea();
+    } else {
+        // Если состояние не загружено, инициализируем торговца
+        initializeTrader();
     }
 }
 
@@ -383,32 +449,31 @@ function launchRandomMiniGame() {
         'html/game4.html',
         'html/game5.html'
     ];
-    const randomIndex = Math.floor(Math.random() * miniGames.length);
-    window.location.href = miniGames[randomIndex];
+    window.location.href = miniGames[Math.floor(Math.random() * miniGames.length)];
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadGameState();  // Загрузка состояния игры при загрузке страницы
-    placePortalNearEdge();
-
-    const earnedCoins = parseInt(localStorage.getItem('earnedCoins') || '0', 10);
+    const removeTrader = localStorage.getItem('removeTrader');
     
-    if (earnedCoins > 0) {
-        globalCoins += earnedCoins;
-        document.getElementById('token-count').textContent = globalCoins;
-        localStorage.removeItem('earnedCoins');
-        saveGameState();
-
-        loadGameState();
-        animateFogClear();
+    if (removeTrader === 'true') {
+        localStorage.removeItem('removeTrader'); // Убираем флаг из localStorage
+        isTraderVisible = false;
+        trader = null;  // Удаляем торговца
     }
 
-    restoreSteps();
+    loadGameState();  // Загружаем состояние игры
+    placePortalNearEdge(); // Устанавливаем портал
+
+    if (!world) {
+        world = generateNewWorld();  // Генерация нового мира, если он не загружен
+    }
+
+    drawVisibleArea();  // Обновляем отображение мира
+    restoreSteps();  // Восстанавливаем шаги
 });
 
 canvas.addEventListener('click', (event) => {
-    if (isAnimating) return;
-    if (steps <= 0) return;
+    if (isAnimating || steps <= 0) return;
 
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
@@ -423,45 +488,51 @@ canvas.addEventListener('click', (event) => {
     let dx = 0;
     let dy = 0;
 
-    if (clickX > playerX + tileSize && clickX <= playerX + 2 * tileSize && clickY >= playerY && clickY <= playerY + tileSize) {
-        dx = 1;
-    } else if (clickX < playerX && clickX >= playerX - tileSize && clickY >= playerY && clickY <= playerY + tileSize) {
-        dx = -1;
-    } else if (clickY > playerY + tileSize && clickY <= playerY + 2 * tileSize && clickX >= playerX && clickX <= playerX + tileSize) {
-        dy = 1;
-    } else if (clickY < playerY && clickY >= playerY - tileSize && clickX >= playerX && clickX <= playerX + tileSize) {
-        dy = -1;
+    // Определяем направление движения
+    if (clickX > playerX + tileSize) {
+        dx = 1; // Движение вправо
+    } else if (clickX < playerX) {
+        dx = -1; // Движение влево
+    } else if (clickY > playerY + tileSize) {
+        dy = 1; // Движение вниз
+    } else if (clickY < playerY) {
+        dy = -1; // Движение вверх
     }
 
     if (dx !== 0 || dy !== 0) {
-        movePlayer(dx, dy);
+        movePlayer(dx, dy); // Двигаем игрока
+    }
+
+    // Проверка на клик по торговцу
+    const traderX = trader?.x * tileSize + offsetX;
+    const traderY = trader?.y * tileSize + offsetY;
+
+    // Проверка на соседство с торговцем
+    const isNextToTrader = Math.abs(playerCol - trader.x) <= 1 && Math.abs(playerRow - trader.y) <= 1;
+
+    if (isTraderVisible && isNextToTrader && clickX >= traderX && clickX <= traderX + tileSize &&
+        clickY >= traderY && clickY <= traderY + tileSize) {
+        showTradeMenu(); // Открываем меню только если игрок на соседней клетке
     }
 });
 
+
+// Управление вкладками и взаимодействием
 document.addEventListener('DOMContentLoaded', () => {
-    // Назначаем обработчики событий на вкладки
+    document.getElementById('booster-button').addEventListener('click', () => {
+        saveGameState();  // Сохраняем игру при переходе на другую страницу
+        window.location.href = 'html/booster.html';
+    });
+
     document.getElementById('game-tab').addEventListener('click', showGameTab);
     document.getElementById('shop-tab').addEventListener('click', loadShopContent);
     document.getElementById('friends-tab').addEventListener('click', loadFriendsContent);
     document.getElementById('tasks-tab').addEventListener('click', loadTasksContent);
 
-    // Показываем вкладку "Game" по умолчанию
     showGameTab();
 });
 
-function hideAllTabs() {
-    // Скрываем все вкладки и связанные элементы
-    document.getElementById('game-world').style.display = 'none';
-    document.getElementById('controls').style.display = 'none';
-    document.getElementById('new-game').style.display = 'none';
-    document.getElementById('score').style.display = 'none';
-    document.getElementById('shop-content').style.display = 'none';
-    document.getElementById('friends-content').style.display = 'none';
-    document.getElementById('tasks-content').style.display = 'none';
-}
-
 function showGameTab() {
-    // Показываем вкладку "Game"
     hideAllTabs();
     document.getElementById('game-world').style.display = 'grid';
     document.getElementById('controls').style.display = 'flex';
@@ -470,37 +541,36 @@ function showGameTab() {
 }
 
 function loadShopContent() {
-    // Загружаем и показываем вкладку "Shop"
     hideAllTabs();
     loadHTMLContent('html/tab-shop.html', 'shop-content', () => {
         loadCSS('css/tab-shop.css');
-        loadScript('js/tab-shop.js');
-        document.getElementById('shop-content').style.display = 'block';
+        loadScript('js/tab-shop.js', () => {
+            document.getElementById('shop-content').style.display = 'block';
+        });
     });
 }
 
 function loadFriendsContent() {
-    // Загружаем и показываем вкладку "Friends"
     hideAllTabs();
     loadHTMLContent('html/tab-friend.html', 'friends-content', () => {
         loadCSS('css/tab-friend.css');
-        loadScript('js/tab-friend.js');
-        document.getElementById('friends-content').style.display = 'block';
+        loadScript('js/tab-friend.js', () => {
+            document.getElementById('friends-content').style.display = 'block';
+        });
     });
 }
 
 function loadTasksContent() {
-    // Загружаем и показываем вкладку "Tasks"
     hideAllTabs();
     loadHTMLContent('html/tab-tasks.html', 'tasks-content', () => {
         loadCSS('css/tab-tasks.css');
-        loadScript('js/tab-tasks.js');
-        document.getElementById('tasks-content').style.display = 'block';
+        loadScript('js/tab-tasks.js', () => {
+            document.getElementById('tasks-content').style.display = 'block';
+        });
     });
 }
 
 function loadHTMLContent(url, containerId, callback) {
-    // Загружаем HTML-контент в указанный контейнер
     fetch(url)
         .then(response => response.text())
         .then(html => {
@@ -511,22 +581,25 @@ function loadHTMLContent(url, containerId, callback) {
 }
 
 function loadCSS(url) {
-    // Динамически подключаем CSS
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = url;
     document.head.appendChild(link);
 }
 
-function loadScript(url) {
-    // Динамически подключаем JS
+function loadScript(url, callback) {
     const script = document.createElement('script');
     script.src = url;
+    script.onload = callback;
     document.body.appendChild(script);
 }
 
 document.getElementById('new-game').addEventListener('click', () => {
     localStorage.removeItem('gameState');
+    resetGame();  // Сбрасываем игру при нажатии на "New Game"
+});
+
+function resetGame() {
     playerCol = Math.floor(mapCols / 2);
     playerRow = Math.floor(mapRows / 2);
     fogState = Array(mapRows).fill().map(() => Array(mapCols).fill(1));
@@ -536,15 +609,15 @@ document.getElementById('new-game').addEventListener('click', () => {
     offsetY = -playerRow * tileSize + canvas.height / 2 - tileSize / 2;
 
     placePortalNearEdge();
-
     initInitialVisibility();
+    initializeTrader();  // Позиция торговца фиксирована на начальном этапе
     drawVisibleArea();
     globalCoins = 0;
     steps = 100;
     document.getElementById('step-counter').textContent = `${steps}/100`;
     updateControlButtons();
-    saveGameState();  // Сохранение игры после начала новой игры
-});
+    saveGameState();
+}
 
 function showConfirmationBox() {
     const confirmationBox = document.getElementById('confirmation-box');
@@ -579,4 +652,18 @@ function startTransition() {
             }, 1000);
         }, 1000);
     }, 1500);
+}
+
+function hideAllTabs() {
+    document.getElementById('game-world').style.display = 'none';
+    document.getElementById('controls').style.display = 'none';
+    document.getElementById('new-game').style.display = 'none';
+    document.getElementById('score').style.display = 'none';
+    document.getElementById('shop-content').style.display = 'none';
+    document.getElementById('friends-content').style.display = 'none';
+    document.getElementById('tasks-content').style.display = 'none';
+}
+
+function updateControlButtons() {
+    // В этой функции можно реализовать логику для обновления состояния кнопок управления
 }

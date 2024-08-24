@@ -1,6 +1,6 @@
 const bossHealthBar = document.querySelector('.boss-health-fill');
 const playerHealthBar = document.querySelector('.player-health-fill');
-const bossHealthText = document.getElementById('boss-health-text');
+const bossHealthTet = document.getElementById('boss-health-text');
 const playerHealthText = document.getElementById('player-health-text');
 const bossImage = document.querySelector('.boss-image');
 const bossNameText = document.getElementById('boss-name-text');
@@ -119,7 +119,7 @@ function updateBossHealth() {
         bossNameText.classList.add('blink'); // Добавляем мигание имени
         setTimeout(() => {
             bossImage.classList.remove('boss-blink');
-            bossImage.src = '../image/angryboss.webp';
+            bossImage.src = './image/angryboss.webp';
             bossImage.classList.add('boss-blink');
             bossNameText.textContent = 'Angry Boss Name'; // Смена имени на вторую фазу
             setTimeout(() => {

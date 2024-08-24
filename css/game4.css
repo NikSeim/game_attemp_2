@@ -1,7 +1,7 @@
 body {
     margin: 0;
     padding: 0;
-    background: url('https://github.com/NikSeim/images/raw/main/darkjungle.webp') no-repeat center center fixed;
+    background: url('../image/darkjungle.webp') no-repeat center center fixed;
     background-size: cover;
     color: #fff;
     font-family: Arial, sans-serif;

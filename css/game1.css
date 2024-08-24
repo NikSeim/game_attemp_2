@@ -6,7 +6,7 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: url('https://github.com/NikSeim/images/raw/main/game1background.webp') no-repeat center center fixed;
+  background: url('../image/game1background.webp') no-repeat center center fixed;
   background-size: cover;
   font-family: Arial, sans-serif;
 }
