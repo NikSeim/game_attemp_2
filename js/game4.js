@@ -9,6 +9,13 @@ let clickCount = 0;
 let clicksPerSecond = 0;
 let lastClickTime = 0;
 
+// Функция для проверки, находится ли точка (x, y) внутри круга
+function isInsideCircle(x, y, circleX, circleY, radius) {
+    const dx = x - circleX;
+    const dy = y - circleY;
+    return (dx * dx + dy * dy) <= (radius * radius);
+}
+
 function updateMessage() {
     message.textContent = `Монет заработано: ${coinsEarned}`;
 }
@@ -16,7 +23,13 @@ function updateMessage() {
 function handleCoinClick(event) {
     event.preventDefault();
     const touches = event.touches || [{ clientX: event.clientX, clientY: event.clientY }];
-    
+
+    const rect = coinImage.getBoundingClientRect();
+    const padding = parseFloat(window.getComputedStyle(coinImage).paddingLeft); // Получаем значение padding
+    const circleX = rect.left + rect.width / 2;
+    const circleY = rect.top + rect.height / 2;
+    const radius = (rect.width - padding * 2) / 2; // Радиус круга с учетом padding
+
     let currentTime = Date.now();
     if (currentTime - lastClickTime < 1000) {
         if (clicksPerSecond >= 25) return;
@@ -28,12 +41,15 @@ function handleCoinClick(event) {
     for (let i = 0; i < touches.length; i++) {
         const touchX = touches[i].clientX;
         const touchY = touches[i].clientY;
-        clicksPerSecond++;
-        if (clickCount < maxClicks) {
-            clickCount++;
-            coinsEarned++;
-            updateMessage();
-            createPlusOneEffect(touchX, touchY);
+
+        if (isInsideCircle(touchX, touchY, circleX, circleY, radius)) {
+            clicksPerSecond++;
+            if (clickCount < maxClicks) {
+                clickCount++;
+                coinsEarned++;
+                updateMessage();
+                createPlusOneEffect(touchX, touchY);
+            }
         }
     }
 

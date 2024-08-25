@@ -6,7 +6,7 @@ let earnedCoins = 0;
 const objectFallInterval = 400;
 
 const objects = [
-    { src: '../image/blummedium.webp', value: 1 },
+    { src: '../image/tokendisgn.webp', value: 1 },
     { src: '../image/bomb.webp', value: -10 }
 ];
 
