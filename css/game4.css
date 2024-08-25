@@ -41,10 +41,15 @@ body {
 }
 
 #coin-image {
-    width: 225px; /* 150px * 1.5 */
-    height: 225px; /* 150px * 1.5 */
+    width: 300px;
+    height: 300px;
+    border-radius: 50%; /* Круглая форма */
     cursor: pointer;
+    padding: 30px; /* Добавление отступов, чтобы круг был меньше изображения */
+    box-sizing: border-box; /* Учитываем padding внутри размеров блока */
 }
+
+
 
 #message {
     margin-top: 20px;
@@ -90,7 +95,7 @@ body {
 
 .plus-one {
     position: absolute;
-    color: #33ff00;
+    color: #ffffff;
     font-size: 18px;
     font-weight: bold;
     pointer-events: none;

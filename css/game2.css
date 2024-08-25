@@ -65,10 +65,12 @@ body {
   font-size: 21px;
   background-color: rgba(255, 255, 255, 0.7);
   padding: 3px;
-  border-radius: 3px;
+  border-radius: 7px;
   position: absolute;
   top: 80px;
   left: 48%;
+  border: solid black 2px;
+  justify-content: space-between;
   transform: translateX(-150%);
 }
 
@@ -76,22 +78,26 @@ body {
   font-size: 20px;
   background-color: rgba(255, 255, 255, 0.7);
   padding: 4px;
-  border-radius: 3px;
+  border-radius: 7px;
   position: absolute;
   top: 80px;
   left: 49.2%;
   transform: translateX(-50%);
+  justify-content: space-between;
+  border: solid black 2px;
 }
 
 #success-counter {
   font-size: 20px;
   background-color: rgba(255, 255, 255, 0.7);
   padding: 4px;
-  border-radius: 3px;
+  border-radius: 7px;
   position: absolute;
   top: 80px;
   left: 49%;
   transform: translateX(50%);
+  border: solid black 2px;
+  justify-content: space-between;
 }
 
 #game-area {
@@ -99,11 +105,11 @@ body {
   grid-template-columns: repeat(6, 1fr);
   grid-template-rows: repeat(6, 1fr);
   gap: 5px;
-  width: 60vmin;
-  height: 60vmin;
+  width: 67vmin;
+  height: 67vmin;
   margin: auto;
   position: absolute;
-  top: 50%;
+  top: 54%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
