@@ -2,6 +2,60 @@
 let tg = window.Telegram.WebApp;
 tg.expand();
 
+// Инициализация глобальной переменной для монет
+let globalCoins = 0;
+
+// Функция для загрузки состояния игры из localStorage
+function loadGameState() {
+    const savedGameState = localStorage.getItem('gameState');
+    if (savedGameState) {
+        const gameState = JSON.parse(savedGameState);
+        globalCoins = gameState.globalCoins || 0; // Загружаем количество монет из сохраненного состояния
+    }
+}
+
+// Функция для сохранения текущего состояния игры в localStorage
+function saveGameState() {
+    const gameState = {
+        globalCoins,
+        // здесь можно добавить другие данные, которые нужно сохранить
+    };
+    localStorage.setItem('gameState', JSON.stringify(gameState));
+}
+
+// Функция для обновления отображения количества монет на странице
+function updateTokenCount() {
+    const tokenCountElement = document.getElementById('token-count');
+    if (tokenCountElement) {
+        tokenCountElement.textContent = globalCoins.toLocaleString();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const tokenCountElement = document.getElementById('token-count');
+    const addCoinsButton = document.getElementById('add-coins-button');
+
+    // Загружаем начальное состояние игры
+    loadGameState(); 
+    updateTokenCount(); // Обновляем отображение баланса
+
+    // Универсальная функция для добавления монет
+    function addCoins(amount) {
+        globalCoins += amount; // Добавляем указанное количество монет
+        updateTokenCount(); // Обновляем отображение с форматированием
+        saveGameState(); // Сохраняем обновленное состояние игры
+    }
+
+    // Обработчик нажатия на кнопку для добавления 10 000 монет
+    if (addCoinsButton) {
+        addCoinsButton.addEventListener('click', () => {
+            addCoins(10000);
+        });
+    }
+
+    loadGameState(); // Загружаем состояние игры при загрузке страницы
+});
+
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -16,7 +70,7 @@ const mapWidth = mapCols * tileSize;
 const mapHeight = mapRows * tileSize;
 
 let playerCol = Math.floor(mapCols / 2);
-let playerRow = Math.floor(Math.rows / 2);
+let playerRow = Math.floor(mapRows / 2);
 
 let offsetX = 0;
 let offsetY = 0;
@@ -40,11 +94,6 @@ const fogCanvas = document.createElement('canvas');
 fogCanvas.width = mapWidth;
 fogCanvas.height = mapHeight;
 const fogCtx = fogCanvas.getContext('2d');
-
-let globalCoins = 0, earnedCoins = 0;
-
-let trader = null;
-let isTraderVisible = false;
 
 // Функция для загрузки изображения с обработкой ошибок
 function loadImage(src, name) {
@@ -219,7 +268,6 @@ function drawTrader() {
     }
 }
 
-
 // Изменяем функцию drawVisibleArea, чтобы учитывать торговца
 function drawVisibleArea() {
     recalculateOffsets();
@@ -227,6 +275,7 @@ function drawVisibleArea() {
     drawTrader(); // Отрисовываем торговца на карте перед туманом
     drawFog(); // Отрисовываем туман поверх карты и торговца
 }
+
 function drawFog() {
     fogCtx.clearRect(0, 0, mapWidth, mapHeight);
     fogCtx.drawImage(grassImage, 0, 0, mapWidth, mapHeight);
