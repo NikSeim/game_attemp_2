@@ -4,10 +4,10 @@ const modalImg = document.getElementById('modal-image');
 const closeModal = document.getElementsByClassName('close')[0];
 const buyButton = document.getElementById('buy-button');
 const tokenCountElement = document.getElementById('token-count');
-const resetPurchasesButton = document.getElementById('reset-purchases-button'); // Кнопка сброса покупок
+const resetPurchasesButton = document.getElementById('reset-purchases-button');
 let toggleButton = null; // Кнопка для активации/деактивации
 let currentItemID = null; // Текущий ID предмета
-let activeItemID = null; // ID текущего активного предмета
+const firstItemID = 'item1'; // ID первого объекта
 
 // Обновление отображения количества монет при загрузке страницы
 if (tokenCountElement) {
@@ -15,129 +15,99 @@ if (tokenCountElement) {
 }
 
 // Функция для открытия модального окна
-document.querySelectorAll('.market-item').forEach((item, index) => {
+document.querySelectorAll('.market-item').forEach((item) => {
     item.addEventListener('click', function () {
-        currentItemID = this.getAttribute('data-item-id');  // Уникальный ID предмета
+        currentItemID = this.getAttribute('data-item-id');
         const imgSrc = this.querySelector('img').src;
-        let price = parseInt(this.querySelector('.price').textContent.replace(/[^0-9]/g, ''));  // Извлекаем цену как целое число
 
-        // Если это первый элемент, он бесплатный, и цена не отображается
-        if (index === 0) {
-            price = 0;
-            modal.querySelector('.price').textContent = ''; // Убираем отображение цены
-        } else {
-            modal.querySelector('.price').textContent = price;  // Отображаем цену как целое число
-        }
-
-        const name1 = this.getAttribute('data-name1');
-        const name2 = this.getAttribute('data-name2');
-        const name3 = this.getAttribute('data-name3');
-        const name4 = this.getAttribute('data-name4');
-
-        // Устанавливаем данные в модальное окно
         modalImg.src = imgSrc;
-        document.getElementById('column1').textContent = name1;
-        document.getElementById('column2').textContent = name2;
-        document.getElementById('column3').textContent = name3;
-        document.getElementById('column4').textContent = name4;
+        document.getElementById('column1').textContent = this.getAttribute('data-name1');
+        document.getElementById('column2').textContent = this.getAttribute('data-name2');
+        document.getElementById('column3').textContent = this.getAttribute('data-name3');
+        document.getElementById('column4').textContent = this.getAttribute('data-name4');
 
-        // Убираем предыдущую toggleButton, если она существует
-        if (toggleButton) {
-            toggleButton.remove();
-            toggleButton = null;
-        }
-
-        // Проверяем, достаточно ли средств на балансе (кроме первого бесплатного предмета)
-        if (globalCoins >= price || price === 0) {
-            buyButton.disabled = false;
-            buyButton.style.backgroundColor = 'green';
-        } else {
-            buyButton.disabled = true;
-            buyButton.style.backgroundColor = 'gray';
-        }
-
-        // Проверяем, был ли предмет куплен ранее
         const purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || {};
-        if (purchasedItems[currentItemID] || index === 0) {
-            showToggleButton(purchasedItems[currentItemID]?.state || 'activated'); // Показываем кнопку в сохраненном состоянии или активируем первый элемент
-            buyButton.style.display = 'none'; // Скрываем кнопку "Купить", если предмет куплен
+        let itemState = purchasedItems[currentItemID]?.state || null;
+
+        // Показываем оригинальную цену в модальном окне
+        const price = purchasedItems[currentItemID]?.originalPrice || this.querySelector('.price').textContent;
+        modal.querySelector('.price').textContent = price;
+
+        // Отображаем toggleButton для всех объектов после покупки, включая первый
+        if (itemState === 'activated') {
+            showToggleButton('activated');
+            buyButton.style.display = 'none';
+        } else if (itemState === 'deactivated') {
+            showToggleButton('deactivated');
+            buyButton.style.display = 'none';
         } else {
-            buyButton.style.display = 'block'; // Показываем кнопку "Купить", если предмет не был куплен
+            buyButton.style.display = 'block';
+            hideToggleButton();
         }
 
-        modal.style.display = "block";  // Показываем модальное окно
+        modal.style.display = "block";
     });
 });
 
 // Функция для закрытия модального окна
 closeModal.addEventListener('click', function () {
-    modal.style.display = "none";  // Скрываем модальное окно
-    currentItemID = null; // Сбрасываем текущий ID предмета
+    modal.style.display = "none";
+    currentItemID = null;
 });
 
 // Закрытие модального окна при клике вне его
 window.addEventListener('click', function (event) {
     if (event.target === modal) {
         modal.style.display = "none";
-        currentItemID = null; // Сбрасываем текущий ID предмета
+        currentItemID = null;
     }
 });
 
 // Обработчик клика по кнопке "Купить"
 buyButton.addEventListener('click', function () {
     const priceText = modal.querySelector('.price').textContent;
-    const price = parseInt(priceText) || 0;  // Преобразуем цену в целое число, если она не пустая
+    const price = parseInt(priceText.replace(/[^0-9]/g, '')) || 0;
 
-    // Проверяем, достаточно ли средств на балансе
-    if (globalCoins >= price || price === 0) {  // Добавлена проверка на бесплатность
-        globalCoins -= price;  // Вычитаем цену из баланса, если цена не 0
-        updateTokenCount();  // Обновляем отображение баланса в HTML
-        saveGameState();  // Сохраняем обновленный баланс
+    if (globalCoins >= price || price === 0) {
+        globalCoins -= price;
+        updateTokenCount();
+        saveGameState();
 
-        // Сохраняем информацию о покупке предмета
-        let purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || {};
-        purchasedItems[currentItemID] = { state: 'activated' }; // Начальное состояние - активировано
-        localStorage.setItem('purchasedItems', JSON.stringify(purchasedItems));
-
-        // Обновляем активный элемент
-        deactivatePreviousActiveItem(); // Деактивируем предыдущий активный элемент
-
-        showToggleButton('activated'); // Показываем кнопку "Деактивировать" сразу после покупки
-        buyButton.style.display = 'none'; // Скрываем кнопку "Купить" после покупки
-
-        activeItemID = currentItemID; // Устанавливаем текущий активный элемент
+        purchaseItem(currentItemID);
+        activateItem(currentItemID);
+        buyButton.style.display = 'none';
+        showToggleButton('activated');
     }
 });
 
-// Функция для деактивации предыдущего активного элемента
-function deactivatePreviousActiveItem() {
-    if (activeItemID && activeItemID !== currentItemID) {
-        let purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || {};
-        purchasedItems[activeItemID].state = 'deactivated';  // Деактивируем предыдущий активный элемент
-        localStorage.setItem('purchasedItems', JSON.stringify(purchasedItems));
+// Функция для покупки предмета
+function purchaseItem(itemID) {
+    const purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || {};
+    purchasedItems[itemID] = { state: 'activated' };
+    localStorage.setItem('purchasedItems', JSON.stringify(purchasedItems));
+}
 
-        // Деактивируем предыдущую кнопку, если она есть
-        const previousToggleButton = document.querySelector(`[data-item-id="${activeItemID}"] #toggle-button`);
-        if (previousToggleButton) {
-            previousToggleButton.textContent = 'Активировать';
-            previousToggleButton.style.backgroundColor = 'green';
-            previousToggleButton.classList.remove('active');
+// Функция для активации предмета
+function activateItem(itemID) {
+    const purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || {};
+
+    // Деактивируем все другие элементы
+    for (let id in purchasedItems) {
+        if (id !== itemID && purchasedItems[id].state === 'activated') {
+            purchasedItems[id].state = 'deactivated';
+            const itemElement = document.querySelector(`.market-item[data-item-id="${id}"]`);
+            if (itemElement) {
+                itemElement.classList.remove('active'); // Убираем зеленую окантовку
+            }
         }
     }
 
-    // Деактивация первого элемента по умолчанию, если он активен
-    if (activeItemID === 'item-1' && currentItemID !== 'item-1') {
-        let purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || {};
-        purchasedItems['item-1'].state = 'deactivated';
-        localStorage.setItem('purchasedItems', JSON.stringify(purchasedItems));
+    // Активируем выбранный элемент
+    purchasedItems[itemID].state = 'activated';
+    localStorage.setItem('purchasedItems', JSON.stringify(purchasedItems));
 
-        const defaultToggleButton = document.querySelector(`[data-item-id="item-1"] #toggle-button`);
-        if (defaultToggleButton) {
-            defaultToggleButton.textContent = 'Активировать';
-            defaultToggleButton.style.backgroundColor = 'green';
-            defaultToggleButton.classList.remove('active');
-        }
-    }
+    updateActiveItemsUI();
+    showToggleButton('activated');
 }
 
 // Функция для отображения toggleButton с соответствующим состоянием
@@ -145,56 +115,74 @@ function showToggleButton(state) {
     if (!toggleButton) {
         toggleButton = document.createElement('button');
         toggleButton.id = 'toggle-button';
-        toggleButton.style.width = buyButton.style.width; // Задаем такую же ширину, как у кнопки "Купить"
-        toggleButton.style.marginTop = buyButton.style.marginTop; // Устанавливаем тот же отступ сверху
-        buyButton.parentNode.insertBefore(toggleButton, buyButton); // Вставляем toggleButton перед кнопкой "Купить"
+        toggleButton.style.width = '100%';
+        toggleButton.style.marginTop = '20px';
+        buyButton.parentNode.insertBefore(toggleButton, buyButton);
         toggleButton.addEventListener('click', toggleButtonState);
     }
 
     if (state === 'activated') {
         toggleButton.textContent = 'Деактивировать';
-        toggleButton.style.backgroundColor = 'red';
+        toggleButton.style.backgroundColor = 'black';
+        toggleButton.style.color = 'red';
         toggleButton.classList.add('active');
     } else {
         toggleButton.textContent = 'Активировать';
         toggleButton.style.backgroundColor = 'green';
+        toggleButton.style.color = 'white';
         toggleButton.classList.remove('active');
+    }
+
+    toggleButton.style.display = 'block';
+}
+
+// Функция для скрытия toggleButton
+function hideToggleButton() {
+    if (toggleButton) {
+        toggleButton.style.display = 'none';
     }
 }
 
 // Функция для переключения состояния toggleButton
 function toggleButtonState() {
-    let purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || {};
+    const purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || {};
 
-    // Если кнопка уже активирована, деактивируем её
     if (toggleButton.classList.contains('active')) {
+        purchasedItems[currentItemID].state = 'deactivated';
         toggleButton.textContent = 'Активировать';
         toggleButton.style.backgroundColor = 'green';
+        toggleButton.style.color = 'white';
         toggleButton.classList.remove('active');
-        purchasedItems[currentItemID].state = 'deactivated';
-        activeItemID = null;
     } else {
-        // Деактивируем текущую активную кнопку, если такая есть
-        deactivatePreviousActiveItem();
+        for (let id in purchasedItems) {
+            if (purchasedItems[id].state === 'activated') {
+                purchasedItems[id].state = 'deactivated';
+                const itemElement = document.querySelector(`.market-item[data-item-id="${id}"]`);
+                if (itemElement) {
+                    itemElement.classList.remove('active'); // Убираем зеленую окантовку
+                }
+            }
+        }
 
-        // Активируем текущую кнопку
-        toggleButton.textContent = 'Деактивировать';
-        toggleButton.style.backgroundColor = 'red';
-        toggleButton.classList.add('active');
         purchasedItems[currentItemID].state = 'activated';
-        activeItemID = currentItemID; // Сохраняем текущую активную кнопку
+        toggleButton.textContent = 'Деактивировать';
+        toggleButton.style.backgroundColor = 'black';
+        toggleButton.style.color = 'red';
+        toggleButton.classList.add('active');
     }
-    localStorage.setItem('purchasedItems', JSON.stringify(purchasedItems)); // Сохраняем состояние кнопки
+
+    localStorage.setItem('purchasedItems', JSON.stringify(purchasedItems));
+    updateActiveItemsUI();
 }
 
 // Функция для сброса покупок
 resetPurchasesButton.addEventListener('click', function () {
-    localStorage.removeItem('purchasedItems'); // Удаляем информацию о покупках
-    globalCoins = 10000; // Сбрасываем глобальный баланс монет (установите начальное значение по вашему усмотрению)
-    updateTokenCount(); // Обновляем отображение баланса
-    saveGameState(); // Сохраняем состояние игры
+    localStorage.removeItem('purchasedItems');
+    globalCoins = 10000;
+    updateTokenCount();
+    saveGameState();
     alert('Покупки и баланс сброшены!');
-    location.reload(); // Перезагружаем страницу для обновления интерфейса
+    location.reload();
 });
 
 // Функция для обновления отображения количества монет
@@ -211,30 +199,45 @@ function saveGameState() {
 
 // Функция для загрузки состояния игры
 function loadGameState() {
-    globalCoins = parseInt(localStorage.getItem('globalCoins')) || 10000; // Устанавливаем начальный баланс монет
-    updateTokenCount(); // Обновляем отображение баланса
+    globalCoins = parseInt(localStorage.getItem('globalCoins')) || 10000;
+    updateTokenCount();
 
-    // Проверка и активация первого элемента при загрузке
     const purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || {};
-    if (!purchasedItems['item-1']) {
-        purchasedItems['item-1'] = { state: 'activated' };
-        localStorage.setItem('purchasedItems', JSON.stringify(purchasedItems));
-        activeItemID = 'item-1';  // Устанавливаем первый элемент как активный
-    } else {
-        // Если есть активный элемент, сохраняем его ID
-        for (let id in purchasedItems) {
-            if (purchasedItems[id].state === 'activated') {
-                activeItemID = id;
-                break;
-            }
-        }
+
+    // Если первый объект не куплен, покупаем и активируем его автоматически
+    if (!purchasedItems[firstItemID]) {
+        purchaseItem(firstItemID); // Покупаем
+        activateItem(firstItemID); // Активируем
+    } else if (purchasedItems[firstItemID].state !== 'activated') {
+        activateItem(firstItemID); // Если первый объект был деактивирован, активируем его
     }
 
-    // Если первый элемент был деактивирован, устанавливаем его состояние
-    if (purchasedItems['item-1'] && purchasedItems['item-1'].state === 'deactivated') {
-        activeItemID = null; // Сбрасываем активный элемент
+    // Обновляем интерфейс с учетом активных предметов
+    updateActiveItemsUI();
+
+    // Если есть активный элемент, показываем кнопку toggle с соответствующим состоянием
+    const activeItemID = Object.keys(purchasedItems).find(id => purchasedItems[id].state === 'activated');
+    if (activeItemID) {
+        currentItemID = activeItemID;
+        showToggleButton('activated');
     }
 }
 
+// Функция для обновления окантовки у активных элементов
+function updateActiveItemsUI() {
+    const purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || {};
+
+    document.querySelectorAll('.market-item').forEach(item => {
+        const itemID = item.getAttribute('data-item-id');
+        if (purchasedItems[itemID] && purchasedItems[itemID].state === 'activated') {
+            item.classList.add('active'); // Добавляем зеленую окантовку
+        } else {
+            item.classList.remove('active'); // Убираем зеленую окантовку
+        }
+    });
+}
+
 // Загрузка состояния игры при загрузке страницы
-document.addEventListener('DOMContentLoaded', loadGameState);
+document.addEventListener('DOMContentLoaded', () => {
+    loadGameState();
+});
