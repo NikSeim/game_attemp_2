@@ -198,3 +198,10 @@ body {
     text-decoration: none;
     cursor: pointer;
 }
+
+
+/* Добавляем класс для активного элемента с зеленой окантовкой */
+.market-item.active {
+    border: 3px solid green; /* Зеленая окантовка */
+    box-shadow: 0 0 10px rgba(0, 128, 0, 0.7); /* Дополнительное выделение */
+}
