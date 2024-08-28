@@ -3,63 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tasks and Rewards</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Market</title>
+    <link rel="stylesheet" href="../css/tab-market.css">
 </head>
 <body>
-    <div class="tasks-container">
-        <header id="header">
-            <img src="https://github.com/NikSeim/images/raw/main/tokendisgn.webp" class="coin-icon" alt="Tokens">
-            <h1>Earn Coins</h1>
-            <button id="reset-days" class="reset-button">Сбросить дни</button>
-        </header>
-
-        <!-- Task Group for "Daily" tasks -->
-        <div class="task-group">
-            <h2>Daily</h2>
-            <div class="task-box">
-                <div class="task-info">
-                    <img src="https://github.com/NikSeim/images/raw/main/tokendisgn.webp" alt="Reward Icon" class="task-icon">
-                    <div class="task-title-container">
-                        <p class="task-title">Daily reward</p>
-                        <p class="task-reward">+6,649,000</p>
-                    </div>
+    <div id="market-wrapper">
+        <div id="market-content">
+            <div class="market-item" 
+                 data-item-id="item1"
+                 data-name1="Tyler A" 
+                 data-name2="Example A1" 
+                 data-name3="Tyler B" 
+                 data-name4="Example B1">
+                <img src="./image/tyler/defaultbackgroundmap.webp" alt="Item 1">
+                <div class="price-container">
+                    <span class="price">Default</span>
                 </div>
-                <button class="claim-button"><img src="https://cdn-icons-png.flaticon.com/512/271/271228.png" alt="Arrow"></button>
             </div>
-        </div>
-
-        <!-- Task Group for "Task" tasks -->
-        <div class="task-group">
-            <h2>Task</h2>
-            <div class="task-box">
-                <div class="task-info">
-                    <img src="https://github.com/NikSeim/images/raw/main/tokendisgn.webp" alt="YouTube Icon" class="task-icon">
-                    <div class="task-title-container">
-                        <p class="task-title">Subscribe</p>
-                        <p class="task-reward">+50,000</p>
-                    </div>
+            <div class="market-item" 
+                 data-item-id="item2"
+                 data-name1="Tyler C" 
+                 data-name2="Example C1" 
+                 data-name3="Tyler D" 
+                 data-name4="Example D1">
+                <img src="./image/tyler/bolotobackgroundmap1.webp" alt="Item 2">
+                <div class="price-container">
+                    <span class="price">1000</span>
                 </div>
-                <button class="claim-button"><img src="https://cdn-icons-png.flaticon.com/512/271/271228.png" alt="Arrow"></button>
             </div>
+            <div class="market-item" 
+                 data-item-id="item3"
+                 data-name1="Tyler E" 
+                 data-name2="Example E1" 
+                 data-name3="Tyler F" 
+                 data-name4="Example F1">
+                <img src="./image/tyler/junglrbackgroundmap2.webp" alt="Item 3">
+                <div class="price-container">
+                    <span class="price">100 000</span>
+                </div>
+            </div>
+            <div class="market-item" 
+                 data-item-id="item4"
+                 data-name1="Tyler G" 
+                 data-name2="Example G1" 
+                 data-name3="Tyler H" 
+                 data-name4="Example H1">
+                <img src="./image/tyler/desertbackgroundmap4.webp" alt="Item 4">
+                <div class="price-container">
+                    <span class="price">$6599.99</span>
+                </div>
+            </div>
+            <div class="market-item" 
+                 data-item-id="item5"
+                 data-name1="Tyler G" 
+                 data-name2="Example G1" 
+                 data-name3="Tyler H" 
+                 data-name4="Example H1">
+                <img src="./image/tyler/winterbackground3.webp" alt="Item 4">
+                <div class="price-container">
+                    <span class="price">$6599.99</span>
+                </div>
+            </div>
+            <button id="reset-purchases-button">Сбросить покупки</button>
+
         </div>
     </div>
-
-    <!-- Modal Overlay and Modal Window -->
-    <div id="overlay" class="overlay"></div>
+    
+    <!-- Модальное окно -->
     <div id="modal" class="modal">
-        <span class="close">&times;</span>
         <div class="modal-content">
-            <img src="" alt="">
-            <div class="modal-header">Daily Reward</div>
-            <div id="message-box" class="message-box"></div>
-            <div class="days-container" id="days-container"></div>
-            <button class="claim-button-modal">Claim</button>
-            <div id="all-rewards-claimed" class="all-rewards-claimed" style="display: none;">All rewards claimed</div>
+            <span class="close">&times;</span>
+            <img id="modal-image" src="" alt="Large Image">
+            <div id="modal-info">
+                <div class="info-row">
+                    <div class="info-column" id="column1"></div>
+                    <div class="info-column" id="column2"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-column" id="column3"></div>
+                    <div class="info-column" id="column4"></div>
+                </div>
+                <p class="price"></p>
+                <button id="buy-button" class="buy-button">Купить</button>
+            </div>
         </div>
     </div>
 
-    <!-- JavaScript -->
-    <script src="scripts.js"></script>
+    <!-- Подключаем JS -->
+    <script src="main.js"></script>
+    <script src="tab-market.js"></script>
+
 </body>
 </html>
