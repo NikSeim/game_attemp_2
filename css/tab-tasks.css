@@ -141,7 +141,7 @@ h2 {
 }
 
 /* Overlay (затемняющий фон) */
-#overlay {
+.tasks-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -152,7 +152,7 @@ h2 {
 }
 
 /* Модальное окно */
-.modal {
+.tasks-modal {
   display: none;
   position: fixed;
   bottom: 0; /* Закрепляем окно внизу */
@@ -170,7 +170,7 @@ h2 {
 }
 
 /* Кнопка закрытия (крестик) */
-.close {
+.tasks-close {
   position: absolute;
   top: 10px;
   right: 10px;
@@ -180,10 +180,9 @@ h2 {
   z-index: 1100;
 }
 
-.close:hover {
+.tasks-close:hover {
   color: #ccc;
 }
-
 
 .reset-button {
   background-color: #ff6347;  /* Красный цвет */
@@ -199,8 +198,6 @@ h2 {
 .reset-button:hover {
   background-color: #ff4500;  /* Темнее при наведении */
 }
-
-
 
 /* Анимации открытия и закрытия модального окна */
 @keyframes slide-up {
@@ -222,16 +219,16 @@ h2 {
 }
 
 /* Применение анимаций к модальному окну */
-.modal.slide-up {
+.tasks-modal.slide-up {
   animation: slide-up 0.3s forwards; /* Анимация появления */
 }
 
-.modal.slide-down {
+.tasks-modal.slide-down {
   animation: slide-down 0.3s forwards; /* Анимация закрытия */
 }
 
 /* Контент модального окна */
-.modal-content {
+.tasks-modal-content {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -240,7 +237,7 @@ h2 {
   overflow-y: auto; /* Добавляет прокрутку, если контент не помещается */
 }
 
-.modal-content img {
+.tasks-modal-content img {
   width: 100px;
 }
 
@@ -252,7 +249,7 @@ h2 {
 }
 
 /* Кнопка "Claim" */
-.claim-button-modal {
+.tasks-claim-button-modal {
   background-color: #4CAF50;
   border: none;
   color: white;
@@ -265,12 +262,12 @@ h2 {
   margin-top: auto; /* Помещаем кнопку внизу */
 }
 
-.claim-button-modal:hover {
+.tasks-claim-button-modal:hover {
   background-color: #45a049;
 }
 
 /* Стили для квадратов */
-.days-container {
+.tasks-days-container {
   display: flex;
   flex-wrap: wrap; /* Объекты переносятся на новую строку */
   width: 100%;
@@ -328,12 +325,10 @@ h2 {
   border-color: #4CAF50; /* Зеленая окантовка */
 }
 
-
-.claim-button-modal.disabled {
+.tasks-claim-button-modal.disabled {
   background-color: #aaa; /* Серый цвет для заблокированной кнопки */
   cursor: not-allowed; /* Указатель "неактивно" */
 }
-
 
 .message-box {
   color: red; /* Цвет текста сообщения */
@@ -342,7 +337,7 @@ h2 {
   font-size: 18px;
 }
 
-.all-rewards-claimed {
+.tasks-all-rewards-claimed {
   color: green;
   font-size: 20px;
   text-align: center;

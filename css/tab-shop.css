@@ -20,7 +20,6 @@ body {
     height: 100%;
     width: 100%;
     padding-bottom: 3%;
-    
 }
 
 #market-content {
@@ -95,8 +94,8 @@ body {
     }
 }
 
-/* Стили для модального окна */
-.modal {
+/* Стили для модального окна магазина */
+.shop-modal {
     display: none; /* Скрываем модальное окно по умолчанию */
     position: fixed; 
     z-index: 1; /* Поверх остальных элементов */
@@ -109,7 +108,7 @@ body {
     overflow: hidden;
 }
 
-.modal-content {
+.shop-modal-content {
     margin: 8% auto; /* Уменьшаем отступы сверху и снизу */
     padding: 20px; 
     width: 88%; /* Увеличиваем ширину */
@@ -122,7 +121,7 @@ body {
     color: white; /* Белый цвет текста */
 }
 
-.modal-content img {
+.shop-modal-content img {
     width: 100%;
     max-width: 300px;
     height: auto;
@@ -130,27 +129,13 @@ body {
     aspect-ratio: 1 / 1; /* Делаем изображение квадратным */
 }
 
-.modal-content .price {
+.shop-modal-content .shop-price {
     font-size: 1.2em;
     color: #fff; /* Белый цвет текста */
     margin-top: 10px;
 }
 
-/* Стили для двух столбиков под изображением */
-.info-row {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 15px;
-}
-
-.info-column {
-    width: 48%; /* Две колонки занимают по 48% ширины каждая */
-    font-size: 1em;
-    color: #fff; /* Белый цвет текста */
-}
-
-/* Стили для кнопки Купить */
-.buy-button {
+.shop-buy-button {
     display: block;
     width: 100%;
     margin-top: 20px;
@@ -164,25 +149,12 @@ body {
     transition: background-color 0.3s ease;
 }
 
-.buy-button:hover {
+.shop-buy-button:hover {
     background-color: #ddd;
 }
 
-/* Стили для описания и дополнительной информации */
-.modal-description {
-    margin-top: 15px;
-    font-size: 1em;
-    color: #fff; /* Белый цвет текста */
-}
-
-.modal-detail {
-    margin-top: 10px;
-    font-size: 0.9em;
-    color: #ccc; /* Светлый текст */
-}
-
 /* Стили для крестика закрытия */
-.close {
+.shop-close {
     position: absolute;
     top: 10px;
     right: 10px; /* Перемещаем крестик вправо */
@@ -192,13 +164,12 @@ body {
     cursor: pointer;
 }
 
-.close:hover,
-.close:focus {
+.shop-close:hover,
+.shop-close:focus {
     color: #aaa; /* Светлее при наведении */
     text-decoration: none;
     cursor: pointer;
 }
-
 
 /* Добавляем класс для активного элемента с зеленой окантовкой */
 .market-item.active {
