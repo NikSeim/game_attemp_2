@@ -5,12 +5,34 @@ tg.expand();
 // Инициализация глобальной переменной для монет
 let globalCoins = 0;
 
-// Функция для загрузки состояния игры из localStorage
 function loadGameState() {
     const savedGameState = localStorage.getItem('gameState');
+    const removeTrader = localStorage.getItem('removeTrader');
+
     if (savedGameState) {
         const gameState = JSON.parse(savedGameState);
-        globalCoins = gameState.globalCoins || 0; // Загружаем количество монет из сохраненного состояния
+        playerCol = gameState.playerCol;
+        playerRow = gameState.playerRow;
+        fogState = gameState.fogState;
+        world = gameState.world;
+        globalCoins = gameState.globalCoins;
+        earnedCoins = gameState.earnedCoins;
+        offsetX = gameState.offsetX;
+        offsetY = gameState.offsetY;
+        steps = gameState.steps || 100;
+        trader = gameState.trader;
+        isTraderVisible = gameState.isTraderVisible;
+
+        // Если торговец был удален, убедимся, что он не отображается
+        if (removeTrader === 'true') {
+            isTraderVisible = false;
+            trader = null;
+        }
+
+        document.getElementById('step-counter').textContent = `${steps}/100`;
+        drawVisibleArea();
+    } else {
+        initializeTrader();
     }
 }
 
@@ -94,6 +116,49 @@ const fogCanvas = document.createElement('canvas');
 fogCanvas.width = mapWidth;
 fogCanvas.height = mapHeight;
 const fogCtx = fogCanvas.getContext('2d');
+document.addEventListener('DOMContentLoaded', () => {
+    // Загружаем все необходимые изображения перед отображением карты
+    preloadImages([grassImage, fogImage, playerImage, portalImage, traderImage], () => {
+        const removeTrader = localStorage.getItem('removeTrader');
+        
+        if (removeTrader === 'true') {
+            localStorage.removeItem('removeTrader'); // Убираем флаг из localStorage
+            isTraderVisible = false;
+            trader = null;  // Удаляем торговца
+        }
+
+        loadGameState();  // Загружаем состояние игры
+        initInitialVisibility(); // Инициализируем начальную видимость тумана войны
+        placePortalNearEdge(); // Устанавливаем портал
+
+        if (!world) {
+            world = generateNewWorld();  // Генерация нового мира, если он не загружен
+        }
+
+        drawVisibleArea();  // Обновляем отображение мира
+        restoreSteps();  // Восстанавливаем шаги
+    });
+});
+
+// Функция для предварительной загрузки изображений
+function preloadImages(images, callback) {
+    let loadedCount = 0;
+    images.forEach(image => {
+        if (image.complete) {
+            incrementCount();
+        } else {
+            image.onload = incrementCount;
+            image.onerror = incrementCount;
+        }
+    });
+
+    function incrementCount() {
+        loadedCount++;
+        if (loadedCount === images.length) {
+            callback(); // Все изображения загружены, вызываем колбэк
+        }
+    }
+}
 
 // Функция для загрузки изображения с обработкой ошибок
 function loadImage(src, name) {
@@ -118,26 +183,30 @@ function hideOverlay() {
     overlay.style.display = 'none';
 }
 
-// Функция для плавного скрытия торговца и закрытия окна
 function hideTrader() {
     const tradeMenu = document.getElementById('trade-menu');
     
     if (tradeMenu) {
-        // Анимация плавного исчезновения меню торговца
         tradeMenu.style.transition = 'opacity 0.2s ease';
         tradeMenu.style.opacity = '0';
 
-        // Убираем элемент меню после завершения анимации
         setTimeout(() => {
             tradeMenu.remove();
-            hideOverlay();  // Скрываем оверлей
-            // Плавное исчезновение торговца
+            hideOverlay();
+
             isTraderVisible = false;
-            trader = null;  // Убираем торговца после закрытия окна
-            drawVisibleArea();  // Обновляем видимую область без торговца
-        }, 400); // Задержка 200ms соответствует 0.2 секундам
+            trader = null;
+
+            // Сохраняем состояние, что торговец был удален
+            localStorage.setItem('removeTrader', 'true');
+            saveGameState(); // Сохраняем текущее состояние игры
+
+            drawVisibleArea();
+        }, 400); 
     }
 }
+
+
 
 // Функция для отображения меню торговца
 function showTradeMenu() {
@@ -463,6 +532,8 @@ function saveGameState() {
 
 function loadGameState() {
     const savedGameState = localStorage.getItem('gameState');
+    const removeTrader = localStorage.getItem('removeTrader');
+
     if (savedGameState) {
         const gameState = JSON.parse(savedGameState);
         playerCol = gameState.playerCol;
@@ -474,14 +545,20 @@ function loadGameState() {
         offsetX = gameState.offsetX;
         offsetY = gameState.offsetY;
         steps = gameState.steps || 100;
-        trader = gameState.trader;  // Загружаем позицию торговца
-        isTraderVisible = gameState.isTraderVisible;
+
+        // Проверяем, был ли торговец удален
+        if (removeTrader === 'true') {
+            isTraderVisible = false;
+            trader = null;
+        } else {
+            trader = gameState.trader; // Загружаем торговца
+            isTraderVisible = gameState.isTraderVisible;
+        }
 
         document.getElementById('step-counter').textContent = `${steps}/100`;
         drawVisibleArea();
     } else {
-        // Если состояние не загружено, инициализируем торговца
-        initializeTrader();
+        initializeTrader(); // Инициализируем торговца, если игра запускается впервые
     }
 }
 
@@ -589,15 +666,20 @@ function showGameTab() {
     document.getElementById('score').style.display = 'flex';
 }
 
+// main.js
+
 function loadShopContent() {
     hideAllTabs();
     loadHTMLContent('html/tab-shop.html', 'shop-content', () => {
         loadCSS('css/tab-shop.css');
         loadScript('js/tab-shop.js', () => {
             document.getElementById('shop-content').style.display = 'block';
+            initializeShopEventHandlers(); // Повторная инициализация обработчиков
         });
     });
 }
+
+
 
 function loadFriendsContent() {
     hideAllTabs();
@@ -615,9 +697,11 @@ function loadTasksContent() {
         loadCSS('css/tab-tasks.css');
         loadScript('js/tab-tasks.js', () => {
             document.getElementById('tasks-content').style.display = 'block';
+            initializeTaskEventHandlers(); // Повторная инициализация обработчиков
         });
     });
 }
+
 
 function loadHTMLContent(url, containerId, callback) {
     fetch(url)
@@ -649,6 +733,9 @@ document.getElementById('new-game').addEventListener('click', () => {
 });
 
 function resetGame() {
+    localStorage.removeItem('gameState');
+    localStorage.removeItem('removeTrader'); // Убираем флаг удаления торговца
+
     playerCol = Math.floor(mapCols / 2);
     playerRow = Math.floor(mapRows / 2);
     fogState = Array(mapRows).fill().map(() => Array(mapCols).fill(1));
@@ -667,6 +754,7 @@ function resetGame() {
     updateControlButtons();
     saveGameState();
 }
+
 
 function showConfirmationBox() {
     const confirmationBox = document.getElementById('confirmation-box');
