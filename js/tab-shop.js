@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    initializeShopEventHandlers(); // Инициализация обработчиков событий при загрузке вкладки
+    initializeShopEventHandlers();
 });
 
 function initializeShopEventHandlers() {
@@ -21,19 +21,20 @@ function initializeShopEventHandlers() {
         item.addEventListener('click', function () {
             currentItemID = this.getAttribute('data-item-id');
             const imgSrc = this.querySelector('img').src;
-
+    
             modalImg.src = imgSrc;
             document.getElementById('shop-column1').textContent = this.getAttribute('data-name1');
             document.getElementById('shop-column2').textContent = this.getAttribute('data-name2');
             document.getElementById('shop-column3').textContent = this.getAttribute('data-name3');
             document.getElementById('shop-column4').textContent = this.getAttribute('data-name4');
-
+    
             const purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || {};
             let itemState = purchasedItems[currentItemID]?.state || null;
-
-            const price = purchasedItems[currentItemID]?.originalPrice || this.querySelector('.price').textContent;
-            modal.querySelector('.shop-price').textContent = price;
-
+    
+            const priceText = this.querySelector('.price').textContent;
+            const price = parseInt(priceText.replace(/[^0-9]/g, '')) || 0;
+            modal.querySelector('.shop-price').textContent = priceText;
+    
             if (itemState === 'activated') {
                 showToggleButton('activated');
                 buyButton.style.display = 'none';
@@ -43,11 +44,22 @@ function initializeShopEventHandlers() {
             } else {
                 buyButton.style.display = 'block';
                 hideToggleButton();
+                
+                if (globalCoins >= price) {
+                    buyButton.disabled = false;
+                    buyButton.style.backgroundColor = '#fff'; // Вернуть нормальный цвет
+                    buyButton.style.color = 'black';
+                } else {
+                    buyButton.disabled = true;
+                    buyButton.style.backgroundColor = 'gray'; // Серый цвет для неактивной кнопки
+                    buyButton.style.color = '#ccc'; // Светло-серый текст
+                }
             }
-
+    
             modal.style.display = "block";
         });
     });
+    
 
     closeModal.addEventListener('click', function () {
         modal.style.display = "none";
@@ -107,6 +119,7 @@ function initializeShopEventHandlers() {
 
         purchasedItems[itemID].state = 'activated';
         localStorage.setItem('purchasedItems', JSON.stringify(purchasedItems));
+        localStorage.setItem('lastActiveItemID', itemID); // Сохраняем ID последнего активного элемента
 
         updateActiveItemsUI();
         showToggleButton('activated');
@@ -203,21 +216,33 @@ function initializeShopEventHandlers() {
 
         const purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || {};
 
-        if (!purchasedItems[firstItemID]) {
-            purchaseItem(firstItemID);
-            activateItem(firstItemID);
-        } else if (purchasedItems[firstItemID].state !== 'activated') {
-            activateItem(firstItemID);
-        }
+        updateActiveItemsUI(); // Обновляем UI сразу после загрузки состояния
 
-        updateActiveItemsUI();
-
+        // Найти ID активированного элемента
         const activeItemID = Object.keys(purchasedItems).find(id => purchasedItems[id].state === 'activated');
+        
         if (activeItemID) {
             currentItemID = activeItemID;
             showToggleButton('activated');
+        } else {
+            // Если ни один объект не активен, активируем первый объект (firstItemID)
+            const firstItemElement = document.querySelector(`.market-item[data-item-id="${firstItemID}"]`);
+            if (firstItemElement) {
+                purchaseItem(firstItemID);
+                activateItem(firstItemID);
+                currentItemID = firstItemID;
+                showToggleButton('activated');
+            }
         }
     }
 
-    document.addEventListener('DOMContentLoaded', loadGameState);
+    loadGameState();
 }
+
+const addCoinsButton = document.getElementById('add-coins-button'); // Наша новая кнопка
+
+addCoinsButton.addEventListener('click', function () {
+    globalCoins += 10000; // Увеличиваем количество монет на 10,000
+    updateTokenCount(); // Обновляем отображение количества монет
+    saveGameState(); // Сохраняем новое количество монет в localStorage
+});
