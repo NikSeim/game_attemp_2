@@ -108,7 +108,7 @@ let fogState = Array.from({ length: mapRows }, () => Array(mapCols).fill(1));
 
 const grassImage = loadImage('./image/grace.webp', 'Grass image');
 const fogImage = loadImage('./image/fogg.webp', 'Fog image');
-const playerImage = loadImage('./image/xyeta.webp', 'Player image');
+const playerImage = loadImage('./image/downsprite/hohsprite.webp', 'Player image');
 const portalImage = loadImage('./image/portal.webp', 'Portal image');
 const traderImage = loadImage('./image/trader.webp', 'Trader image');
 
@@ -159,6 +159,68 @@ function preloadImages(images, callback) {
         }
     }
 }
+function animateRight(newCol, newRow) {
+    isAnimating = true;
+
+    const startCol = playerCol;
+    const duration = 700; // Длительность анимации
+    const startTime = performance.now();
+
+    function step(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Переход между кадрами
+        if (progress < 0.33) {
+            playerImage.src = './image/rightsprite/turnrightsprite.webp';
+        } else if (progress < 0.66) {
+            playerImage.src = './image/rightsprite/steprightsprite.webp';
+        } else if (progress < 1) {
+            playerImage.src = './image/rightsprite/secsteprightsprite.webp';
+        }
+
+        playerCol = startCol + progress * (newCol - startCol);
+
+        drawVisibleArea();
+
+        if (progress < 1) {
+            requestAnimationFrame(step);
+        } else {
+            playerCol = newCol;
+            recalculateOffsets();
+            animateFogClear();
+
+            // Обеспечиваем корректную загрузку и отображение спрайта
+            const finalSprite = new Image();
+            finalSprite.src = './image/downsprite/hohsprite.webp';
+            finalSprite.onload = () => {
+                playerImage.src = finalSprite.src;
+                drawVisibleArea(); // Перерисовка области после загрузки спрайта
+            };
+
+            saveGameState();
+
+            if (checkAndCollectCoin(newCol, newRow)) {
+                savePreMiniGameState();
+                launchRandomMiniGame();
+            }
+
+            if (portal && newCol === portal.x && newRow === portal.y) {
+                showConfirmationBox();
+            }
+
+            isAnimating = false;
+            updateControlButtons();
+        }
+    }
+
+    requestAnimationFrame(step);
+}
+
+
+
+
+
 
 // Функция для загрузки изображения с обработкой ошибок
 function loadImage(src, name) {
@@ -443,16 +505,22 @@ function movePlayer(dx, dy) {
     const newCol = playerCol + dx;
     const newRow = playerRow + dy;
 
-    // Проверка на торговца
     if (trader && newCol === trader.x && newRow === trader.y) {
-        // Если игрок пытается перейти на клетку с торговцем, остановим движение
-        showTradeMenu(); // Открываем меню торговца при попытке хода на его клетку
+        showTradeMenu(); // Открываем меню торговца
         return;
     }
 
     if (newCol >= 0 && newCol < mapCols && newRow >= 0 && newRow < mapRows) {
-        isAnimating = true;
-        animatePlayerMove(newCol, newRow);
+        if (dx === 1) { // Движение вправо
+            animateRight(newCol, newRow);
+        } else if (dx === -1) { // Движение влево
+            animateLeft(newCol, newRow);
+        } else if (dy === -1) { // Движение вверх
+            animateUp(newCol, newRow);
+        } else if (dy === 1) { // Движение вниз
+            animateDown(newCol, newRow);
+        }
+
         updateStepCount();
         saveGameState();
 
@@ -461,6 +529,10 @@ function movePlayer(dx, dy) {
         }
     }
 }
+
+
+
+
 
 function animatePlayerMove(newCol, newRow) {
     const startCol = playerCol;
@@ -484,6 +556,175 @@ function animatePlayerMove(newCol, newRow) {
             playerRow = newRow;
             recalculateOffsets();
             animateFogClear();
+            saveGameState();
+
+            if (checkAndCollectCoin(newCol, newRow)) {
+                savePreMiniGameState();
+                launchRandomMiniGame();
+            }
+
+            if (portal && newCol === portal.x && newRow === portal.y) {
+                showConfirmationBox();
+            }
+
+            isAnimating = false;
+            updateControlButtons();
+        }
+    }
+
+    requestAnimationFrame(step);
+}
+function animateLeft(newCol, newRow) {
+    isAnimating = true;
+
+    const startCol = playerCol;
+    const duration = 700; // Длительность анимации
+    const startTime = performance.now();
+
+    function step(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Переход между кадрами
+        if (progress < 0.33) {
+            playerImage.src = './image/leftsprite/turnleftsprite.webp';
+        } else if (progress < 0.66) {
+            playerImage.src = './image/leftsprite/stepleftsprite.webp';
+        } else if (progress < 1) {
+            playerImage.src = './image/leftsprite/secstepleftsprite.webp';
+        }
+
+        playerCol = startCol + progress * (newCol - startCol);
+
+        drawVisibleArea();
+
+        if (progress < 1) {
+            requestAnimationFrame(step);
+        } else {
+            playerCol = newCol;
+            recalculateOffsets();
+            animateFogClear();
+
+            // Восстанавливаем исходный спрайт после завершения анимации
+            const finalSprite = new Image();
+            finalSprite.src = './image/downsprite/hohsprite.webp';
+            finalSprite.onload = () => {
+                playerImage.src = finalSprite.src;
+                drawVisibleArea(); // Перерисовка области после загрузки спрайта
+            };
+
+            saveGameState();
+
+            if (checkAndCollectCoin(newCol, newRow)) {
+                savePreMiniGameState();
+                launchRandomMiniGame();
+            }
+
+            if (portal && newCol === portal.x && newRow === portal.y) {
+                showConfirmationBox();
+            }
+
+            isAnimating = false;
+            updateControlButtons();
+        }
+    }
+
+    requestAnimationFrame(step);
+}
+function animateUp(newCol, newRow) {
+    isAnimating = true;
+
+    const startRow = playerRow;
+    const duration = 700; // Длительность анимации
+    const startTime = performance.now();
+
+    function step(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Переход между кадрами
+        if (progress < 0.33) {
+            playerImage.src = './image/upsprite/turnupprite.webp';
+        } else if (progress < 0.66) {
+            playerImage.src = './image/upsprite/stepupsprite.webp';
+        } else if (progress < 1) {
+            playerImage.src = './image/upsprite/secstepupsprite.webp';
+        }
+
+        playerRow = startRow + progress * (newRow - startRow);
+
+        drawVisibleArea();
+
+        if (progress < 1) {
+            requestAnimationFrame(step);
+        } else {
+            playerRow = newRow;
+            recalculateOffsets();
+            animateFogClear();
+
+            // Восстанавливаем исходный спрайт после завершения анимации
+            const finalSprite = new Image();
+            finalSprite.src = './image/downsprite/hohsprite.webp';
+            finalSprite.onload = () => {
+                playerImage.src = finalSprite.src;
+                drawVisibleArea(); // Перерисовка области после загрузки спрайта
+            };
+
+            saveGameState();
+
+            if (checkAndCollectCoin(newCol, newRow)) {
+                savePreMiniGameState();
+                launchRandomMiniGame();
+            }
+
+            if (portal && newCol === portal.x && newRow === portal.y) {
+                showConfirmationBox();
+            }
+
+            isAnimating = false;
+            updateControlButtons();
+        }
+    }
+
+    requestAnimationFrame(step);
+}
+function animateDown(newCol, newRow) {
+    isAnimating = true;
+
+    const startRow = playerRow;
+    const duration = 700; // Длительность анимации
+    const startTime = performance.now();
+
+    function step(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Переход между кадрами
+        if (progress < 0.5) { // Первые 50% времени анимации
+            playerImage.src = './image/downsprite/hohspritemove.webp';
+        } else { // Остальные 50% времени анимации
+            playerImage.src = './image/downsprite/hohspritesecmove.webp';
+        }
+
+        playerRow = startRow + progress * (newRow - startRow);
+
+        drawVisibleArea();
+
+        if (progress < 1) {
+            requestAnimationFrame(step);
+        } else {
+            playerRow = newRow;
+            recalculateOffsets();
+            animateFogClear();
+
+            // Восстанавливаем исходный спрайт после завершения анимации
+            const finalSprite = new Image();
+            finalSprite.src = './image/downsprite/hohsprite.webp';
+            finalSprite.onload = () => {
+                playerImage.src = finalSprite.src;
+                drawVisibleArea(); // Перерисовка области после загрузки спрайта
+            };
+
             saveGameState();
 
             if (checkAndCollectCoin(newCol, newRow)) {
@@ -745,16 +986,24 @@ function resetGame() {
     offsetY = -playerRow * tileSize + canvas.height / 2 - tileSize / 2;
 
     placePortalNearEdge();
-    initInitialVisibility();
+    initInitialVisibility(); // Инициализируем начальную видимость тумана войны
     initializeTrader();  // Позиция торговца фиксирована на начальном этапе
-    drawVisibleArea();
+    
+    drawVisibleArea(); // Обновляем отображение мира
     globalCoins = 0;
     steps = 100;
     document.getElementById('step-counter').textContent = `${steps}/100`;
     updateControlButtons();
     saveGameState();
-}
 
+    // Показать элементы после сброса игры
+    document.getElementById('game-world').style.display = 'grid';
+    document.getElementById('controls').style.display = 'flex';
+    document.getElementById('score').style.display = 'flex';
+
+    // Обязательно обновляем туман войны после рестарта
+    drawFog();
+}
 
 function showConfirmationBox() {
     const confirmationBox = document.getElementById('confirmation-box');
