@@ -3,38 +3,52 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initializeShopEventHandlers() {
+    const marketWrapper = document.getElementById('market-wrapper');
     const modal = document.getElementById('shop-modal');
     const modalImg = document.getElementById('shop-modal-image');
     const closeModal = document.querySelector('.shop-close');
     const buyButton = document.getElementById('shop-buy-button');
-    const tokenCountElement = document.getElementById('token-count');
     const resetPurchasesButton = document.getElementById('reset-purchases-button');
     let toggleButton = null;
     let currentItemID = null;
-    const firstItemID = 'item1';
 
-    if (tokenCountElement) {
-        tokenCountElement.textContent = globalCoins.toLocaleString();
-    }
-
+    // Обработчик для каждого элемента магазина
     document.querySelectorAll('.market-item').forEach((item) => {
         item.addEventListener('click', function () {
+
+            const imgElement = this.querySelector('img');
+            const imgSrc = imgElement ? imgElement.getAttribute('src') : null;
+            const grassSrc = this.getAttribute('data-grass');
+            const itemID = this.getAttribute('data-item-id');   
+            const miniGameBgSrc = this.getAttribute('data-minigame-background'); // Новый атрибут
+
+            // Сохранение выбора
+            if (imgSrc && grassSrc && miniGameBgSrc) {
+                // Сохраняем выбранные фон, траву и фон мини-игры в localStorage
+                localStorage.setItem('selectedBackgroundPending', imgSrc);
+                localStorage.setItem('selectedGrassPending', grassSrc);
+                localStorage.setItem('selectedMiniGameBackgroundPending', miniGameBgSrc);
+                localStorage.setItem('hasPendingSelection', 'true');
+            } else {
+                console.error("Ошибка: Элемент <img>, атрибут src, grass или miniGameBg отсутствуют.");
+            }
+
             currentItemID = this.getAttribute('data-item-id');
-            const imgSrc = this.querySelector('img').src;
-    
+
+            // Обновляем модальное окно с информацией
             modalImg.src = imgSrc;
             document.getElementById('shop-column1').textContent = this.getAttribute('data-name1');
             document.getElementById('shop-column2').textContent = this.getAttribute('data-name2');
             document.getElementById('shop-column3').textContent = this.getAttribute('data-name3');
             document.getElementById('shop-column4').textContent = this.getAttribute('data-name4');
-    
+
             const purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || {};
             let itemState = purchasedItems[currentItemID]?.state || null;
-    
+
             const priceText = this.querySelector('.price').textContent;
             const price = parseInt(priceText.replace(/[^0-9]/g, '')) || 0;
             modal.querySelector('.shop-price').textContent = priceText;
-    
+
             if (itemState === 'activated') {
                 showToggleButton('activated');
                 buyButton.style.display = 'none';
@@ -44,28 +58,27 @@ function initializeShopEventHandlers() {
             } else {
                 buyButton.style.display = 'block';
                 hideToggleButton();
-                
+
                 if (globalCoins >= price) {
                     buyButton.disabled = false;
-                    buyButton.style.backgroundColor = '#fff'; // Вернуть нормальный цвет
-                    buyButton.style.color = 'black';
                 } else {
                     buyButton.disabled = true;
-                    buyButton.style.backgroundColor = 'gray'; // Серый цвет для неактивной кнопки
-                    buyButton.style.color = '#ccc'; // Светло-серый текст
                 }
             }
-    
+
+            // Сохраняем выбранную карту в localStorage
+            saveSelectedCard(this.getAttribute('data-item-id'), imgSrc, grassSrc, miniGameBgSrc);
             modal.style.display = "block";
         });
     });
-    
 
+    // Закрытие модального окна
     closeModal.addEventListener('click', function () {
         modal.style.display = "none";
         currentItemID = null;
     });
 
+    // Закрытие модального окна при клике вне его
     window.addEventListener('click', function (event) {
         if (event.target === modal) {
             modal.style.display = "none";
@@ -73,6 +86,7 @@ function initializeShopEventHandlers() {
         }
     });
 
+    // Покупка товара
     buyButton.addEventListener('click', function () {
         const priceText = modal.querySelector('.shop-price').textContent;
         const price = parseInt(priceText.replace(/[^0-9]/g, '')) || 0;
@@ -89,6 +103,7 @@ function initializeShopEventHandlers() {
         }
     });
 
+    // Сброс покупок
     resetPurchasesButton.addEventListener('click', function () {
         localStorage.removeItem('purchasedItems');
         globalCoins = 10000;
@@ -98,33 +113,36 @@ function initializeShopEventHandlers() {
         location.reload();
     });
 
+    // Покупка товара
     function purchaseItem(itemID) {
         const purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || {};
         purchasedItems[itemID] = { state: 'activated' };
         localStorage.setItem('purchasedItems', JSON.stringify(purchasedItems));
     }
 
+    // Активация товара
     function activateItem(itemID) {
         const purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || {};
-
+        
         for (let id in purchasedItems) {
             if (id !== itemID && purchasedItems[id].state === 'activated') {
                 purchasedItems[id].state = 'deactivated';
-                const itemElement = document.querySelector(`.market-item[data-item-id="${id}"]`);
-                if (itemElement) {
-                    itemElement.classList.remove('active');
-                }
             }
         }
-
+        
         purchasedItems[itemID].state = 'activated';
         localStorage.setItem('purchasedItems', JSON.stringify(purchasedItems));
-        localStorage.setItem('lastActiveItemID', itemID); // Сохраняем ID последнего активного элемента
-
+        localStorage.setItem('lastActiveItemID', itemID);
+        
+        // Сохраняем фон для мини-игр
+        const miniGameBackgroundSrc = document.querySelector(`.market-item[data-item-id="${itemID}"]`).getAttribute('data-minigame-background');
+        localStorage.setItem('selectedMiniGameBackground', miniGameBackgroundSrc);
+    
         updateActiveItemsUI();
-        showToggleButton('activated');
     }
+    
 
+    // Показ кнопки переключения состояния товара
     function showToggleButton(state) {
         if (!toggleButton) {
             toggleButton = document.createElement('button');
@@ -150,12 +168,14 @@ function initializeShopEventHandlers() {
         toggleButton.style.display = 'block';
     }
 
+    // Скрытие кнопки переключения состояния товара
     function hideToggleButton() {
         if (toggleButton) {
             toggleButton.style.display = 'none';
         }
     }
 
+    // Переключение состояния товара (активация/деактивация)
     function toggleButtonState() {
         const purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || {};
 
@@ -187,9 +207,10 @@ function initializeShopEventHandlers() {
         updateActiveItemsUI();
     }
 
+    // Обновление UI активных товаров
     function updateActiveItemsUI() {
         const purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || {};
-
+    
         document.querySelectorAll('.market-item').forEach(item => {
             const itemID = item.getAttribute('data-item-id');
             if (purchasedItems[itemID] && purchasedItems[itemID].state === 'activated') {
@@ -200,49 +221,75 @@ function initializeShopEventHandlers() {
         });
     }
 
-    function updateTokenCount() {
-        if (tokenCountElement) {
-            tokenCountElement.textContent = globalCoins.toLocaleString();
-        }
+    // Сохранение выбранной карты в localStorage, без немедленного применения
+    function saveSelectedCard(itemID, imgSrc, grassSrc, miniGameBgSrc) {
+        const selectedCard = {
+            itemID,
+            imgSrc,
+            grassSrc,
+            miniGameBgSrc  // Добавляем фон мини-игры в сохраненные данные
+        };
+        localStorage.setItem('selectedCard', JSON.stringify(selectedCard));
     }
 
-    function saveGameState() {
-        localStorage.setItem('globalCoins', globalCoins);
-    }
-
+    // Загрузка и обновление состояния игры
     function loadGameState() {
         globalCoins = parseInt(localStorage.getItem('globalCoins')) || 10000;
         updateTokenCount();
-
+    
         const purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || {};
-
-        updateActiveItemsUI(); // Обновляем UI сразу после загрузки состояния
-
-        // Найти ID активированного элемента
-        const activeItemID = Object.keys(purchasedItems).find(id => purchasedItems[id].state === 'activated');
+    
+        updateActiveItemsUI();
+    
+        let activeItemID = Object.keys(purchasedItems).find(id => purchasedItems[id].state === 'activated');
         
-        if (activeItemID) {
-            currentItemID = activeItemID;
-            showToggleButton('activated');
-        } else {
-            // Если ни один объект не активен, активируем первый объект (firstItemID)
-            const firstItemElement = document.querySelector(`.market-item[data-item-id="${firstItemID}"]`);
-            if (firstItemElement) {
-                purchaseItem(firstItemID);
-                activateItem(firstItemID);
-                currentItemID = firstItemID;
-                showToggleButton('activated');
+        // Если активного элемента нет, ищем последний активный элемент
+        if (!activeItemID) {
+            const lastActiveItemID = localStorage.getItem('lastActiveItemID');
+            if (lastActiveItemID && purchasedItems[lastActiveItemID]) {
+                activeItemID = lastActiveItemID;
+    
+                // Восстанавливаем фон, траву и фон мини-игры для последнего активного элемента
+                const imgSrc = document.querySelector(`.market-item[data-item-id="${lastActiveItemID}"] img`).src;
+                const grassSrc = document.querySelector(`.market-item[data-item-id="${lastActiveItemID}"]`).getAttribute('data-grass');
+                const miniGameBgSrc = document.querySelector(`.market-item[data-item-id="${lastActiveItemID}"]`).getAttribute('data-minigame-background');
+                
+                // Сохраняем и активируем этот элемент
+                purchaseItem(activeItemID);
+                activateItem(activeItemID);
+    
+                // Сохраняем выбранную карту
+                saveSelectedCard(activeItemID, imgSrc, grassSrc, miniGameBgSrc);
+            } else {
+                // Если последнего активного элемента нет, активируем первый элемент
+                const firstItemElement = document.querySelector('.market-item');
+                if (firstItemElement) {
+                    const firstItemID = firstItemElement.getAttribute('data-item-id');
+                    activeItemID = firstItemID;
+            
+                    const imgSrc = firstItemElement.querySelector('img').src;
+                    const grassSrc = firstItemElement.getAttribute('data-grass');
+                    const miniGameBgSrc = firstItemElement.getAttribute('data-minigame-background');
+            
+                    // Сохраняем первый элемент как активный в localStorage
+                    purchaseItem(firstItemID);
+                    activateItem(firstItemID);
+            
+                    // Сохраняем выбранную карту
+                    saveSelectedCard(firstItemID, imgSrc, grassSrc, miniGameBgSrc);
+                }
             }
+        } else {
+            // Если активный элемент найден, обновляем UI и сохраняем выбранную карту
+            currentItemID = activeItemID;
+            const imgSrc = document.querySelector(`.market-item[data-item-id="${activeItemID}"] img`).src;
+            const grassSrc = document.querySelector(`.market-item[data-item-id="${activeItemID}"]`).getAttribute('data-grass');
+            const miniGameBgSrc = document.querySelector(`.market-item[data-item-id="${activeItemID}"]`).getAttribute('data-minigame-background');
+            
+            saveSelectedCard(activeItemID, imgSrc, grassSrc, miniGameBgSrc);
+            showToggleButton('activated');
         }
     }
 
     loadGameState();
 }
-
-const addCoinsButton = document.getElementById('add-coins-button'); // Наша новая кнопка
-
-addCoinsButton.addEventListener('click', function () {
-    globalCoins += 10000; // Увеличиваем количество монет на 10,000
-    updateTokenCount(); // Обновляем отображение количества монет
-    saveGameState(); // Сохраняем новое количество монет в localStorage
-});

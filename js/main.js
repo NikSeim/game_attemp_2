@@ -210,7 +210,6 @@ function animateRight(newCol, newRow) {
             }
 
             isAnimating = false;
-            updateControlButtons();
         }
     }
 
@@ -349,17 +348,11 @@ function generateNewWorld() {
 }
 
 function placePortalNearEdge() {
-    const positions = [];
-    for (let i = 2; i < mapCols - 2; i++) {
-        positions.push({ x: i, y: 2 }, { x: i, y: mapRows - 3 });
-    }
-    for (let i = 2; i < mapRows - 2; i++) {
-        positions.push({ x: 2, y: i }, { x: mapCols - 3, y: i });
-    }
-
-    do {
-        portal = positions[Math.floor(Math.random() * positions.length)];
-    } while (world[portal.y][portal.x] === 'coin');
+    portal = {
+        col: Math.max(0, playerCol - 1), // Устанавливаем портал на одну клетку влево от игрока
+        row: playerRow // На той же строке, что и игрок
+    };
+    console.log('Портал размещен на позиции:', portal.col, portal.row);
 }
 
 function drawMap() {
@@ -386,7 +379,7 @@ function drawMap() {
     });
 
     if (portal) {
-        ctx.drawImage(portalImage, offsetX + portal.x * tileSize, offsetY + portal.y * tileSize, tileSize, tileSize);
+        ctx.drawImage(portalImage, offsetX + portal.col * tileSize, offsetY + portal.row * tileSize, tileSize, tileSize);
     }
 
     ctx.drawImage(playerImage, offsetX + playerCol * tileSize + tileSize / 4, offsetY + playerRow * tileSize + tileSize / 4, tileSize / 2, tileSize / 2);
@@ -568,7 +561,6 @@ function animatePlayerMove(newCol, newRow) {
             }
 
             isAnimating = false;
-            updateControlButtons();
         }
     }
 
@@ -625,7 +617,6 @@ function animateLeft(newCol, newRow) {
             }
 
             isAnimating = false;
-            updateControlButtons();
         }
     }
 
@@ -682,7 +673,6 @@ function animateUp(newCol, newRow) {
             }
 
             isAnimating = false;
-            updateControlButtons();
         }
     }
 
@@ -737,7 +727,7 @@ function animateDown(newCol, newRow) {
             }
 
             isAnimating = false;
-            updateControlButtons();
+
         }
     }
 
@@ -786,22 +776,25 @@ function loadGameState() {
         offsetX = gameState.offsetX;
         offsetY = gameState.offsetY;
         steps = gameState.steps || 100;
+        trader = gameState.trader;
+        isTraderVisible = gameState.isTraderVisible;
 
-        // Проверяем, был ли торговец удален
+        // Если торговец был удален, убедимся, что он не отображается
         if (removeTrader === 'true') {
             isTraderVisible = false;
             trader = null;
-        } else {
-            trader = gameState.trader; // Загружаем торговца
-            isTraderVisible = gameState.isTraderVisible;
         }
+
+        placePortalNearEdge(); // Размещаем портал на месте игрока после загрузки игры
 
         document.getElementById('step-counter').textContent = `${steps}/100`;
         drawVisibleArea();
     } else {
-        initializeTrader(); // Инициализируем торговца, если игра запускается впервые
+        initializeTrader();
+        placePortalNearEdge(); // Размещаем портал на месте игрока, если игра загружается впервые
     }
 }
+
 
 function savePreMiniGameState() {
     saveGameState();
@@ -849,13 +842,22 @@ canvas.addEventListener('click', (event) => {
     const clickX = (event.clientX - rect.left) * scaleX;
     const clickY = (event.clientY - rect.top) * scaleY;
 
+    const portalX = portal?.col * tileSize + offsetX;
+    const portalY = portal?.row * tileSize + offsetY;
+
+    // Проверка клика по порталу
+    if (portal && clickX >= portalX && clickX <= portalX + tileSize && clickY >= portalY && clickY <= portalY + tileSize) {
+        showConfirmationBox(); // Вызов функции при клике на портал
+        return;
+    }
+
+    // Если клик не по порталу, обрабатываем движение игрока
     const playerX = playerCol * tileSize + offsetX;
     const playerY = playerRow * tileSize + offsetY;
 
     let dx = 0;
     let dy = 0;
 
-    // Определяем направление движения
     if (clickX > playerX + tileSize) {
         dx = 1; // Движение вправо
     } else if (clickX < playerX) {
@@ -869,19 +871,8 @@ canvas.addEventListener('click', (event) => {
     if (dx !== 0 || dy !== 0) {
         movePlayer(dx, dy); // Двигаем игрока
     }
-
-    // Проверка на клик по торговцу
-    const traderX = trader?.x * tileSize + offsetX;
-    const traderY = trader?.y * tileSize + offsetY;
-
-    // Проверка на соседство с торговцем
-    const isNextToTrader = Math.abs(playerCol - trader.x) <= 1 && Math.abs(playerRow - trader.y) <= 1;
-
-    if (isTraderVisible && isNextToTrader && clickX >= traderX && clickX <= traderX + tileSize &&
-        clickY >= traderY && clickY <= traderY + tileSize) {
-        showTradeMenu(); // Открываем меню только если игрок на соседней клетке
-    }
 });
+
 
 
 // Управление вкладками и взаимодействием
@@ -993,7 +984,6 @@ function resetGame() {
     globalCoins = 0;
     steps = 100;
     document.getElementById('step-counter').textContent = `${steps}/100`;
-    updateControlButtons();
     saveGameState();
 
     // Показать элементы после сброса игры
@@ -1007,11 +997,16 @@ function resetGame() {
 
 function showConfirmationBox() {
     const confirmationBox = document.getElementById('confirmation-box');
+    if (!confirmationBox) {
+        console.error('Элемент confirmation-box не найден в DOM!');
+        return;
+    }
+
     confirmationBox.style.display = 'block';
 
     document.getElementById('confirm-yes').addEventListener('click', () => {
         confirmationBox.style.display = 'none';
-        startTransition();
+        startTransition(); // Начало перехода через портал
     });
 
     document.getElementById('confirm-no').addEventListener('click', () => {
@@ -1019,8 +1014,14 @@ function showConfirmationBox() {
     });
 }
 
+
 function startTransition() {
     const blackout = document.getElementById('blackout');
+    if (!blackout) {
+        console.error('Элемент blackout не найден в DOM!');
+        return;
+    }
+
     blackout.style.display = 'block';
     blackout.style.opacity = '0';
     setTimeout(() => {
@@ -1029,7 +1030,13 @@ function startTransition() {
     }, 10);
 
     setTimeout(() => {
-        document.getElementById('new-game').click();
+        applySelectedCard(); // Применяем выбранную карту перед переходом
+        const newGameButton = document.getElementById('new-game');
+        if (newGameButton) {
+            newGameButton.click();
+        } else {
+            console.error('Элемент new-game не найден в DOM!');
+        }
         setTimeout(() => {
             blackout.style.transition = 'opacity 1s ease';
             blackout.style.opacity = '0';
@@ -1039,6 +1046,72 @@ function startTransition() {
         }, 1000);
     }, 1500);
 }
+
+function activateItem(itemID) {
+    // Получаем данные о купленных элементах из localStorage
+    const purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || {};
+
+    // Деактивируем все остальные активные элементы
+    for (let id in purchasedItems) {
+        if (id !== itemID && purchasedItems[id].state === 'activated') {
+            purchasedItems[id].state = 'deactivated';
+
+            // Обновляем UI, убирая активный класс с деактивированного элемента
+            const itemElement = document.querySelector(`.market-item[data-item-id="${id}"]`);
+            if (itemElement) {
+                itemElement.classList.remove('active');
+            }
+        }
+    }
+
+    // Активируем выбранный элемент
+    purchasedItems[itemID].state = 'activated';
+
+    // Сохраняем обновленные данные в localStorage
+    localStorage.setItem('purchasedItems', JSON.stringify(purchasedItems));
+
+    // Обновляем активные элементы в интерфейсе
+    updateActiveItemsUI();
+
+    // Обновляем состояние последнего активного элемента в localStorage
+    localStorage.setItem('lastActiveItemID', itemID);
+}
+
+function updateActiveItemsUI() {
+    const purchasedItems = JSON.parse(localStorage.getItem('purchasedItems')) || {};
+
+    document.querySelectorAll('.market-item').forEach(item => {
+        const itemID = item.getAttribute('data-item-id');
+        if (purchasedItems[itemID] && purchasedItems[itemID].state === 'activated') {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
+}
+
+
+function applySelectedCard() {
+    // Получаем сохраненные значения из временных ключей
+    const imgSrc = localStorage.getItem('selectedBackgroundPending');
+    const grassSrc = localStorage.getItem('selectedGrassPending');
+
+    if (imgSrc && grassSrc) {
+        // Применяем фон и траву после подтверждения через портал
+        applyBackgroundImage(imgSrc);
+        updateGrassImage(grassSrc);
+
+        // Сохраняем выбор как окончательный
+        localStorage.setItem('selectedBackground', imgSrc);
+        localStorage.setItem('selectedGrass', grassSrc);
+
+        // Очищаем временные ключи
+        localStorage.removeItem('selectedBackgroundPending');
+        localStorage.removeItem('selectedGrassPending');
+    }
+}
+
+
 
 function hideAllTabs() {
     document.getElementById('game-world').style.display = 'none';
@@ -1050,6 +1123,57 @@ function hideAllTabs() {
     document.getElementById('tasks-content').style.display = 'none';
 }
 
-function updateControlButtons() {
-    // В этой функции можно реализовать логику для обновления состояния кнопок управления
+function updateMarketBackgroundAndGrass(imgSrc, grassSrc) {
+    localStorage.setItem('backgroundImage', imgSrc);
+    localStorage.setItem('grassTexture', grassSrc);
+    applyBackgroundImage(imgSrc);
+    updateGrassImage(grassSrc); 
 }
+
+function applyBackgroundImage(imgSrc) {
+    document.body.style.backgroundImage = `url(${imgSrc})`;  // Устанавливаем фоновое изображение для всего документа
+}
+function updateGrassImage(grassSrc) {
+    grassImage.src = grassSrc;  // Устанавливает новое изображение для текстуры травы
+    grassImage.onload = () => {
+        drawVisibleArea();  // Перерисовывает канвас после загрузки нового изображения
+    };
+}
+
+
+function saveSelectedCard(itemID, imgSrc, grassSrc) {
+    const selectedCard = {
+        itemID,
+        imgSrc,
+        grassSrc
+    };
+    localStorage.setItem('selectedCard', JSON.stringify(selectedCard));
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadSelectedCard();  // Загрузка сохранённой карты
+});
+
+function loadSelectedCard() {
+    const selectedCard = JSON.parse(localStorage.getItem('selectedCard'));
+    if (selectedCard) {
+        const { imgSrc, grassSrc } = selectedCard;
+        applyBackgroundImage(imgSrc);  // Применяем фоновое изображение
+        updateGrassImage(grassSrc);    // Применяем текстуру травы
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Применяем окончательно сохраненные фон и траву, если они есть
+    const savedBackground = localStorage.getItem('selectedBackground');
+    const savedGrass = localStorage.getItem('selectedGrass');
+
+    if (savedBackground) {
+        applyBackgroundImage(savedBackground);  // Применяем сохранённый фон
+    }
+
+    if (savedGrass) {
+        updateGrassImage(savedGrass);  // Применяем сохранённую текстуру травы
+    }
+});
+

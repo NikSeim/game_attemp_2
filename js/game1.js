@@ -14,6 +14,23 @@ exitButton.addEventListener('click', () => {
     window.location.href = '../index.html';
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    const selectedCard = JSON.parse(localStorage.getItem('selectedCard'));
+
+    if (selectedCard && selectedCard.miniGameBgSrc) {
+        // Применение фона к тегу body
+        document.body.style.backgroundImage = `url("${selectedCard.miniGameBgSrc}")`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+    } else {
+        console.error('Фон для мини-игры не найден в localStorage или не был выбран.');
+    }
+});
+
+
+
+
+
 function createFallingObject() {
     const objectData = objects[Math.random() < 0.8 ? 0 : 1]; // 80% chance of coin, 20% bomb
     const object = document.createElement('img');
@@ -85,4 +102,8 @@ function endGameMenu() {
     });
 }
 
+
+
+
 startGame();
+

@@ -9,6 +9,22 @@ let clickCount = 0;
 let clicksPerSecond = 0;
 let lastClickTime = 0;
 
+document.addEventListener('DOMContentLoaded', () => {
+    const selectedCard = JSON.parse(localStorage.getItem('selectedCard'));
+
+    if (selectedCard && selectedCard.miniGameBgSrc) {
+        // Применение фона к тегу body
+        document.body.style.backgroundImage = `url("${selectedCard.miniGameBgSrc}")`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+    } else {
+        console.error('Фон для мини-игры не найден в localStorage или не был выбран.');
+    }
+});
+
+
+
+
 // Функция для проверки, находится ли точка (x, y) внутри круга
 function isInsideCircle(x, y, circleX, circleY, radius) {
     const dx = x - circleX;
@@ -102,6 +118,8 @@ exitButton.addEventListener('click', () => {
 
 coinImage.addEventListener('click', handleCoinClick);
 coinImage.addEventListener('touchstart', handleCoinClick);
+
+
 
 startTimer();
 updateMessage();

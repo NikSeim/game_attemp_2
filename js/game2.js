@@ -16,6 +16,23 @@ let coinsEarned = 0;
 let gameInProgress = false;
 let timerInterval;
 
+document.addEventListener('DOMContentLoaded', () => {
+    const selectedCard = JSON.parse(localStorage.getItem('selectedCard'));
+
+    if (selectedCard && selectedCard.miniGameBgSrc) {
+        // Применение фона к тегу body
+        document.body.style.backgroundImage = `url("${selectedCard.miniGameBgSrc}")`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+    } else {
+        console.error('Фон для мини-игры не найден в localStorage или не был выбран.');
+    }
+});
+
+
+
+
+
 // Обработчик кнопки выхода
 exitButton.addEventListener('click', () => {
     endGame();
@@ -188,3 +205,4 @@ function endGame() {
     localStorage.setItem('earnedCoins', coinsEarned);
     window.location.href = '../index.html';
 }
+

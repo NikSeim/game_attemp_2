@@ -20,6 +20,22 @@ let attackTimeout;
 let lastZoneIndex = null;
 let damageStacks = 0;  // Количество стаков урона
 
+document.addEventListener('DOMContentLoaded', () => {
+    const selectedCard = JSON.parse(localStorage.getItem('selectedCard'));
+
+    if (selectedCard && selectedCard.miniGameBgSrc) {
+        // Применение фона к тегу body
+        document.body.style.backgroundImage = `url("${selectedCard.miniGameBgSrc}")`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+    } else {
+        console.error('Фон для мини-игры не найден в localStorage или не был выбран.');
+    }
+});
+
+
+
+
 const phase1Zones = [
     { x: '44%', y: '19%' },
     { x: '47%', y: '42%' },
@@ -228,6 +244,7 @@ function createModal(message, buttonText) {
     modal.appendChild(modalContent);
     return modal;
 }
+
 
 // Запуск игры
 spawnAttackZones();
