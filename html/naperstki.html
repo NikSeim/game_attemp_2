@@ -3,13 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ставки</title>
-    <link rel="stylesheet" href="/game_attemp0_2-main123/css/naperstki.css"> <!-- Подключаем CSS -->
+    <title>Napertski Game</title>
+    <link rel="stylesheet" href="../css/naperstki.css">
 </head>
 <body>
-    <h1>Ставки</h1>
-    <button id="back-button">Назад</button> <!-- Кнопка для возврата -->
-    
-    <script src="/game_attemp0_2-main123/js/naperstki.js"></script> <!-- Подключаем JS после кнопки -->
+    <!-- Окно выбора ставки -->
+    <div id="bet-window">
+        <div id="bet-container">
+            <div id="overlay"></div>
+<div id="round-display"></div>
+            <!-- Кнопка добавления токенов -->
+            <button id="add-tokens-button" class="add-tokens-button">+100 монет</button>
+
+            <h2>Выберите ставку</h2>
+            
+            <!-- Отображение количества монет -->
+            <div id="current-coins" style="display: flex; align-items: center; justify-content: center;">
+                <img src="../image/tokendisgn.webp" alt="Tokens" id="token-image">
+                <span id="current-token-count">0 </span> 
+            </div>
+
+            <label for="bet-range">Ставка:</label>
+            <input type="range" id="bet-range" min="100" max="1000" value="100">
+            <span id="bet-amount">100 </span> монет
+            <button id="start-game">Начать игру</button>
+        </div>
+    </div>
+
+    <!-- Основной игровой контейнер -->
+    <div id="game-container" style="display: none;">
+        <div id="rounds-container">
+            <span>Раунд: <span id="current-round">1</span> / 3</span>
+        </div>
+
+        <div id="cups-container">
+            <div class="cup" id="cup1"><img src="../image/naperstkiimage/stakan.webp" alt="Cup 1"></div>
+            <div class="cup" id="cup2"><img src="../image/naperstkiimage/stakan.webp" alt="Cup 2"></div>
+            <div class="cup" id="cup3"><img src="../image/naperstkiimage/stakan.webp" alt="Cup 3"></div>
+        </div>
+
+        <div id="result-container">
+            <p id="round-result"></p>
+            <p id="final-result"></p>
+            <button id="exit-game">Выход</button>
+        </div>
+    </div>
+
+    <script src="../js/naperstki.js"></script>
 </body>
 </html>
