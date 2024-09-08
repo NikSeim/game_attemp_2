@@ -112,7 +112,7 @@ function initializeTaskEventHandlers() {
                     resetStreak();
                     messageBox.innerHTML = "Your streak is lost.";
                 }
-            }, 60000);
+            }, 86400000);
         } else {
             claimButtonModal.classList.add('disabled');
             claimButtonModal.disabled = true;

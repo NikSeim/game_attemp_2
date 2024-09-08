@@ -261,3 +261,18 @@ canvas {
   background-color: rgba(0, 0, 0, 0.2); /* Полупрозрачный черный цвет */
   display: none; /* По умолчанию скрыт */
 }
+
+
+.modal-image {
+  pointer-events: none; /* Отключаем клики по картинкам */
+  cursor: not-allowed; /* Изменяем курсор, чтобы показать, что действие не разрешено */
+}
+
+
+img, button, * {
+  outline: none; /* Убираем рамку при фокусе и нажатии */
+  -webkit-tap-highlight-color: transparent; /* Убираем синий контур на мобильных устройствах Android и iOS */
+  -webkit-user-select: none; /* Отключаем выделение текста и элементов на мобильных устройствах */
+  user-select: none; /* Отключаем выделение элементов */
+}
+

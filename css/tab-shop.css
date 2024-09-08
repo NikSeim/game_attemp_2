@@ -1,7 +1,6 @@
 body {
-    background: url('../image/backgroundmarket.webp') no-repeat center center fixed;
+    background: url('../image/tyler/defaultbackgroundmap.webp') no-repeat center center fixed;
     background-size: cover;
-    color: white;
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
@@ -13,6 +12,10 @@ body {
     overflow-y: hidden;
 }
 
+#reset-purchases-button{
+    width: 100px;
+}
+
 #market-wrapper {
     display: flex;
     justify-content: center;
@@ -20,6 +23,7 @@ body {
     height: 100%;
     width: 100%;
     padding-bottom: 3%;
+
 }
 
 #market-content {
@@ -32,9 +36,9 @@ body {
     overflow-y: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    width: 90%;
     padding-top: 40px;
     padding-bottom: 40px;
+
 }
 
 #market-content::-webkit-scrollbar {
@@ -50,7 +54,7 @@ body {
     height: 15.41vw;
     display: flex;
     flex-direction: column;
-    margin: 20px;
+    margin: 10px;
     cursor: pointer;
 }
 
@@ -95,33 +99,61 @@ body {
 }
 
 /* Стили для модального окна магазина */
+/* Стили для модального окна магазина */
+/* Стили для модального окна магазина */
 .shop-modal {
-    display: none; /* Скрываем модальное окно по умолчанию */
-    position: fixed; 
-    z-index: 1; /* Поверх остальных элементов */
+    position: fixed;
+    z-index: 1;
     left: 0;
     top: 0;
     width: 100%; 
-    height: 100%; 
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.7); /* Увеличенное затемнение */
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Затемнение на 70% экрана */
     overflow: hidden;
+    visibility: hidden; /* Видимость скрыта */
+    transition: opacity 0.4s ease; /* Плавное изменение прозрачности */
+}
+
+.shop-modal.show {
+    visibility: visible; /* Показываем элемент */
 }
 
 .shop-modal-content {
-    margin: 8% auto; /* Уменьшаем отступы сверху и снизу */
-    padding: 20px; 
-    width: 88%; /* Увеличиваем ширину */
-    max-width: 440px; /* Увеличиваем максимальную ширину */
-    background-color: rgba(50, 50, 50, 0.9); /* Менее черный фон с прозрачностью */
-    border-radius: 10px;
+    position: absolute;
+    bottom: 0; /* Привязываем к низу экрана */
+    left: 50%; /* Центрируем по горизонтали */
+    transform: translateX(-50%) translateY(100%); /* Начальное состояние – за пределами экрана снизу */
+    padding: 20px;
+    width: 88%;
+    max-width: 460px;
+    height: 84%; /* Высота 90% экрана */
+    background-color: rgba(50, 50, 50, 1); /* Полупрозрачный черный фон */
+    border-radius: 10px 10px 0 0; /* Закругляем только верхние углы */
     text-align: center;
-    position: relative;
-    height: auto; /* Даем возможность окну растягиваться по высоте */
-    color: white; /* Белый цвет текста */
+    color: white;
+    transition: transform 0.5s ease; /* Плавная анимация подъема */
 }
 
+.shop-modal.show .shop-modal-content {
+    transform: translateX(-50%) translateY(0); /* Плавно поднимаем модальное окно снизу */
+}
+
+.shop-modal.hide .shop-modal-content {
+    transform: translateX(-50%) translateY(100%); /* Плавно убираем модальное окно вниз */
+}
+
+.shop-modal.hide {
+    transition: visibility 0s 0.4s; /* Видимость убирается с задержкой */
+    visibility: hidden;
+}
+
+
+
+
+
+
 .shop-modal-content img {
+
     width: 100%;
     max-width: 300px;
     height: auto;
@@ -176,3 +208,11 @@ body {
     border: 3px solid green; /* Зеленая окантовка */
     box-shadow: 0 0 10px rgba(0, 128, 0, 0.7); /* Дополнительное выделение */
 }
+
+#market-wrapper.active {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+
