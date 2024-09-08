@@ -1,0 +1,269 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background: url('../image/lilnigga.webp') no-repeat center center fixed;
+  background-size: cover;
+  height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  font-family: 'Pixel Times', sans-serif;
+}
+
+@font-face {
+    font-family: 'Pixel Times';
+    src: url('../font/Pixel Times.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+#booster-button {
+  width: 35px;
+  cursor: pointer;
+  height: auto;
+  z-index: 10;
+  pointer-events: auto;
+  transition: transform 0.2s ease;
+}
+
+#booster-button:hover {
+  transform: scale(1.1);
+}
+
+#score {
+  text-align: center;
+  font-size: 24px;
+  margin: 10px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#token-image {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}
+
+#token-count {
+  font-size: 24px;
+  color: white;
+}
+
+#game-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 100vw;
+  padding: 0.49%;
+}
+
+#game-world {
+  position: relative;
+  height: 100%;
+  max-width: 90vw;
+  max-height: 90vh;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+canvas {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+#controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  max-width: 500px;
+  margin-top: 10px;
+}
+
+#step-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#step-timer {
+  position: absolute;
+  top: -30%;
+  font-size: 20px;
+  color: white;
+  right: 10%;
+}
+
+#step-info {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+#step-indicator {
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+}
+
+#step-counter {
+  width: 72px;
+  font-size: 20px;
+  color: white;
+  margin-top: 15px;
+  position: relative;
+}
+
+#new-game {
+  padding: 10px 20px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.tab-bar {
+  background-color: rgba(241, 241, 241, 0.6);
+  border-radius: 10px;
+  border: 1px solid black;
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  position: relative;
+  bottom: 1%;
+}
+
+.tab-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.tab-button img {
+  width: 45px;
+  height: 45px;
+  transition: transform 0.2s ease;
+}
+
+.tab-button img:hover {
+  transform: scale(1.1);
+}
+
+#confirmation-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+}
+
+.confirmation-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.small-button {
+  padding: 5px 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#blackout {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  opacity: 0;
+  display: none;
+  z-index: 9999;
+  transition: opacity 1.5s ease;
+}
+.modal-image {
+  width: 100px;
+  height: 100px;
+  margin: 10px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.modal-image:hover {
+  transform: scale(1.1);
+}
+#trade-menu {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 9998;
+  text-align: center;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 300px;
+}
+/* Стиль для красной кнопки "Отказаться" */
+.cancel-button {
+  background-color: #ff4d4d; /* Красный цвет */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.cancel-button:hover {
+  background-color: #ff1a1a; /* Темно-красный цвет при наведении */
+  transform: scale(1.05); /* Легкое увеличение при наведении */
+}
+/* Стиль для оверлея, который блокирует взаимодействие с игрой и вкладками */
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.2); /* Полупрозрачный черный цвет */
+  display: none; /* По умолчанию скрыт */
+}
+
+
+.modal-image {
+  pointer-events: none; /* Отключаем клики по картинкам */
+  cursor: not-allowed; /* Изменяем курсор, чтобы показать, что действие не разрешено */
+}

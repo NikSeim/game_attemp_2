@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booster Page</title>
+    <link rel="stylesheet" href="../css/booster.css">
+</head>
+<body>
+    <div class="header-bar">
+        <span id="close-button">&times;</span>
+        <span class="header-title">Journey Token</span>
+    </div>
+
+    <!-- Основная вкладка с меню -->
+    <div id="main" class="section active">
+        <h2>Upgrade menu</h2>
+        <div class="menu-item">
+            <button onclick="showSection('general')">
+                <img src="../image/generalicon.webp" alt="General">
+                General
+            </button>
+        </div>
+        <div class="menu-item">
+            <button onclick="showSection('falling-fortune')">
+                <img src="../image/fallingfortuneicon.webp" alt="Falling Fortune">
+                Falling Fortune
+            </button>
+        </div>
+        <div class="menu-item">
+            <button onclick="showSection('tap-n-grab')">
+                <img src="../image/tapngarbicon.webp" alt="Tap 'n' Grab">
+                Tap 'n' Grab
+            </button>
+        </div>
+        <div class="menu-item">
+            <button onclick="showSection('memory-grid')">
+                <img src="../image/memorygridicon.webp" alt="Memory Grid">
+                Memory Grid
+            </button>
+        </div>
+        <div class="menu-item">
+            <button onclick="showSection('adventure-run')">
+                <img src="../image/adventurerunicon.webp" alt="Adventure Run">
+                Adventure Run
+            </button>
+        </div>
+        <div class="menu-item">
+            <button onclick="showSection('monster-strike')">
+                <img src="../image/monstrstrikeicon.webp" alt="Monster Strike">
+                Monster Strike
+            </button>
+        </div>
+    </div>
+
+    <!-- Вкладка "General" -->
+    <div id="general" class="section">
+        <h2 class="general-title">General</h2>
+        <div class="menu-item">
+            <button id="max-steps">
+                <img src="../image/maxstep.webp" alt="Максимальное количество шагов">
+                Максимальное количество шагов
+            </button>
+        </div>
+        <div class="menu-item">
+            <button id="step-per-hour">
+                <img src="../image/stepperhour.webp" alt="Step per hour">
+                Step per hour
+            </button>
+        </div>
+        <div class="menu-item">
+            <button id="explore-3x3">
+                <img src="../image/explore3x3.webp" alt="3X3 Explore">
+                3X3 Explore<br>0/3 available
+            </button>
+        </div>
+
+        <img src="../image/back.webp" alt="Back" class="back-button" onclick="showSection('main')">
+    </div>
+
+    <!-- Вкладка "Falling Fortune" -->
+    <div id="falling-fortune" class="section">
+        <h2 class="general-title">Falling Fortune</h2>
+        <div class="menu-item">
+            <button>
+                <img src="../image/uppcoin.webp" alt="Монет за подбор звезды">
+                Монет за подбор звезды
+            </button>
+        </div>
+        <div class="menu-item">
+            <button>
+                <img src="../image/duraction.webp" alt="Периодичность падения монет">
+                Периодичность падения монет
+            </button>
+        </div>
+        <div class="menu-item">
+            <button>
+                <img src="../image/frequency.webp" alt="Частота выпадания бомбочек">
+                Частота выпадания бомбочек
+            </button>
+        </div>
+        <div class="menu-item">
+            <button>
+                <img src="../image/timeduraction.webp" alt="Время игры">
+                Время игры
+            </button>
+        </div>
+
+        <img src="../image/back.webp" alt="Back" class="back-button" onclick="showSection('main')">
+    </div>
+
+    <!-- Вкладка "Tap 'n' Grab" -->
+    <div id="tap-n-grab" class="section">
+        <h2 class="general-title">Tap 'n' Grab</h2>
+        <div class="menu-item">
+            <button>
+                <img src="../image/uppcoin.webp" alt="За подбор монеты">
+                За подбор монеты
+            </button>
+        </div>
+        <div class="menu-item">
+            <button>
+                <img src="../image/timeduraction.webp" alt="Время игры">
+                Время игры
+            </button>
+        </div>
+
+        <img src="../image/back.webp" alt="Back" class="back-button" onclick="showSection('main')">
+    </div>
+
+    <!-- Вкладка "Memory Grid" -->
+    <div id="memory-grid" class="section">
+        <h2 class="general-title">Memory Grid</h2>
+        <div class="menu-item">
+            <button>
+                <img src="../image/additioncoin.webp" alt="Монет за раунд">
+                Монет за раунд
+            </button>
+        </div>
+        <div class="menu-item">
+            <button>
+                <img src="../image/frequency.webp" alt="Время запоминания">
+                Время запоминания
+            </button>
+        </div>
+        <div class="menu-item">
+            <button>
+                <img src="../image/timeduraction.webp" alt="Дополнительный раунд">
+                Дополнительный раунд
+            </button>
+        </div>
+
+        <img src="../image/back.webp" alt="Back" class="back-button" onclick="showSection('main')">
+    </div>
+
+    <!-- Вкладка "Adventure Run" -->
+    <div id="adventure-run" class="section">
+        <h2 class="general-title">Adventure Run</h2>
+        <div class="menu-item">
+            <button>
+                <img src="../image/additioncoin.webp" alt="Монет за преграду">
+                Монет за преграду
+            </button>
+        </div>
+        <div class="menu-item">
+            <button>
+                <img src="../image/coinforboss.webp" alt="Монет за босса">
+                Монет за босса
+            </button>
+        </div>
+
+        <img src="../image/back.webp" alt="Back" class="back-button" onclick="showSection('main')">
+    </div>
+
+    <!-- Вкладка "Monster Strike" -->
+    <div id="monster-strike" class="section">
+        <h2 class="general-title">Monster Strike</h2>
+        <div class="menu-item">
+            <button>
+                <img src="../image/dammegesword.webp" alt="Урон меча">
+                Урон меча
+            </button>
+        </div>
+        <div class="menu-item">
+            <button>
+                <img src="../image/protectshield.webp" alt="Щит защиты">
+                Щит защиты
+            </button>
+        </div>
+        <div class="menu-item">
+            <button>
+                <img src="../image/coinforboss.webp" alt="Монет за босса">
+                Монет за босса
+            </button>
+        </div>
+        <div class="menu-item">
+            <button>
+                <img src="../image/oracul.webp" alt="Оракул">
+                Оракул
+            </button>
+        </div>
+
+        <img src="../image/back.webp" alt="Back" class="back-button" onclick="showSection('main')">
+    </div>
+
+    <script src="../js/booster.js"></script>
+</body>
+</html>

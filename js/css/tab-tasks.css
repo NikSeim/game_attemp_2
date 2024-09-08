@@ -1,0 +1,345 @@
+/* Общие стили */
+body {
+  background: url('https://github.com/NikSeim/images/raw/main/backgroundmarket.webp') no-repeat center center fixed;
+  background-size: cover;
+  color: white;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  overflow-y: hidden;
+}
+
+h1 {
+  color: white;
+  font-size: 24px;
+  margin: 0;
+}
+
+h2 {
+  display: flex;
+  justify-content: flex-start;
+  padding: 10px;
+}
+
+.coin-icon {
+  width: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Заголовок */
+#header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  top: 0;
+  flex-direction: column;
+}
+
+/* Контейнер задач */
+.tasks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  scrollbar-width: none;
+  padding: 2%;
+}
+
+#tasks-content {
+  overflow-y: auto;
+  text-align: center;
+  color: white;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 3%;
+}
+
+/* Группа задач */
+.task-group {
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 20px;
+}
+
+/* Заголовки задач (Daily, Task) */
+.task-group h2 {
+  color: #fff;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+/* Карточки задач */
+.task-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #333;
+  border-radius: 10px;
+  padding: 15px;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.task-info {
+  display: flex;
+  align-items: center;
+}
+
+.task-icon {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+}
+
+.task-title-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.task-title {
+  font-weight: bold;
+  font-size: 16px;
+  margin: 0;
+}
+
+.task-reward {
+  font-size: 14px;
+  color: #ccc;
+  margin: 5px 0 0;
+}
+
+/* Кнопка Claim (со стрелкой) */
+.claim-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.claim-button:hover {
+  transform: scale(1.1); /* Немного увеличивает стрелку при наведении */
+}
+
+.claim-button img {
+  width: 20px; /* Размер стрелки */
+  height: 20px;
+}
+
+/* Overlay (затемняющий фон) */
+.tasks-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачное черное затемнение */
+  display: none; /* Скрыт по умолчанию */
+}
+
+/* Модальное окно */
+.tasks-modal {
+  display: none;
+  position: fixed;
+  bottom: 0; /* Закрепляем окно внизу */
+  left: 50%;
+  transform: translateX(-50%); /* Центрируем по горизонтали */
+  height: 90%;
+  width: 100%;
+  max-width: 500px;
+  background-color: #000;
+  color: white;
+  padding: 20px;
+  box-sizing: border-box;
+  z-index: 1000; /* На переднем плане, выше затемнения */
+  border-radius: 10px 10px 0 0; /* Закругление только верхних углов */
+}
+
+/* Кнопка закрытия (крестик) */
+.tasks-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 28px;
+  color: white;
+  cursor: pointer;
+  z-index: 1100;
+}
+
+.tasks-close:hover {
+  color: #ccc;
+}
+
+.reset-button {
+  background-color: #ff6347;  /* Красный цвет */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.reset-button:hover {
+  background-color: #ff4500;  /* Темнее при наведении */
+}
+
+/* Анимации открытия и закрытия модального окна */
+@keyframes slide-up {
+  from {
+      transform: translate(-50%, 100%); /* Начало вне экрана снизу */
+  }
+  to {
+      transform: translate(-50%, 0); /* Конечное положение прикреплено к низу */
+  }
+}
+
+@keyframes slide-down {
+  from {
+      transform: translate(-50%, 0); /* Начальное положение прикреплено к низу */
+  }
+  to {
+      transform: translate(-50%, 100%); /* Уход за пределы экрана снизу */
+  }
+}
+
+/* Применение анимаций к модальному окну */
+.tasks-modal.slide-up {
+  animation: slide-up 0.3s forwards; /* Анимация появления */
+}
+
+.tasks-modal.slide-down {
+  animation: slide-down 0.3s forwards; /* Анимация закрытия */
+}
+
+/* Контент модального окна */
+.tasks-modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Выровнять элементы по верху */
+  height: 100%;
+  overflow-y: auto; /* Добавляет прокрутку, если контент не помещается */
+}
+
+.tasks-modal-content img {
+  width: 100px;
+}
+
+/* Заголовок модального окна */
+.modal-header {
+  font-size: 24px;
+  margin: 20px 0;
+  text-align: center;
+}
+
+/* Кнопка "Claim" */
+.tasks-claim-button-modal {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 15px 30px;
+  text-align: center;
+  font-size: 18px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: auto; /* Помещаем кнопку внизу */
+}
+
+.tasks-claim-button-modal:hover {
+  background-color: #45a049;
+}
+
+/* Стили для квадратов */
+.tasks-days-container {
+  display: flex;
+  flex-wrap: wrap; /* Объекты переносятся на новую строку */
+  width: 100%;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.day-box {
+  background-color: #444;
+  color: white;
+  width: 18%; /* Уменьшенная ширина квадрата */
+  gap: 10px;
+  border-radius: 5px;
+  margin: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.day-box img {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 5px;
+}
+
+.day-box .day-number {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.day-box .day-coins {
+  color: #ffd700;
+  font-size: 14px;
+}
+
+/* Стили для активного и завершенного состояния контейнеров */
+.day-box.disabled {
+  background-color: #777; /* Серый фон для завершенного контейнера */
+}
+
+.day-box.active {
+  background-color: #4CAF50; /* Полностью зеленый */
+  border-color: #4CAF50; /* Зеленая окантовка */
+}
+
+.day-box {
+  border: 2px solid transparent; /* По умолчанию без окантовки */
+  transition: background-color 0.3s, border-color 0.3s; /* Плавный переход */
+}
+
+.day-box.next {
+  background-color: transparent; /* Фон остается прозрачным */
+  border-color: #4CAF50; /* Зеленая окантовка */
+}
+
+.tasks-claim-button-modal.disabled {
+  background-color: #aaa; /* Серый цвет для заблокированной кнопки */
+  cursor: not-allowed; /* Указатель "неактивно" */
+}
+
+.message-box {
+  color: red; /* Цвет текста сообщения */
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.tasks-all-rewards-claimed {
+  color: green;
+  font-size: 20px;
+  text-align: center;
+  margin-top: 20px;
+}

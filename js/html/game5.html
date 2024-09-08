@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journey Token - Game 5</title>
+    <link rel="stylesheet" href="../css/game5.css">
+</head>
+<body>
+    <div class="top-bar">
+        <span class="close-button">&times;</span>
+        <span class="title">Journey Token</span>
+    </div>
+    <div class="content">
+        <div class="boss-health-bar">
+            <div class="boss-name" id="boss-name-text">Boss Name</div> <!-- Новая строка -->
+            <div class="health-text" id="boss-health-text">200/200</div>
+            <div class="boss-health-fill"></div>
+        </div>
+        <img src="../image/boss.webp" alt="Boss" class="boss-image">
+        <div class="attack-zones"></div> <!-- Контейнер для анимированных зон -->
+        <div class="player-health-bar">
+            <div class="player-name" id="player-name-text">Player Name</div> <!-- Новая строка -->
+            <div class="health-text" id="player-health-text">100/100</div>
+            <div class="player-health-fill"></div>
+        </div>
+    </div>
+
+    <!-- Аудио элементы для звуковых эффектов -->
+    <audio id="hit-sound" src="../sound/hit.mp3"></audio>
+    <audio id="block-sound" src="../sound/block.mp3"></audio>
+    <audio id="phase-sound" src="../sound/bossphase.mp3"></audio>
+    <audio id="counter-hit-sound" src="../sound/contrhit.mp3"></audio>
+    <audio id="death-sound" src="../sound/bossdeath.mp3"></audio>
+
+    <script src="../js/game5.js"></script>
+</body>
+</html>
