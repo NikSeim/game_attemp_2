@@ -343,3 +343,11 @@ h2 {
   text-align: center;
   margin-top: 20px;
 }
+
+
+img, button, * {
+  outline: none; /* Убираем рамку при фокусе и нажатии */
+  -webkit-tap-highlight-color: transparent; /* Убираем синий контур на мобильных устройствах Android и iOS */
+  -webkit-user-select: none; /* Отключаем выделение текста и элементов на мобильных устройствах */
+  user-select: none; /* Отключаем выделение элементов */
+}

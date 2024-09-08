@@ -1178,37 +1178,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-document.addEventListener('DOMContentLoaded', () => {
-    const images = document.querySelectorAll('img');  // Находим все изображения
-
-    images.forEach(img => {
-        // Получаем текущий путь изображения
-        const imgUrl = img.src;
-
-        // Загружаем изображение и конвертируем его в base64
-        fetch(imgUrl)
-            .then(response => response.blob())  // Получаем содержимое в виде Blob
-            .then(blob => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    img.src = reader.result;  // Заменяем путь на base64 строку
-                };
-                reader.readAsDataURL(blob);  // Конвертируем Blob в Data URL
-            })
-            .catch(error => console.error('Ошибка загрузки изображения:', error));
-    });
-});
 
 
-document.addEventListener('DOMContentLoaded', () => {
-    const images = document.querySelectorAll('img');  // Находим все теги <img>
-
-    images.forEach(img => {
-        img.addEventListener('contextmenu', (e) => {
-            e.preventDefault();  // Запрещаем вызов контекстного меню
-        });
-    });
-});
 
 document.addEventListener('DOMContentLoaded', () => {
     const images = document.querySelectorAll('img');
@@ -1221,19 +1192,6 @@ document.addEventListener('DOMContentLoaded', () => {
         img.setAttribute('draggable', false);  // Отключаем перетаскивание изображения
     });
 });
-
-document.addEventListener('DOMContentLoaded', () => {
-    const images = document.querySelectorAll('img');
-
-    images.forEach(img => {
-        img.addEventListener('contextmenu', (e) => {
-            e.preventDefault();  // Запрещаем вызов контекстного меню
-        });
-
-        img.setAttribute('draggable', false);  // Отключаем перетаскивание изображения
-    });
-});
-
 
 document.addEventListener('DOMContentLoaded', () => {
     const images = document.querySelectorAll('img');

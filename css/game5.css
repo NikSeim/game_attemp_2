@@ -187,3 +187,10 @@ body {
 .boss-name.blink {
     animation: blink 0.5s steps(5, start) infinite;
 }
+
+img, button, * {
+    outline: none; /* Убираем рамку при фокусе и нажатии */
+    -webkit-tap-highlight-color: transparent; /* Убираем синий контур на мобильных устройствах Android и iOS */
+    -webkit-user-select: none; /* Отключаем выделение текста и элементов на мобильных устройствах */
+    user-select: none; /* Отключаем выделение элементов */
+  }
