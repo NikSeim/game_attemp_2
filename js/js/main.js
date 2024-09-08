@@ -1233,3 +1233,34 @@ document.addEventListener('DOMContentLoaded', () => {
         img.setAttribute('draggable', false);  // Отключаем перетаскивание изображения
     });
 });
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const images = document.querySelectorAll('img');
+
+    images.forEach(img => {
+        img.addEventListener('contextmenu', (e) => {
+            e.preventDefault();  // Отключаем контекстное меню
+        });
+
+        img.setAttribute('draggable', false);  // Отключаем перетаскивание
+
+        // Отключаем долгие нажатия на мобильных устройствах
+        img.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 1) {  // Если несколько касаний, игнорируем
+                return;
+            }
+            let touchDuration;
+            const preventContext = () => {
+                clearTimeout(touchDuration);
+            };
+            
+            touchDuration = setTimeout(() => {
+                e.preventDefault();  // Отключаем долгие нажатия
+            }, 500);  // 500ms — время долгого нажатия
+
+            img.addEventListener('touchend', preventContext);
+            img.addEventListener('touchmove', preventContext);
+        });
+    });
+});
