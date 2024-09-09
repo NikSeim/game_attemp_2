@@ -1,252 +1,28 @@
 body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f4f4f4;
     margin: 0;
     padding: 0;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-image: url('../image/stavkiimage/stumpbackground.webp');
-    background-size: cover;
-    background-position: center;
-    position: relative;
-    font-family: 'Pixel Times', sans-serif;
 }
 
-@font-face {
-    font-family: 'Pixel Times';
-    src: url('../font/Pixel Times.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
+h1 {
+    margin-top: 50px;
+    color: #333;
 }
 
-/* Стиль для окон победы и поражения */
-.alert {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 20px;
-    border-radius: 10px;
-    color: #fff;
-    font-size: 24px;
-    text-align: center;
-    display: none;
-    z-index: 2;
-}
-
-.alert-win {
-    background-color: green;
-}
-
-.alert-lose {
-    background-color: red;
-}
-
-.overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 0;
-}
-
-/* Контейнер с элементами игры */
-.container {
-    text-align: center;
-    background: #34495e;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    width: 90%;
-    max-width: 400px;
-    z-index: 1;
-    padding: 20px;
-}
-
-.game-container {
-    display: none;
-    width: 90%;
-    max-width: 350px;
-    height: 90vh;
-    border: 3px solid #000;
-    background-image: url('../image/stavkiimage/buggsbackground.webp');
-    background-size: cover;
-    background-position: center;
-    border-radius: 10px;
-    position: relative;
-}
-
-.game-field {
-    display: flex;
-    justify-content: flex-end;
-    align-items: flex-end;
-    width: 100%;
-    height: 92%;
-    bottom: -0.6%;
-    position: relative;
-    border-bottom: 2px solid black;
-    gap: 25px;
-}
-
-.separator-line {
-    width: 100%;
-    height: 2px;
-    background-color: black;
-    margin-top: 2px;
-    margin-bottom: 10px;
-}
-
-.bug {
-    position: relative;
-    width: auto;
-    height: 68px;
-}
-
-.bug img {
-    height: 90%;
-    width: auto;
-    max-width: 90%;
-}
-
-.choose-bug-text {
-    text-align: center;
-    font-size: 18px;
-    bottom: -7px;
-    color: #ecf0f1;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    white-space: nowrap;
-}
-
-.title {
-    margin-bottom: 20px;
-    font-size: 24px;
-    color: #ecf0f1;
-}
-
-.token-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.token-image {
-    width: 40px;
-    height: 40px;
-    margin-right: 10px;
-}
-
-.coin-count {
-    font-size: 24px;
-    font-weight: bold;
-    margin-right: 10px;
-    color: #ecf0f1;
-}
-
-.add-coins-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    z-index: 2;
-}
-
-.add-coins-btn:hover {
-    background-color: #0056b3;
-}
-
-.bet-container label {
-    color: #ecf0f1;
-}
-
-.bet-range {
-    width: 89%;
-    color: #fff;
-}
-
-.bet-display {
-    font-size: 18px;
-    color: #ecf0f1;
-    margin-top: 10px;
-}
-
-.bet-amount {
-    font-weight: bold;
-    margin-left: 5px;
-}
-
-.multiplier {
-    font-size: 18px;
-    margin-bottom: 20px;
-    color: #ecf0f1;
-}
-
-/* Стили для кнопок */
-.play-button, .green-button, .red-button {
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+#back-button {
     padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
     margin-top: 20px;
+    transition: background-color 0.3s ease;
 }
 
-.play-button {
-    background-color: #28a745;
-    padding: 15px 30px;
-    font-size: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-
-.green-button {
-    background-color: #28a745;
-}
-
-.red-button {
-    background-color: #dc3545;
-}
-
-.play-button:hover, .green-button:hover {
-    background-color: #218838;
-}
-
-.red-button:hover {
-    background-color: #c82333;
-}
-
-/* Стили для модальных окон */
-.modal {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    z-index: 1000;
-    text-align: center;
-}
-
-.modal-content {
-    padding: 20px;
-}
-
-/* Обновление отображения монет */
-#coinCount {
-    font-size: 24px;
-    font-weight: bold;
-    color: #fff;
-    margin-right: 10px;
+#back-button:hover {
+    background-color: #0056b3;
 }

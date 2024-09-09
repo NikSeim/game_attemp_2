@@ -1,75 +1,16 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ставки</title>
-    <link rel="stylesheet" href="../css/stavki.css">
+    <link rel="stylesheet" href="/game_attemp0_2-main123/css/stavki.css"> <!-- Подключаем CSS -->
 </head>
 <body>
+    <h1>Ставки</h1>
+    <button id="back-button">Назад</button> <!-- Кнопка для возврата -->
     
-    <!-- Затемнение заднего фона -->
-    <div class="overlay"></div>
-
-    <!-- Кнопка добавления монет в правом верхнем углу -->
-    <button id="addCoinsBtn" class="add-coins-btn">+100 монет</button>
-
-    <!-- Основной контейнер с элементами игры -->
-    <div class="container">
-        <h1 class="title">Ставки</h1>
-
-        <div class="token-container">
-            <img src="../image/tokendisgn.webp" alt="Token" class="token-image">
-            <span id="coinCount" class="coin-count">0</span>
-        </div>
-
-        <!-- Добавление окон победы и поражения -->
-        <div id="winAlert" class="alert alert-win">
-            Вы выиграли!
-            <a href="../html/index.html"><button class="exit-btn">Выйти</button></a>
-        </div>
-        <div id="loseAlert" class="alert alert-lose">
-            Вы проиграли!
-            <a href="../html/index.html"><button class="exit-btn">Выйти</button></a>
-        </div>
-
-        <div class="bet-container">
-            <label for="betRange">Ставка:</label>
-            <input type="range" id="betRange" class="bet-range" min="100" value="100">
-            <span class="bet-display">Поставить: <span id="betAmount" class="bet-amount">100</span></span>
-        </div>
-
-        <p class="multiplier">Победа 5х</p>
-        <button class="play-button" id="playButton">Играть</button>
-    </div>
-    <div class="game-container" id="gameContainer">
-        <div class="game-field" id="gameField">
-            <!-- Жуки -->
-            <div class="bug" id="bug1">
-                <img src="../image/stavkibuggs/buggs1 sprites webp/erstbugghohsprite.webp" alt="bug 1">
-            </div>
-            <div class="bug" id="bug2">
-                <img src="../image/stavkibuggs/buggs2 sprites webp/zweibugghohsprite.webp" alt="bug 2">
-            </div>
-            <div class="bug" id="bug3">
-                <img src="../image/stavkibuggs/buggs3 sprites webp/dreibugghohsprite.webp" alt="bug 3">
-            </div>
-            <div class="bug" id="bug4">
-                <img src="../image/stavkibuggs/buggs4 sprites webp/vierbugghohsprite.webp" alt="bug 4">
-            </div>
-            <div class="bug" id="bug5">
-                <img src="../image/stavkibuggs/buggs5 sprites webp/funfbugghohsprite.webp" alt="bug 5">
-            </div>
-        </div>
-        <!-- Надпись "Выберите своего Жука!" под жуками -->
-        <p class="choose-bug-text">Выберите своего Жука!</p>
-    </div>
-
-    <!-- Игровое поле -->
-    <div class="game-container" id="gameContainer">
-        <div class="game-field" id="gameField"></div>
-    </div>
-
-    <script src="../js/stavki.js"></script>
+    <script src="/game_attemp0_2-main123/js/stavki.js"></script> <!-- Подключаем JS после кнопки -->
 </body>
 </html>
+    
