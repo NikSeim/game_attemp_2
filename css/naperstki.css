@@ -1,28 +1,202 @@
 body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    background-color: #f4f4f4;
+    background: url('../image/naperstkiimage/traderbackground.webp') center;
+    background-size: cover;
+    color: #ecf0f1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
     margin: 0;
-    padding: 0;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    font-family: 'Pixel Times', sans-serif;
 }
 
-h1 {
-    margin-top: 50px;
-    color: #333;
+@font-face {
+    font-family: 'Pixel Times';
+    src: url('../font/Pixel Times.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
 }
-
-#back-button {
-    padding: 10px 20px;
-    font-size: 16px;
+.add-tokens-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 15px;
+    background-color: #27ae60;
     color: white;
-    background-color: #28a745;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    margin-top: 20px;
-    transition: background-color 0.3s ease;
+    font-size: 14px;
+    z-index: 1001; /* Выше остальных элементов */
 }
 
-#back-button:hover {
-    background-color: #218838;
+.add-tokens-button:hover {
+    background-color: #2ecc71;
+}
+
+#bet-window {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Полупрозрачный черный фон */
+    z-index: 1000;
+}
+
+#bet-container {
+    background-color: #34495e;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 90%;
+}
+
+#game-container {
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+#rounds-container {
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    position: absolute;
+    top: -180%; /* Поднимаем полоску вверх */
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px 50px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    z-index: 1010;
+}
+
+#cups-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.cup {
+    width: 100px;
+    height: 100px;
+    margin: 0 10px;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.5s ease-in-out, left 1s ease-in-out;
+    z-index: 10; /* Стакан должен быть выше шарика */
+}
+
+.cup img {
+    width: 100%;
+    height: 100%;
+}
+
+#ball {
+    width: 35px;
+    height: 35px;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1; /* Шарик находится под стаканом */
+}
+
+.highlight {
+    border: 3px solid red; /* Видимая метка вокруг стакана с шариком */
+    border-radius: 50%;
+    box-sizing: border-box;
+}
+
+#round-result {
+    font-size: 1.5em;
+    margin: 10px 0;
+}
+
+#final-result {
+    font-size: 1.2em;
+    margin: 20px 0;
+}
+
+#result-container {
+    margin-top: 20px;
+    display: none;
+}
+
+#result-container p {
+    margin: 10px 0;
+}
+
+#current-coins {
+    margin-bottom: 20px;
+    font-size: 1.2em;
+}
+
+#current-coins img {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+}
+
+#bet-range {
+    width: 89%;
+    margin: 15px 0;
+}
+
+#bet-amount {
+    font-size: 1.2em;
+    color: #ecf0f1;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #e74c3c;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1em;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #c0392b;
+}
+
+#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    opacity: 0;
+    z-index: 1099;
+    display: none;
+    transition: opacity 0.5s ease; /* Более короткое время перехода */
+}
+
+#round-display {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 48px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 20px 40px;
+    border-radius: 15px;
+    opacity: 0;
+    z-index: 1100;
+    display: none;
+    transition: opacity 0.5s ease;
 }
