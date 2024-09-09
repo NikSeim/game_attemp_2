@@ -48,9 +48,7 @@ function saveGameState() {
 // Функция для обновления отображения количества монет на странице
 function updateTokenCount() {
     const tokenCountElement = document.getElementById('token-count');
-    if (tokenCountElement) {
-        tokenCountElement.textContent = globalCoins.toLocaleString();
-    }
+    tokenCountElement.textContent = globalCoins.toLocaleString(); // Обновляем текстовый элемент
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -159,62 +157,7 @@ function preloadImages(images, callback) {
         }
     }
 }
-function animateRight(newCol, newRow) {
-    isAnimating = true;
 
-    const startCol = playerCol;
-    const duration = 700; // Длительность анимации
-    const startTime = performance.now();
-
-    function step(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-
-        // Переход между кадрами
-        if (progress < 0.33) {
-            playerImage.src = './image/rightsprite/turnrightsprite.webp';
-        } else if (progress < 0.66) {
-            playerImage.src = './image/rightsprite/steprightsprite.webp';
-        } else if (progress < 1) {
-            playerImage.src = './image/rightsprite/secsteprightsprite.webp';
-        }
-
-        playerCol = startCol + progress * (newCol - startCol);
-
-        drawVisibleArea();
-
-        if (progress < 1) {
-            requestAnimationFrame(step);
-        } else {
-            playerCol = newCol;
-            recalculateOffsets();
-            animateFogClear();
-
-            // Обеспечиваем корректную загрузку и отображение спрайта
-            const finalSprite = new Image();
-            finalSprite.src = './image/downsprite/hohsprite.webp';
-            finalSprite.onload = () => {
-                playerImage.src = finalSprite.src;
-                drawVisibleArea(); // Перерисовка области после загрузки спрайта
-            };
-
-            saveGameState();
-
-            if (checkAndCollectCoin(newCol, newRow)) {
-                savePreMiniGameState();
-                launchRandomMiniGame();
-            }
-
-            if (portal && newCol === portal.x && newRow === portal.y) {
-                showConfirmationBox();
-            }
-
-            isAnimating = false;
-        }
-    }
-
-    requestAnimationFrame(step);
-}
 
 
 
@@ -467,25 +410,31 @@ function updateStepCount() {
 function restoreSteps() {
     const stepTimerElement = document.getElementById('step-timer');
 
+    // Если таймер уже запущен, не запускаем его снова
+    if (stepInterval) return;
+
+    // Запускаем новый интервал
     stepInterval = setInterval(() => {
         if (steps < 100) {
             stepTimerElement.style.display = 'inline';
-            stepTimer -= 1;
+            stepTimer -= 1; // Уменьшаем таймер
             if (stepTimer <= 0) {
-                steps = Math.min(100, steps + 1);
-                stepTimer = 5;
+                steps = Math.min(100, steps + 1); // Восстанавливаем шаг
+                stepTimer = 5; // Сбрасываем таймер на 5 секунд
                 document.getElementById('step-counter').textContent = `${steps}/100`;
-                checkStepTimerVisibility();
-                saveGameState();
+                checkStepTimerVisibility(); // Проверка видимости таймера
+                saveGameState(); // Сохраняем состояние игры
             }
             stepTimerElement.textContent = `00:0${stepTimer}`;
         } else {
+            // Когда шагов 100, останавливаем таймер
             stepTimerElement.style.display = 'none';
             clearInterval(stepInterval);
             stepInterval = null;
         }
-    }, 1000);
+    }, 1000); // Интервал в 1 секунду
 }
+
 
 function checkStepTimerVisibility() {
     const stepTimerElement = document.getElementById('step-timer');
@@ -504,21 +453,21 @@ function movePlayer(dx, dy) {
     }
 
     if (newCol >= 0 && newCol < mapCols && newRow >= 0 && newRow < mapRows) {
-        if (dx === 1) { // Движение вправо
+        if (dx === 1) {
             animateRight(newCol, newRow);
-        } else if (dx === -1) { // Движение влево
+        } else if (dx === -1) {
             animateLeft(newCol, newRow);
-        } else if (dy === -1) { // Движение вверх
+        } else if (dy === -1) {
             animateUp(newCol, newRow);
-        } else if (dy === 1) { // Движение вниз
+        } else if (dy === 1) {
             animateDown(newCol, newRow);
         }
 
-        updateStepCount();
-        saveGameState();
+        updateStepCount(); // Уменьшаем количество шагов
+        saveGameState();   // Сохраняем состояние игры
 
-        if (steps < 100 && !stepInterval) {
-            restoreSteps();
+        if (steps < 100) {
+            restoreSteps(); // Восстанавливаем шаги только после того, как они уменьшены
         }
     }
 }
@@ -566,9 +515,11 @@ function animatePlayerMove(newCol, newRow) {
 
     requestAnimationFrame(step);
 }
-function animateLeft(newCol, newRow) {
-    isAnimating = true;
 
+
+// Анимация движения вправо
+function animateRight(newCol, newRow) {
+    isAnimating = true; // Устанавливаем флаг анимации
     const startCol = playerCol;
     const duration = 700; // Длительность анимации
     const startTime = performance.now();
@@ -577,12 +528,60 @@ function animateLeft(newCol, newRow) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
 
-        // Переход между кадрами
+        // Меняем спрайты по ходу движения
+        if (progress < 0.33) {
+            playerImage.src = './image/rightsprite/turnrightsprite.webp';
+        } else if (progress < 0.66) {
+            playerImage.src = './image/rightsprite/steprightsprite.webp';
+        } else {
+            playerImage.src = './image/rightsprite/secsteprightsprite.webp';
+        }
+
+        playerCol = startCol + progress * (newCol - startCol); // Перемещаем игрока
+
+        drawVisibleArea(); // Перерисовываем игровую область
+
+        if (progress < 1) {
+            requestAnimationFrame(step); // Продолжаем анимацию
+        } else {
+            // Завершаем анимацию
+            playerCol = newCol; // Финальное положение игрока
+            recalculateOffsets(); // Обновляем смещение карты
+            animateFogClear(); // Очищаем туман
+
+            // Возвращаем финальный спрайт
+            playerImage.src = './image/downsprite/hohsprite.webp';
+            drawVisibleArea(); // Перерисовываем игровую область после завершения движения
+
+            // Проверяем, есть ли монета в новой позиции
+            if (checkAndCollectCoin(newCol, newRow)) {
+                // Если монета собрана, запускаем мини-игру
+                savePreMiniGameState();
+                launchRandomMiniGame();
+            }
+
+            saveGameState(); // Сохраняем состояние игры
+            isAnimating = false; // Завершаем анимацию
+        }
+    }
+
+    requestAnimationFrame(step); // Начинаем анимацию
+}
+function animateLeft(newCol, newRow) {
+    isAnimating = true;
+    const startCol = playerCol;
+    const duration = 700;
+    const startTime = performance.now();
+
+    function step(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
         if (progress < 0.33) {
             playerImage.src = './image/leftsprite/turnleftsprite.webp';
         } else if (progress < 0.66) {
             playerImage.src = './image/leftsprite/stepleftsprite.webp';
-        } else if (progress < 1) {
+        } else {
             playerImage.src = './image/leftsprite/secstepleftsprite.webp';
         }
 
@@ -597,34 +596,25 @@ function animateLeft(newCol, newRow) {
             recalculateOffsets();
             animateFogClear();
 
-            // Восстанавливаем исходный спрайт после завершения анимации
-            const finalSprite = new Image();
-            finalSprite.src = './image/downsprite/hohsprite.webp';
-            finalSprite.onload = () => {
-                playerImage.src = finalSprite.src;
-                drawVisibleArea(); // Перерисовка области после загрузки спрайта
-            };
-
-            saveGameState();
+            playerImage.src = './image/downsprite/hohsprite.webp';
+            drawVisibleArea();
 
             if (checkAndCollectCoin(newCol, newRow)) {
                 savePreMiniGameState();
                 launchRandomMiniGame();
             }
 
-            if (portal && newCol === portal.x && newRow === portal.y) {
-                showConfirmationBox();
-            }
-
+            saveGameState();
             isAnimating = false;
         }
     }
 
     requestAnimationFrame(step);
 }
+
+
 function animateUp(newCol, newRow) {
     isAnimating = true;
-
     const startRow = playerRow;
     const duration = 700; // Длительность анимации
     const startTime = performance.now();
@@ -633,54 +623,46 @@ function animateUp(newCol, newRow) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
 
-        // Переход между кадрами
+        // Меняем спрайты по ходу движения
         if (progress < 0.33) {
             playerImage.src = './image/upsprite/turnupprite.webp';
         } else if (progress < 0.66) {
             playerImage.src = './image/upsprite/stepupsprite.webp';
-        } else if (progress < 1) {
+        } else {
             playerImage.src = './image/upsprite/secstepupsprite.webp';
         }
 
-        playerRow = startRow + progress * (newRow - startRow);
+        playerRow = startRow + progress * (newRow - startRow); // Перемещаем игрока
 
-        drawVisibleArea();
+        drawVisibleArea(); // Перерисовываем игровую область
 
         if (progress < 1) {
-            requestAnimationFrame(step);
+            requestAnimationFrame(step); // Продолжаем анимацию
         } else {
-            playerRow = newRow;
-            recalculateOffsets();
-            animateFogClear();
+            playerRow = newRow; // Финальное положение игрока
+            recalculateOffsets(); // Обновляем смещение карты
+            animateFogClear(); // Очищаем туман
 
-            // Восстанавливаем исходный спрайт после завершения анимации
-            const finalSprite = new Image();
-            finalSprite.src = './image/downsprite/hohsprite.webp';
-            finalSprite.onload = () => {
-                playerImage.src = finalSprite.src;
-                drawVisibleArea(); // Перерисовка области после загрузки спрайта
-            };
+            playerImage.src = './image/downsprite/hohsprite.webp'; // Возвращаем финальный спрайт
+            drawVisibleArea(); // Перерисовываем игровую область
 
-            saveGameState();
-
+            // Проверяем монету
             if (checkAndCollectCoin(newCol, newRow)) {
                 savePreMiniGameState();
                 launchRandomMiniGame();
             }
 
-            if (portal && newCol === portal.x && newRow === portal.y) {
-                showConfirmationBox();
-            }
-
-            isAnimating = false;
+            saveGameState(); // Сохраняем состояние игры
+            isAnimating = false; // Анимация завершена
         }
     }
 
-    requestAnimationFrame(step);
+    requestAnimationFrame(step); // Запускаем анимацию
 }
+
+
 function animateDown(newCol, newRow) {
     isAnimating = true;
-
     const startRow = playerRow;
     const duration = 700; // Длительность анимации
     const startTime = performance.now();
@@ -689,59 +671,53 @@ function animateDown(newCol, newRow) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
 
-        // Переход между кадрами
-        if (progress < 0.5) { // Первые 50% времени анимации
+        // Меняем спрайты по ходу движения
+        if (progress < 0.5) {
             playerImage.src = './image/downsprite/hohspritemove.webp';
-        } else { // Остальные 50% времени анимации
+        } else {
             playerImage.src = './image/downsprite/hohspritesecmove.webp';
         }
 
-        playerRow = startRow + progress * (newRow - startRow);
+        playerRow = startRow + progress * (newRow - startRow); // Перемещаем игрока
 
-        drawVisibleArea();
+        drawVisibleArea(); // Перерисовываем игровую область
 
         if (progress < 1) {
-            requestAnimationFrame(step);
+            requestAnimationFrame(step); // Продолжаем анимацию
         } else {
-            playerRow = newRow;
-            recalculateOffsets();
-            animateFogClear();
+            playerRow = newRow; // Финальное положение игрока
+            recalculateOffsets(); // Обновляем смещение карты
+            animateFogClear(); // Очищаем туман
 
-            // Восстанавливаем исходный спрайт после завершения анимации
-            const finalSprite = new Image();
-            finalSprite.src = './image/downsprite/hohsprite.webp';
-            finalSprite.onload = () => {
-                playerImage.src = finalSprite.src;
-                drawVisibleArea(); // Перерисовка области после загрузки спрайта
-            };
+            playerImage.src = './image/downsprite/hohsprite.webp'; // Возвращаем финальный спрайт
+            drawVisibleArea(); // Перерисовываем игровую область
 
-            saveGameState();
-
+            // Проверяем монету
             if (checkAndCollectCoin(newCol, newRow)) {
                 savePreMiniGameState();
                 launchRandomMiniGame();
             }
 
-            if (portal && newCol === portal.x && newRow === portal.y) {
-                showConfirmationBox();
-            }
-
-            isAnimating = false;
-
+            saveGameState(); // Сохраняем состояние игры
+            isAnimating = false; // Анимация завершена
         }
     }
 
-    requestAnimationFrame(step);
+    requestAnimationFrame(step); // Запускаем анимацию
 }
+
+
+
 
 function checkAndCollectCoin(x, y) {
     if (world[y][x] === 'coin') {
-        world[y][x] = 0;
-        earnedCoins += 1;
-        saveGameState();
-        return true;
+        world[y][x] = 0; // Удаляем монету
+        globalCoins += 1; // Увеличиваем количество монет
+        updateTokenCount(); // Обновляем отображение монет на странице
+        saveGameState(); // Сохраняем состояние игры
+        return true; // Возвращаем true, если монета была собрана
     }
-    return false;
+    return false; // Возвращаем false, если монеты не было
 }
 
 function saveGameState() {
@@ -801,15 +777,16 @@ function savePreMiniGameState() {
 }
 
 function launchRandomMiniGame() {
-    savePreMiniGameState();
-
     const miniGames = [
         'html/game1.html',
         'html/game2.html',
         'html/game4.html',
         'html/game5.html'
     ];
-    window.location.href = miniGames[Math.floor(Math.random() * miniGames.length)];
+
+    // Выбираем случайную мини-игру
+    const randomGame = miniGames[Math.floor(Math.random() * miniGames.length)];
+    window.location.href = randomGame; // Перенаправляем на выбранную мини-игру
 }
 
 document.addEventListener('DOMContentLoaded', () => {

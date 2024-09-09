@@ -17,11 +17,10 @@ let gameInProgress = false;
 let timerInterval;
 
 document.addEventListener('DOMContentLoaded', () => {
-    const selectedCard = JSON.parse(localStorage.getItem('selectedCard'));
+    const selectedCard = localStorage.getItem('selectedMiniGameBackground');
 
-    if (selectedCard && selectedCard.miniGameBgSrc) {
-        // Применение фона к тегу body
-        document.body.style.backgroundImage = `url("${selectedCard.miniGameBgSrc}")`;
+    if (selectedCard) {
+        document.body.style.backgroundImage = `url("${selectedCard}")`;
         document.body.style.backgroundSize = 'cover';
         document.body.style.backgroundPosition = 'center';
     } else {
