@@ -49,7 +49,22 @@ body {
   height: 40px;
   margin-right: 10px;
 }
-
+#trade-menu {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 9998;
+  text-align: center;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 300px;
+}
 #token-count {
   font-size: 24px;
   color: white;
@@ -261,12 +276,12 @@ canvas {
   display: none; /* По умолчанию скрыт */
 }
 
-
+/*
 .modal-image {
-  pointer-events: none; /* Отключаем клики по картинкам */
-  cursor: not-allowed; /* Изменяем курсор, чтобы показать, что действие не разрешено */
+  pointer-events: none;  Отключаем клики по картинкам 
+  cursor: not-allowed; Изменяем курсор, чтобы показать, что действие не разрешено 
 }
-
+*/
 
 img, button, * {
   outline: none; /* Убираем рамку при фокусе и нажатии */
@@ -274,4 +289,3 @@ img, button, * {
   -webkit-user-select: none; /* Отключаем выделение текста и элементов на мобильных устройствах */
   user-select: none; /* Отключаем выделение элементов */
 }
-
