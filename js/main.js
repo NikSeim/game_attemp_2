@@ -224,21 +224,26 @@ function showTradeMenu() {
     const tradeMenu = document.createElement('div');
     tradeMenu.id = 'trade-menu';
     tradeMenu.innerHTML = `
-        <img src="./image/naperstki.webp" class="modal-image" id="choose-naperstki" alt="Наперстки">
-        <img src="./image/stavki.webp" class="modal-image" id="choose-stavki" alt="Ставки">
-        <button id="cancel-trade" class="small-button cancel-button">Отказаться</button>
-    `;
+    <button id="choose-naperstki" class="modal-button">
+        <img src="./image/naperstki.webp" class="modal-image" alt="Наперстки">
+    </button>
+    <button id="choose-stavki" class="modal-button">
+        <img src="./image/stavki.webp" class="modal-image" alt="Ставки">
+    </button>
+    <button id="cancel-trade" class="small-button cancel-button">Отказаться</button>
+`;
+
     document.body.appendChild(tradeMenu);
 
     // Привязываем обработчики событий после добавления элементов в DOM
     document.getElementById('choose-naperstki').onclick = () => {
         console.log('Наперстки выбраны');
-        window.location.href = '/game_attemp0_2-main123/html/stavki.html';
+        window.location.href = './html/stavki.html';
     };
 
     document.getElementById('choose-stavki').onclick = () => {
         console.log('Ставки выбраны');
-        window.location.href = '/game_attemp0_2-main123/html/naperstki.html';
+        window.location.href = './html/naperstki.html';
     };
 
     document.getElementById('cancel-trade').onclick = () => {
