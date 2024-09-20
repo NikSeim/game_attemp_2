@@ -15,13 +15,16 @@ function loadGameState() {
         playerRow = gameState.playerRow;
         fogState = gameState.fogState;
         world = gameState.world;
-        globalCoins = gameState.globalCoins;
         earnedCoins = gameState.earnedCoins;
         offsetX = gameState.offsetX;
         offsetY = gameState.offsetY;
         steps = gameState.steps || 100;
         trader = gameState.trader;
         isTraderVisible = gameState.isTraderVisible;
+
+        globalCoins = gameState.globalCoins || 0; // Загружаем глобальные монеты
+        document.getElementById('token-count').textContent = globalCoins.toLocaleString(); // Обновляем отображение
+    
 
         // Если торговец был удален, убедимся, что он не отображается
         if (removeTrader === 'true') {
@@ -101,6 +104,7 @@ let steps = 100;
 let portal = null;
 let stepTimer = 5;
 let stepInterval = null;
+let boosterWindow = null; // Глобальная переменная для окна Booster
 
 let fogState = Array.from({ length: mapRows }, () => Array(mapCols).fill(1));
 
@@ -1200,3 +1204,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// Обновляем `localStorage` при изменении количества монет
+function updateGlobalCoins(amount) {
+    globalCoins += amount;
+    localStorage.setItem('globalCoins', globalCoins); // Сохраняем значение в localStorage
+    document.getElementById('token-count').textContent = globalCoins.toLocaleString(); // Обновляем отображение
+}
+
+// Когда страница загружается, считываем количество монет из `localStorage`
+document.addEventListener('DOMContentLoaded', () => {
+    const storedCoins = localStorage.getItem('globalCoins');
+    if (storedCoins !== null) {
+        globalCoins = parseInt(storedCoins, 10); // Восстанавливаем значение монет
+    }
+    updateTokenCount(); // Обновляем отображение
+});

@@ -37,6 +37,7 @@ function showSection(sectionId) {
     }
 }
 
+
 document.addEventListener('DOMContentLoaded', () => {
     const images = document.querySelectorAll('img');
 
@@ -74,3 +75,59 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// booster
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Функция для открытия модального окна
+    function openModal(imageSrc, name1, name2, name3, price) {
+        const modal = document.getElementById('shop-modal'); // Модальное окно
+        const modalImage = document.getElementById('shop-modal-image'); // Изображение
+        const modalTitle = document.getElementById('shop-column1'); // Название
+        const modalDescription = document.getElementById('shop-column2'); // Описание
+        const modalMoreInfo = document.getElementById('shop-column3'); // Доп. описание
+        const modalPrice = document.querySelector('.shop-price'); // Цена
+        const overlay = document.getElementById('overlay'); // Overlay (затемненный фон)
+
+        // Устанавливаем данные в модальное окно
+        modalImage.src = imageSrc;
+        modalTitle.innerText = name1;
+        modalDescription.innerText = name2;
+        modalMoreInfo.innerText = name3;
+        modalPrice.innerText = `Цена: ${price} монет`;
+
+        // Показать overlay и модальное окно
+        overlay.classList.add('active');
+        modal.classList.add('active');
+    }
+
+    
+    function closeModal() {
+        const modal = document.getElementById('shop-modal');
+        const overlay = document.getElementById('overlay');
+
+      
+        modal.classList.remove('active');
+        overlay.classList.remove('active');
+    }
+
+    const sectionButtons = document.querySelectorAll('.menu-item button');
+    sectionButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const menuItem = this.closest('.menu-item');
+            const imageSrc = menuItem.getAttribute('data-image');
+            const name1 = menuItem.getAttribute('data-name1');
+            const name2 = menuItem.getAttribute('data-name2');
+            const name3 = menuItem.getAttribute('data-name3');
+            const price = menuItem.getAttribute('data-price');
+
+            openModal(imageSrc, name1, name2, name3, price);
+        });
+    });
+
+    const overlay = document.getElementById('overlay');
+    overlay.addEventListener('click', closeModal);
+
+    const closeButton = document.querySelector('.shop-close');
+    closeButton.addEventListener('click', closeModal);
+});
