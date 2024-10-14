@@ -108,7 +108,7 @@ const grassImage = loadImage('./image/grace.webp', 'Grass image');
 const fogImage = loadImage('./image/fogg.webp', 'Fog image');
 const playerImage = loadImage('./image/downsprite/hohsprite.webp', 'Player image');
 const portalImage = loadImage('./image/portal.webp', 'Portal image');
-const traderImage = loadImage('./image/trader.webp', 'Trader image');
+
 
 const fogCanvas = document.createElement('canvas');
 fogCanvas.width = mapWidth;
@@ -116,14 +116,8 @@ fogCanvas.height = mapHeight;
 const fogCtx = fogCanvas.getContext('2d');
 document.addEventListener('DOMContentLoaded', () => {
     // Загружаем все необходимые изображения перед отображением карты
-    preloadImages([grassImage, fogImage, playerImage, portalImage, traderImage], () => {
-        const removeTrader = localStorage.getItem('removeTrader');
-        
-        if (removeTrader === 'true') {
-            localStorage.removeItem('removeTrader'); // Убираем флаг из localStorage
-            isTraderVisible = false;
-            trader = null;  // Удаляем торговца
-        }
+    preloadImages([grassImage, fogImage, playerImage, portalImage], () => {
+
 
         loadGameState();  // Загружаем состояние игры
         initInitialVisibility(); // Инициализируем начальную видимость тумана войны
@@ -187,93 +181,14 @@ function hideOverlay() {
     overlay.style.display = 'none';
 }
 
-function hideTrader() {
-    const tradeMenu = document.getElementById('trade-menu');
-    
-    if (tradeMenu) {
-        tradeMenu.style.transition = 'opacity 0.2s ease';
-        tradeMenu.style.opacity = '0';
 
-        setTimeout(() => {
-            tradeMenu.remove();
-            hideOverlay();
-
-            isTraderVisible = false;
-            trader = null;
-
-            // Сохраняем состояние, что торговец был удален
-            localStorage.setItem('removeTrader', 'true');
-            saveGameState(); // Сохраняем текущее состояние игры
-
-            drawVisibleArea();
-        }, 400); 
-    }
-}
 
 
 
 // Функция для отображения меню торговца
-function showTradeMenu() {
-    // Убедимся, что предыдущий элемент меню удален, если он есть
-    const existingMenu = document.getElementById('trade-menu');
-    if (existingMenu) {
-        existingMenu.remove();
-    }
 
-    // Создаем новое меню
-    const tradeMenu = document.createElement('div');
-    tradeMenu.id = 'trade-menu';
-    tradeMenu.innerHTML = `
-    <button id="choose-naperstki" class="modal-button">
-        <img src="./image/naperstki.webp" class="modal-image" alt="Наперстки">
-    </button>
-    <button id="choose-stavki" class="modal-button">
-        <img src="./image/stavki.webp" class="modal-image" alt="Ставки">
-    </button>
-    <button id="cancel-trade" class="small-button cancel-button">Отказаться</button>
-`;
 
-    document.body.appendChild(tradeMenu);
 
-    // Привязываем обработчики событий после добавления элементов в DOM
-    document.getElementById('choose-naperstki').onclick = () => {
-        console.log('Наперстки выбраны');
-        window.location.href = './html/stavki.html';
-    };
-
-    document.getElementById('choose-stavki').onclick = () => {
-        console.log('Ставки выбраны');
-        window.location.href = './html/naperstki.html';
-    };
-
-    document.getElementById('cancel-trade').onclick = () => {
-        console.log('Отказаться нажато');
-        hideTrader();
-    };
-
-    showOverlay();  // Показываем оверлей, когда открывается окно торговца
-}
-
-// Функция для появления торговца рядом с игроком только один раз в начале игры
-function initializeTrader() {
-    if (!trader) {
-        const potentialPositions = [
-            { x: playerCol + 1, y: playerRow }, // Справа
-            { x: playerCol - 1, y: playerRow }, // Слева
-            { x: playerCol, y: playerRow + 1 }, // Внизу
-            { x: playerCol, y: playerRow - 1 }  // Сверху
-        ];
-
-        const validPositions = potentialPositions.filter(pos => 
-            pos.x >= 0 && pos.x < mapCols && pos.y >= 0 && pos.y < mapRows
-        );
-
-        const position = validPositions[Math.floor(Math.random() * validPositions.length)];
-        trader = { x: position.x, y: position.y };
-        isTraderVisible = true;
-    }
-    drawVisibleArea();
-}
 
 // Функция пересчета смещений для центрации игрока на экране
 function recalculateOffsets() {
@@ -333,18 +248,12 @@ function drawMap() {
     ctx.drawImage(playerImage, offsetX + playerCol * tileSize + tileSize / 4, offsetY + playerRow * tileSize + tileSize / 4, tileSize / 2, tileSize / 2);
 }
 
-// Рисуем торговца на карте
-function drawTrader() {
-    if (trader && isTraderVisible && traderImage.complete && traderImage.naturalHeight !== 0) {
-        ctx.drawImage(traderImage, offsetX + trader.x * tileSize, offsetY + trader.y * tileSize, tileSize, tileSize);
-    }
-}
+
 
 // Изменяем функцию drawVisibleArea, чтобы учитывать торговца
 function drawVisibleArea() {
     recalculateOffsets();
     drawMap(); // Отрисовываем карту и все объекты на ней, включая торговца
-    drawTrader(); // Отрисовываем торговца на карте перед туманом
     drawFog(); // Отрисовываем туман поверх карты и торговца
 }
 
@@ -452,10 +361,6 @@ function movePlayer(dx, dy) {
     const newCol = playerCol + dx;
     const newRow = playerRow + dy;
 
-    if (trader && newCol === trader.x && newRow === trader.y) {
-        showTradeMenu(); // Открываем меню торговца
-        return;
-    }
 
     if (newCol >= 0 && newCol < mapCols && newRow >= 0 && newRow < mapRows) {
         if (dx === 1) {
@@ -736,15 +641,13 @@ function saveGameState() {
         offsetX,
         offsetY,
         steps,
-        trader,  // Сохраняем позицию торговца
-        isTraderVisible
     };
     localStorage.setItem('gameState', JSON.stringify(gameState));
 }
 
 function loadGameState() {
     const savedGameState = localStorage.getItem('gameState');
-    const removeTrader = localStorage.getItem('removeTrader');
+
 
     if (savedGameState) {
         const gameState = JSON.parse(savedGameState);
@@ -757,23 +660,16 @@ function loadGameState() {
         offsetX = gameState.offsetX;
         offsetY = gameState.offsetY;
         steps = gameState.steps || 100;
-        trader = gameState.trader;
-        isTraderVisible = gameState.isTraderVisible;
+
 
         // Если торговец был удален, убедимся, что он не отображается
-        if (removeTrader === 'true') {
-            isTraderVisible = false;
-            trader = null;
-        }
+
 
         placePortalNearEdge(); // Размещаем портал на месте игрока после загрузки игры
 
         document.getElementById('step-counter').textContent = `${steps}/100`;
         drawVisibleArea();
-    } else {
-        initializeTrader();
-        placePortalNearEdge(); // Размещаем портал на месте игрока, если игра загружается впервые
-    }
+
 }
 
 
@@ -795,13 +691,7 @@ function launchRandomMiniGame() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const removeTrader = localStorage.getItem('removeTrader');
-    
-    if (removeTrader === 'true') {
-        localStorage.removeItem('removeTrader'); // Убираем флаг из localStorage
-        isTraderVisible = false;
-        trader = null;  // Удаляем торговца
-    }
+
 
     loadGameState();  // Загружаем состояние игры
     placePortalNearEdge(); // Устанавливаем портал
@@ -947,8 +837,7 @@ document.getElementById('new-game').addEventListener('click', () => {
 });
 
 function resetGame() {
-    localStorage.removeItem('gameState');
-    localStorage.removeItem('removeTrader'); // Убираем флаг удаления торговца
+    localStorage.removeItem('gameState');а
 
     playerCol = Math.floor(mapCols / 2);
     playerRow = Math.floor(mapRows / 2);
@@ -960,7 +849,7 @@ function resetGame() {
 
     placePortalNearEdge();
     initInitialVisibility(); // Инициализируем начальную видимость тумана войны
-    initializeTrader();  // Позиция торговца фиксирована на начальном этапе
+ 
     
     drawVisibleArea(); // Обновляем отображение мира
     globalCoins = 0;
