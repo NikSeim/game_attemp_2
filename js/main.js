@@ -7,7 +7,7 @@ let globalCoins = 0;
 
 function loadGameState() {
     const savedGameState = localStorage.getItem('gameState');
-    const removeTrader = localStorage.getItem('removeTrader');
+
 
     if (savedGameState) {
         const gameState = JSON.parse(savedGameState);
@@ -19,24 +19,20 @@ function loadGameState() {
         offsetX = gameState.offsetX;
         offsetY = gameState.offsetY;
         steps = gameState.steps || 100;
-        trader = gameState.trader;
-        isTraderVisible = gameState.isTraderVisible;
+
 
         globalCoins = gameState.globalCoins || 0; // Загружаем глобальные монеты
         document.getElementById('token-count').textContent = globalCoins.toLocaleString(); // Обновляем отображение
     
 
         // Если торговец был удален, убедимся, что он не отображается
-        if (removeTrader === 'true') {
-            isTraderVisible = false;
-            trader = null;
-        }
+        
 
         document.getElementById('step-counter').textContent = `${steps}/100`;
         drawVisibleArea();
-    } else {
-        initializeTrader();
-    }
+
+
+        
 }
 
 // Функция для сохранения текущего состояния игры в localStorage
